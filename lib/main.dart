@@ -24,7 +24,7 @@ class Testpage extends StatelessWidget {
     return StandardPageWidget(
       appBarTitle: 'Nebilim',
       child: Text(
-        'Test Text. Hier sehe ich, wie groß der text ist',
+        'Test. Hier sehe ich, wie groß der text ist',
         style: Theme.of(context).textTheme.subtitle1,
       ),
     );
