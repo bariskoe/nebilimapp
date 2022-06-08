@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../ui/constants/constants.dart';
+import '../ui/ui_constants/ui_constants.dart';
 
 class StandardPageWidget extends StatelessWidget {
   final Widget child;

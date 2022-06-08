@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nebilimapp/custom_widgets/standard_page_widget.dart';
+import 'package:nebilimapp/pages/single_quiz_page.dart';
 import 'package:nebilimapp/ui/themes/themes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -14,9 +15,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: Themes.greentheme(),
-      home: Testpage(),
+      home: const SingleQuizPage(),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -27,21 +29,6 @@ class MyApp extends StatelessWidget {
         Locale('en', ''),
         Locale('de', ''),
       ],
-    );
-  }
-}
-
-class Testpage extends StatelessWidget {
-  const Testpage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return StandardPageWidget(
-      appBarTitle: 'Nebilim',
-      child: Text(
-        'Test. Hier sehe ich, wie groß der text ist',
-        style: Theme.of(context).textTheme.subtitle1,
-      ),
     );
   }
 }
