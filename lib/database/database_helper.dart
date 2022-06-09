@@ -2,15 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/models/question_insertion_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:csv/csv.dart';
 
-class DatabaseHelperGerman {
-  DatabaseHelperGerman._privateConstructor();
-  static final DatabaseHelperGerman instance =
-      DatabaseHelperGerman._privateConstructor();
+class DatabaseHelper {
+  DatabaseHelper._privateConstructor();
+  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;
   Future<Database> get database async => _database ??= await _initDatabase();
@@ -19,16 +21,26 @@ class DatabaseHelperGerman {
   ///Fields of the QuestionTable ----------------------------------------------
   static const String questionTableName = 'questionTable';
   static const String questionTableFieldId = 'questionId';
-  static const String questionTableFieldQuestionText = 'questionText';
-  static const String questionTableFieldAnswerText = 'answerText';
-  static const String questionTableFieldAdditionalInfo = 'additionalInfo';
-  static const String questionTableFieldMainWordPosition = 'mainWordPosition';
   static const String questionTableFieldDifficulty = 'difficulty';
   static const String questionTableFieldCategory = 'category';
   static const String questionTableFieldImageName = 'imageName';
   static const String questionTableFieldImageEnding = 'imageEnding';
   static const String questionTableFieldMusicName = 'musicName';
   static const String questionTableFieldMusicEnding = 'musicEnding';
+  static const String questionTableFieldQuestionTextGerman =
+      'questionTextGerman';
+  static const String questionTableFieldAnswerTextGerman = 'answerTextGerman';
+  static const String questionTableFieldAdditionalInfoGerman =
+      'additionalInfoGerman';
+  static const String questionTableFieldMainWordPositionGerman =
+      'mainWordPositionGerman';
+  static const String questionTableFieldQuestionTextEnglish =
+      'questionTextEnglish';
+  static const String questionTableFieldAnswerTextEnglish = 'answerTextEnglish';
+  static const String questionTableFieldAdditionalInfoEnglish =
+      'additionalInfoEnglish';
+  static const String questionTableFieldMainWordPositionEnglish =
+      'mainWordPositionEnglish';
 
   ///Fields of the QuestionStatusTable --------------------------------------------------
   static const String questionStatusTableName = 'questionStatusTable';
@@ -53,16 +65,16 @@ class DatabaseHelperGerman {
     await db.execute('''
       CREATE TABLE $questionTableName(
           $questionTableFieldId INTEGER NOT NUll,
-          $questionTableFieldQuestionText TEXT NOT NULL,
-          $questionTableFieldAnswerText TEXT NOT NULL,
-          $questionTableFieldAdditionalInfo TEXT,
-          $questionTableFieldMainWordPosition INTEGER NOT NULL,
           $questionTableFieldDifficulty INTEGER NOT NULL,
           $questionTableFieldCategory INTEGER NOT NULL,
           $questionTableFieldImageName TEXT,
           $questionTableFieldImageEnding INTEGER,
           $questionTableFieldMusicName TEXT,
           $questionTableFieldMusicEnding TEXT
+          $questionTableFieldQuestionTextGerman TEXT NOT NULL,
+          $questionTableFieldAnswerTextGerman TEXT NOT NULL,
+          $questionTableFieldAdditionalInfoGerman TEXT,
+          $questionTableFieldMainWordPositionGerman INTEGER NOT NULL,
 
 
 
@@ -76,6 +88,9 @@ class DatabaseHelperGerman {
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId) ON DELETE CASCADE
       );
       ''');
+    print('Sollte jetzt ausführen');
+    await fillDatabaseIfnecessary();
+    getAllQuestions();
   }
 
   Future<Database> _initDatabase() async {
@@ -89,11 +104,42 @@ class DatabaseHelperGerman {
     );
   }
 
+  static Future<void> fillDatabaseIfnecessary() async {
+    final _rawData = await rootBundle
+        .loadString("assets/Aktive Fragen Flutter - Sheet2.csv");
+    List<List<dynamic>> _listData =
+        const CsvToListConverter().convert(_rawData);
+
+    ///Remove headline rows
+    _listData.removeAt(0);
+    _listData.removeAt(0);
+
+    _listData.removeWhere((element) => element.isEmpty);
+    // final firstRow = _listData[0];
+    // final emptystringOrNull = firstRow[7];
+    //Logger().d(_listData);
+    // print(_listData);
+    for (List list in _listData) {
+      final model = QuestionInsertionModel.fromList(list);
+      await insertQuestionToQuestionTable(model);
+    }
+  }
+
   static Future<int> insertQuestionToQuestionTable(
-    QuestionModel questionModel,
+    QuestionInsertionModel questionInsertionModel,
   ) async {
     Database db = await instance.database;
     return await db.insert(
-        questionTableName, todoListModel.toMapForInsertNewListIntoDatabase());
+      questionTableName,
+      questionInsertionModel.toMap(),
+    );
+  }
+
+  //static Future<List<dynamic>>
+  getAllQuestions() async {
+    Database db = await instance.database;
+    List<Map> allQuestions =
+        await db.rawQuery('SELECT * FROM $questionTableName');
+    print(allQuestions);
   }
 }

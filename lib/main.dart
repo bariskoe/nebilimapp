@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nebilimapp/custom_widgets/standard_page_widget.dart';
+import 'package:nebilimapp/database/database_helper.dart';
 import 'package:nebilimapp/pages/single_quiz_page.dart';
 import 'package:nebilimapp/ui/themes/themes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
