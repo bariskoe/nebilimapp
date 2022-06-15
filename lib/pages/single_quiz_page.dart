@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'package:nebilimapp/ui/standard_widgets/standard_ui_widgets.dart';
-
-import '../custom_widgets/standard_page_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../custom_widgets/standard_page_widget.dart';
+import '../database/database_helper.dart';
+import '../ui/standard_widgets/standard_ui_widgets.dart';
 import '../ui/ui_constants/ui_constants.dart';
 
 class SingleQuizPage extends StatelessWidget {
@@ -12,7 +11,8 @@ class SingleQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    DatabaseHelper.fillDatabaseIfnecessary();
+    //DatabaseHelper.getAllQuestions();
     return StandardPageWidget(
         appBarTitle: AppLocalizations.of(context)!.appTitle,
         child: Padding(
@@ -73,8 +73,8 @@ class QuestionContainer extends StatelessWidget {
           child: Column(
             children: [
               Row(
-                children: [
-                  const Expanded(
+                children: const [
+                  Expanded(
                     child: QuestionHeadlineWidget(child: Text('Kategorie')),
                   ),
                   Expanded(
@@ -84,12 +84,12 @@ class QuestionContainer extends StatelessWidget {
               ),
               Expanded(
                   child: Container(
-                      padding: EdgeInsets.all(UiConstantsPadding.regular),
-                      child: Center(
+                      padding: const EdgeInsets.all(UiConstantsPadding.regular),
+                      child: const Center(
                           child: Text(
                               'Was ist die Hauptstadt von Deutschland?')))),
               Row(
-                children: [
+                children: const [
                   Expanded(child: QuestionHeadlineWidget(child: Text('Weg'))),
                   Expanded(child: QuestionHeadlineWidget(child: Text('Play'))),
                   Expanded(
@@ -135,13 +135,13 @@ class AnswerContainer extends StatelessWidget {
           height: height * 0.2,
           child: Column(
             children: [
-              QuestionHeadlineWidget(child: Text('Antwort')),
+              const QuestionHeadlineWidget(child: Text('Antwort')),
               Center(
                 child: AnimatedContainer(
                     color: Colors.red,
                     height: 30,
-                    duration: Duration(seconds: 1),
-                    child: Text('Berlin')),
+                    duration: const Duration(seconds: 1),
+                    child: const Text('Berlin')),
               ),
             ],
           )),

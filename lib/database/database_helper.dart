@@ -1,14 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:csv/csv.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/models/question_insertion_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:synchronized/synchronized.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:csv/csv.dart';
+
+import '../dependency_injection.dart';
+import '../domain/failures/failures.dart';
+import '../domain/usecases/sharedprefs_usecases.dart';
+import '../infrastructure/datasources/shared_prefs_datasource_impl.dart';
+import '../models/question_insertion_model.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
@@ -16,46 +21,48 @@ class DatabaseHelper {
 
   static Database? _database;
   Future<Database> get database async => _database ??= await _initDatabase();
-  static const String databaseName = 'germanQuestionDatabase.db';
+  static const String databaseName = 'question_database.db';
 
   ///Fields of the QuestionTable ----------------------------------------------
-  static const String questionTableName = 'questionTable';
-  static const String questionTableFieldId = 'questionId';
+  static const String questionTableName = 'question_table';
+  static const String questionTableFieldId = 'question_id';
   static const String questionTableFieldDifficulty = 'difficulty';
   static const String questionTableFieldCategory = 'category';
-  static const String questionTableFieldImageName = 'imageName';
-  static const String questionTableFieldImageEnding = 'imageEnding';
-  static const String questionTableFieldMusicName = 'musicName';
-  static const String questionTableFieldMusicEnding = 'musicEnding';
+  static const String questionTableFieldImageName = 'image_name';
+  static const String questionTableFieldImageEnding = 'image_ending';
+  static const String questionTableFieldMusicName = 'music_name';
+  static const String questionTableFieldMusicEnding = 'music_ending';
   static const String questionTableFieldQuestionTextGerman =
-      'questionTextGerman';
-  static const String questionTableFieldAnswerTextGerman = 'answerTextGerman';
+      'question_text_german';
+  static const String questionTableFieldAnswerTextGerman = 'answer_text_german';
   static const String questionTableFieldAdditionalInfoGerman =
-      'additionalInfoGerman';
+      'additional_info_german';
   static const String questionTableFieldMainWordPositionGerman =
-      'mainWordPositionGerman';
+      'main_word_position_german';
   static const String questionTableFieldQuestionTextEnglish =
-      'questionTextEnglish';
-  static const String questionTableFieldAnswerTextEnglish = 'answerTextEnglish';
+      'question_text_english';
+  static const String questionTableFieldAnswerTextEnglish =
+      'answer_text_english';
   static const String questionTableFieldAdditionalInfoEnglish =
-      'additionalInfoEnglish';
+      'additional_info_english';
   static const String questionTableFieldMainWordPositionEnglish =
-      'mainWordPositionEnglish';
+      'main_word_position_english';
 
   ///Fields of the QuestionStatusTable --------------------------------------------------
-  static const String questionStatusTableName = 'questionStatusTable';
+  static const String questionStatusTableName = 'question_status_table';
 
   /// Primary key
-  static const String questionStatusTableFieldId = 'questionStatusId';
+  static const String questionStatusTableFieldId = 'question_status_id';
 
   /// Foreign key
-  static const String questionStatusTableFieldQuestionID = 'questionId';
+  static const String questionStatusTableFieldQuestionID = 'questionid_fk';
 
   /// i.e saved, blocked,
   static const String questionStatusTableFieldStatus = 'status';
 
   /// In Millisecondssinceepoch
-  static const String questionStatusTableFieldLastTimeAsked = 'lastTimeAsked ';
+  static const String questionStatusTableFieldLastTimeAsked =
+      'last_time_asked ';
 
   Future onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
@@ -64,19 +71,21 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE $questionTableName(
-          $questionTableFieldId INTEGER NOT NUll,
+          $questionTableFieldId INTEGER PRIMARY KEY UNIQUE,
           $questionTableFieldDifficulty INTEGER NOT NULL,
           $questionTableFieldCategory INTEGER NOT NULL,
           $questionTableFieldImageName TEXT,
           $questionTableFieldImageEnding INTEGER,
           $questionTableFieldMusicName TEXT,
-          $questionTableFieldMusicEnding TEXT
+          $questionTableFieldMusicEnding TEXT,
           $questionTableFieldQuestionTextGerman TEXT NOT NULL,
           $questionTableFieldAnswerTextGerman TEXT NOT NULL,
           $questionTableFieldAdditionalInfoGerman TEXT,
           $questionTableFieldMainWordPositionGerman INTEGER NOT NULL,
-
-
+          $questionTableFieldQuestionTextEnglish  TEXT NOT NULL,
+          $questionTableFieldAnswerTextEnglish TEXT NOT NULL,
+          $questionTableFieldAdditionalInfoEnglish TEXT,
+          $questionTableFieldMainWordPositionEnglish INTEGER NOT NULL
 
       );
       ''');
@@ -85,12 +94,10 @@ class DatabaseHelper {
           $questionStatusTableFieldId  INTEGER PRIMARY KEY AUTOINCREMENT,
           $questionStatusTableFieldStatus INTEGER,
           $questionStatusTableFieldLastTimeAsked INTEGER,
-          FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId) ON DELETE CASCADE
+          $questionStatusTableFieldQuestionID INTEGER,
+          FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
       ''');
-    print('Sollte jetzt ausführen');
-    await fillDatabaseIfnecessary();
-    getAllQuestions();
   }
 
   Future<Database> _initDatabase() async {
@@ -101,28 +108,62 @@ class DatabaseHelper {
       version: 1,
       onConfigure: onConfigure,
       onCreate: _onCreate,
+      //onOpen: (database){}
     );
   }
 
   static Future<void> fillDatabaseIfnecessary() async {
-    final _rawData = await rootBundle
+    final rawData = await rootBundle
         .loadString("assets/Aktive Fragen Flutter - Sheet2.csv");
-    List<List<dynamic>> _listData =
-        const CsvToListConverter().convert(_rawData);
+    List<List<dynamic>> listData = const CsvToListConverter().convert(rawData);
+
+    int currentDatabaseLength = listData.length;
 
     ///Remove headline rows
-    _listData.removeAt(0);
-    _listData.removeAt(0);
+    listData.removeAt(0);
+    listData.removeAt(0);
 
-    _listData.removeWhere((element) => element.isEmpty);
-    // final firstRow = _listData[0];
-    // final emptystringOrNull = firstRow[7];
-    //Logger().d(_listData);
-    // print(_listData);
-    for (List list in _listData) {
-      final model = QuestionInsertionModel.fromList(list);
-      await insertQuestionToQuestionTable(model);
+    listData.removeWhere((element) => element.isEmpty);
+    listData.removeWhere((element) => element.first == '');
+
+    fillList() async {
+      for (List list in listData) {
+        final model = QuestionInsertionModel.fromList(list);
+        await insertQuestionToQuestionTable(model);
+      }
     }
+
+    Either<Failure, int> failureOrOldDatabaseLength =
+        await getIt<SharedPrefsUsecases>().getIntFromSharedprefs(
+            key: SharedPrefsDatasourceImpl.numberOfQuestionsInDatabase);
+    failureOrOldDatabaseLength.fold(
+      (failure) {
+        if (failure is SharedPrefsKeyDoesNotExistFailure) {
+          fillList();
+          getIt<SharedPrefsUsecases>().saveIntInSharedprefs(
+            key: SharedPrefsDatasourceImpl.numberOfQuestionsInDatabase,
+            integerToSave: currentDatabaseLength,
+          );
+          Logger().d('no key was present. filled list from scratch');
+        } else {
+          Logger().d('Other failure: ${failure.toString()}');
+        }
+      },
+      (oldDatabaseLength) async {
+        if (currentDatabaseLength != oldDatabaseLength) {
+          getIt<SharedPrefsUsecases>().saveIntInSharedprefs(
+            key: SharedPrefsDatasourceImpl.numberOfQuestionsInDatabase,
+            integerToSave: currentDatabaseLength,
+          );
+
+          await deleteAllQuestions();
+          //await deleteQuestionById(1);
+          await fillList();
+
+          getAllQuestions();
+        }
+      },
+    );
   }
 
   static Future<int> insertQuestionToQuestionTable(
@@ -135,11 +176,24 @@ class DatabaseHelper {
     );
   }
 
-  //static Future<List<dynamic>>
-  getAllQuestions() async {
+  static getAllQuestions() async {
     Database db = await instance.database;
     List<Map> allQuestions =
         await db.rawQuery('SELECT * FROM $questionTableName');
-    print(allQuestions);
+
+    Logger().d('First Question in list: ${allQuestions.first}');
+    Logger().d('Last Question in list: ${allQuestions.last}');
+  }
+
+  static Future<int> deleteAllQuestions() async {
+    Database db = await instance.database;
+    int count = await db.delete(questionTableName);
+    return count;
+  }
+
+  static Future<int> deleteQuestionById(int id) async {
+    Database db = await instance.database;
+    return await db.rawDelete(
+        'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
   }
 }

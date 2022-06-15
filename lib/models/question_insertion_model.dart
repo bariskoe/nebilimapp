@@ -1,46 +1,24 @@
 import 'package:equatable/equatable.dart';
-import 'package:nebilimapp/database/database_helper.dart';
+import '../database/database_helper.dart';
 
 class QuestionInsertionModel extends Equatable {
-  // static const String questionTableName = 'questionTable';
-  // static const String questionId = 'questionId';
-  // static const String questionDifficulty = 'difficulty';
-  // static const String questionCategory = 'category';
-  // static const String questionImageName = 'imageName';
-  // static const String questionImageEnding = 'imageEnding';
-  // static const String questionMusicName = 'musicName';
-  // static const String questionMusicEnding = 'musicEnding';
-  // static const String questionQuestionTextGerman = 'questionTextGerman';
-  // static const String questionTableFieldAnswerTextGerman = 'answerTextGerman';
-  // static const String questionTableFieldAdditionalInfoGerman =
-  //     'additionalInfoGerman';
-  // static const String questionTableFieldMainWordPositionGerman =
-  //     'mainWordPositionGerman';
-  // static const String questionTableFieldQuestionTextEnglish =
-  //     'questionTextEnglish';
-  // static const String questionTableFieldAnswerTextEnglish = 'answerTextEnglish';
-  // static const String questionTableFieldAdditionalInfoEnglish =
-  //     'additionalInfoEnglish';
-  // static const String questionTableFieldMainWordPositionEnglish =
-  //     'mainWordPositionEnglish';
-
-  int questionId;
-  int questionDifficulty;
-  int questionCategory;
-  String questionImageName;
-  String questionImageEnding;
-  String questionMusicName;
+  final int questionId;
+  final int questionDifficulty;
+  final int questionCategory;
+  final String questionImageName;
+  final String questionImageEnding;
+  final String questionMusicName;
   //TODO: A respective extension is needed for musicEnding
-  String questionMusicEnding;
-  String questionTextGerman;
-  String questionAnswerTextGerman;
-  String questionAdditionalInfoGerman;
-  int questionMainWordPositionGerman;
-  String questionTextEnglish;
-  String questionAnswerTextEnglish;
-  String questionAdditionalInfoEnglish;
-  int questionMainWordPositionEnglish;
-  QuestionInsertionModel({
+  final String questionMusicEnding;
+  final String questionTextGerman;
+  final String questionAnswerTextGerman;
+  final String questionAdditionalInfoGerman;
+  final int questionMainWordPositionGerman;
+  final String questionTextEnglish;
+  final String questionAnswerTextEnglish;
+  final String questionAdditionalInfoEnglish;
+  final int questionMainWordPositionEnglish;
+  const QuestionInsertionModel({
     required this.questionId,
     required this.questionDifficulty,
     required this.questionCategory,
@@ -59,6 +37,10 @@ class QuestionInsertionModel extends Equatable {
   });
 
   factory QuestionInsertionModel.fromList(List<dynamic> questionAsList) {
+    /// One row in the csv file represents one question. A row is represented
+    /// by a list. Example:
+    /// [1, 3, 1, , , , , In welchem Jahr fiel die Berliner Mauer?, 1989, ,
+    /// 0, In which year did the Berlin wall fall?, 1989, , 0, , ]
     return QuestionInsertionModel(
       questionId: questionAsList[0],
       questionDifficulty: questionAsList[1],

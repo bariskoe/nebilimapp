@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nebilimapp/custom_widgets/standard_page_widget.dart';
-import 'package:nebilimapp/database/database_helper.dart';
-import 'package:nebilimapp/pages/single_quiz_page.dart';
-import 'package:nebilimapp/ui/themes/themes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nebilimapp/dependency_injection.dart' as di;
 
-void main() {
+import 'pages/single_quiz_page.dart';
+import 'ui/themes/themes.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await di.setupDependencyInjectionWithGetIt();
   runApp(const MyApp());
 }
 
