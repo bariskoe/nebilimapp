@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/domain/entities/question_entity.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -201,5 +202,16 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.rawDelete(
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
+  }
+
+  static Future<QuestionEntity> getRandomQuestion() async {
+    Database db = await instance.database;
+    List<Map<String, dynamic>> list = await db.rawQuery(
+        'SELECT * FROM $questionTableName ORDER BY RANDOM() LIMIT 1;');
+    Logger().d(list);
+
+    final model = QuestionEntity.fromMap(map: list.first).toModel();
+
+    return model;
   }
 }

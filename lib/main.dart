@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nebilimapp/bloc/bloc/data_preparation_bloc.dart';
-import 'package:nebilimapp/dependency_injection.dart' as di;
-import 'package:nebilimapp/pages/data_preparation_page.dart';
-import 'package:nebilimapp/routing.dart';
+import 'package:nebilimapp/bloc/question_bloc/bloc/question_bloc.dart';
 
+import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
+import 'dependency_injection.dart' as di;
 import 'dependency_injection.dart';
-import 'pages/single_quiz_page.dart';
+import 'pages/data_preparation_page.dart';
+import 'routing.dart';
 import 'ui/themes/themes.dart';
 
 void main() async {
@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => getIt<DataPreparationBloc>()),
+        BlocProvider(create: (context) => getIt<QuestionBloc>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

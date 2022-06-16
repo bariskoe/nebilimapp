@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
+import 'package:nebilimapp/bloc/question_bloc/bloc/question_bloc.dart';
+import 'package:nebilimapp/dependency_injection.dart';
 
 import '../custom_widgets/standard_page_widget.dart';
 import '../database/database_helper.dart';
@@ -11,30 +16,57 @@ class SingleQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // DatabaseHelper.updateQuestionDatabaseIfNecessary();
+    //  DatabaseHelper.getRandomQuestion();
+    getIt<QuestionBloc>().add(QuestionEventGetRandomQuestion());
+    String currentLocale = Intl.getCurrentLocale();
+    Logger().d('currentlocale is $currentLocale');
+    return BlocBuilder<QuestionBloc, QuestionState>(
+      builder: (context, state) {
+        print('state ist $state');
+        return StandardPageWidget(
+            appBarTitle: AppLocalizations.of(context)!.appTitle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: UiConstantsPadding.xxlarge),
+              child: state is QuestionStateLoaded
+                  ? QuestionLoadedWidget(
+                      state: state,
+                    )
+                  : Container(
+                      child: Text('error'),
+                    ),
+            ));
+      },
+    );
+  }
+}
 
-    return StandardPageWidget(
-        appBarTitle: AppLocalizations.of(context)!.appTitle,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: UiConstantsPadding.xxlarge),
-          child: Column(
-            children: const [
-              SizedBox(
-                height: UiConstantsPadding.xlarge,
-              ),
-              QuestionImageContainer(),
-              SizedBox(
-                height: UiConstantsPadding.xlarge,
-              ),
-              QuestionContainer(),
-              SizedBox(
-                height: UiConstantsPadding.xlarge,
-              ),
-              AnswerContainer(),
-            ],
-          ),
-        ));
+class QuestionLoadedWidget extends StatelessWidget {
+  final QuestionStateLoaded state;
+
+  const QuestionLoadedWidget({
+    Key? key,
+    required this.state,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: UiConstantsPadding.xlarge,
+        ),
+        QuestionImageContainer(),
+        const SizedBox(
+          height: UiConstantsPadding.xlarge,
+        ),
+        QuestionContainer(questionText: state.questionModel.questionText),
+        const SizedBox(
+          height: UiConstantsPadding.xlarge,
+        ),
+        AnswerContainer(answerText: state.questionModel.questionAnswerText),
+      ],
+    );
   }
 }
 
@@ -56,7 +88,11 @@ class QuestionImageContainer extends StatelessWidget {
 }
 
 class QuestionContainer extends StatelessWidget {
-  const QuestionContainer({Key? key}) : super(key: key);
+  final String questionText;
+  const QuestionContainer({
+    Key? key,
+    required this.questionText,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +121,7 @@ class QuestionContainer extends StatelessWidget {
               Expanded(
                   child: Container(
                       padding: const EdgeInsets.all(UiConstantsPadding.regular),
-                      child: const Center(
-                          child: Text(
-                              'Was ist die Hauptstadt von Deutschland?')))),
+                      child: Center(child: Text(questionText)))),
               Row(
                 children: const [
                   Expanded(child: QuestionHeadlineWidget(child: Text('Weg'))),
@@ -122,7 +156,8 @@ class QuestionHeadlineWidget extends StatelessWidget {
 }
 
 class AnswerContainer extends StatelessWidget {
-  const AnswerContainer({Key? key}) : super(key: key);
+  final String answerText;
+  const AnswerContainer({Key? key, required this.answerText}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -134,6 +169,7 @@ class AnswerContainer extends StatelessWidget {
           decoration: StandardUiWidgets.standardBoxDecoration(context: context),
           height: height * 0.2,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const QuestionHeadlineWidget(child: Text('Antwort')),
               Center(
@@ -141,8 +177,9 @@ class AnswerContainer extends StatelessWidget {
                     color: Colors.red,
                     height: 30,
                     duration: const Duration(seconds: 1),
-                    child: const Text('Berlin')),
+                    child: Text(answerText)),
               ),
+              Container()
             ],
           )),
     );
