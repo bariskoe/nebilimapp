@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nebilimapp/bloc/bloc/data_preparation_bloc.dart';
 import 'package:nebilimapp/dependency_injection.dart' as di;
+import 'package:nebilimapp/pages/data_preparation_page.dart';
+import 'package:nebilimapp/routing.dart';
 
+import 'dependency_injection.dart';
 import 'pages/single_quiz_page.dart';
 import 'ui/themes/themes.dart';
 
@@ -17,21 +22,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: Themes.greentheme(),
-      home: const SingleQuizPage(),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => getIt<DataPreparationBloc>()),
       ],
-      supportedLocales: const [
-        Locale('en', ''),
-        Locale('de', ''),
-      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Nebilim Quiz App',
+        theme: Themes.greentheme(),
+        home: const DataPreparationPage(),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('de', ''),
+        ],
+        routes: Routing.routes,
+      ),
     );
   }
 }

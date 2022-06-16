@@ -1,1 +1,3 @@
-abstract class LocalSqliteDataSource {}
+abstract class LocalSqliteDataSource {
+  Future<bool> updateQuestionDatabaseIfNeccessary();
+}

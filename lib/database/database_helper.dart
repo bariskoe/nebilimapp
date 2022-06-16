@@ -112,7 +112,7 @@ class DatabaseHelper {
     );
   }
 
-  static Future<void> fillDatabaseIfnecessary() async {
+  static Future<bool> updateQuestionDatabaseIfNecessary() async {
     final rawData = await rootBundle
         .loadString("assets/Aktive Fragen Flutter - Sheet2.csv");
     List<List<dynamic>> listData = const CsvToListConverter().convert(rawData);
@@ -145,8 +145,10 @@ class DatabaseHelper {
             integerToSave: currentDatabaseLength,
           );
           Logger().d('no key was present. filled list from scratch');
+          return true;
         } else {
           Logger().d('Other failure: ${failure.toString()}');
+          return false;
         }
       },
       (oldDatabaseLength) async {
@@ -157,13 +159,17 @@ class DatabaseHelper {
           );
 
           await deleteAllQuestions();
-          //await deleteQuestionById(1);
+
           await fillList();
+          Logger().d('CSV file has changed. Updated QuestionDatabase.');
 
           getAllQuestions();
+          return true;
         }
+        return false;
       },
     );
+    return true;
   }
 
   static Future<int> insertQuestionToQuestionTable(

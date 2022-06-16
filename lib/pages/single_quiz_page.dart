@@ -11,8 +11,8 @@ class SingleQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DatabaseHelper.fillDatabaseIfnecessary();
-    //DatabaseHelper.getAllQuestions();
+    // DatabaseHelper.updateQuestionDatabaseIfNecessary();
+
     return StandardPageWidget(
         appBarTitle: AppLocalizations.of(context)!.appTitle,
         child: Padding(
