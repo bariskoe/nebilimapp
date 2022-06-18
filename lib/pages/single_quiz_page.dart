@@ -3,27 +3,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/bloc/question_bloc/bloc/question_bloc.dart';
-import 'package:nebilimapp/dependency_injection.dart';
+import 'package:nebilimapp/models/question_model.dart';
 
+import '../bloc/question_bloc/bloc/question_bloc.dart';
+import '../constants/assets.dart';
 import '../custom_widgets/standard_page_widget.dart';
-import '../database/database_helper.dart';
+import '../dependency_injection.dart';
 import '../ui/standard_widgets/standard_ui_widgets.dart';
 import '../ui/ui_constants/ui_constants.dart';
+import '../models/question_insertion_model.dart';
 
 class SingleQuizPage extends StatelessWidget {
   const SingleQuizPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    //  DatabaseHelper.getRandomQuestion();
     getIt<QuestionBloc>().add(QuestionEventGetRandomQuestion());
     String currentLocale = Intl.getCurrentLocale();
     Logger().d('currentlocale is $currentLocale');
     return BlocBuilder<QuestionBloc, QuestionState>(
       builder: (context, state) {
-        print('state ist $state');
         return StandardPageWidget(
+            willPop: false,
             appBarTitle: AppLocalizations.of(context)!.appTitle,
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -60,7 +61,7 @@ class QuestionLoadedWidget extends StatelessWidget {
         const SizedBox(
           height: UiConstantsPadding.xlarge,
         ),
-        QuestionContainer(questionText: state.questionModel.questionText),
+        QuestionContainer(questionModel: state.questionModel),
         const SizedBox(
           height: UiConstantsPadding.xlarge,
         ),
@@ -71,27 +72,46 @@ class QuestionLoadedWidget extends StatelessWidget {
 }
 
 class QuestionImageContainer extends StatelessWidget {
-  const QuestionImageContainer({Key? key}) : super(key: key);
+  const QuestionImageContainer({
+    Key? key,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return Container(
-      height: height * 0.25,
-      width: double.infinity,
-      decoration: StandardUiWidgets.standardBoxDecoration(context: context),
-      child: const Icon(
-        Icons.abc_outlined,
-        color: Colors.red,
-      ),
+    return BlocBuilder<QuestionBloc, QuestionState>(
+      builder: (context, state) {
+        return Container(
+          height: height * 0.25,
+          width: double.infinity,
+          decoration: StandardUiWidgets.standardBoxDecoration(context: context),
+          child: (state is QuestionStateLoaded)
+              ? _buildImage(questionStateLoaded: state)
+              : const Icon(
+                  Icons.abc_outlined,
+                  color: Colors.red,
+                ),
+        );
+      },
     );
   }
 }
 
+_buildImage({required QuestionStateLoaded questionStateLoaded}) {
+  if (questionStateLoaded.questionModel.hasImage) {
+    return Image.asset(
+
+        ///Todo: Make the extension work to make this more beautiful
+        "assets/${questionStateLoaded.questionModel.questionImageName}.${questionStateLoaded.questionModel.questionImageEnding.toString().split('.').last}");
+  } else {
+    return Image.asset(Assets.resourceFragezeichen);
+  }
+}
+
 class QuestionContainer extends StatelessWidget {
-  final String questionText;
+  final QuestionModel questionModel;
   const QuestionContainer({
     Key? key,
-    required this.questionText,
+    required this.questionModel,
   }) : super(key: key);
 
   @override
@@ -109,23 +129,62 @@ class QuestionContainer extends StatelessWidget {
           child: Column(
             children: [
               Row(
-                children: const [
+                children: [
                   Expanded(
-                    child: QuestionHeadlineWidget(child: Text('Kategorie')),
+                    child: QuestionHeadlineWidget(
+                      child: Icon(
+                          QuestionCategoryExtension.deserialize(
+                                  questionModel.questionCategory)
+                              .getCategoryIcon(),
+                          color: Theme.of(context).colorScheme.onSecondary),
+                    ),
                   ),
                   Expanded(
-                    child: QuestionHeadlineWidget(child: Text('Schwierigkeit')),
+                    child: QuestionHeadlineWidget(
+                        child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.fitness_center,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                        Text('${questionModel.questionDifficulty}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline3!
+                                .copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary)),
+                      ],
+                    )),
                   ),
                 ],
               ),
               Expanded(
-                  child: Container(
-                      padding: const EdgeInsets.all(UiConstantsPadding.regular),
-                      child: Center(child: Text(questionText)))),
+                child: Container(
+                  padding: const EdgeInsets.all(UiConstantsPadding.regular),
+                  child: Center(
+                    child: Text(
+                      questionModel.questionText,
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                  ),
+                ),
+              ),
               Row(
-                children: const [
+                children: [
                   Expanded(child: QuestionHeadlineWidget(child: Text('Weg'))),
-                  Expanded(child: QuestionHeadlineWidget(child: Text('Play'))),
+                  Expanded(
+                      child: QuestionHeadlineWidget(
+                          child: IconButton(
+                    onPressed: () {
+                      getIt<QuestionBloc>()
+                          .add(QuestionEventGetRandomQuestion());
+                    },
+                    icon: Icon(Icons.play_arrow),
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  ))),
                   Expanded(
                       child: QuestionHeadlineWidget(child: Text('Speichern'))),
                 ],
@@ -144,6 +203,7 @@ class QuestionHeadlineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: UiConstantsSize.regular,
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.secondary,
@@ -177,7 +237,10 @@ class AnswerContainer extends StatelessWidget {
                     color: Colors.red,
                     height: 30,
                     duration: const Duration(seconds: 1),
-                    child: Text(answerText)),
+                    child: Text(
+                      answerText,
+                      style: Theme.of(context).textTheme.bodyText1,
+                    )),
               ),
               Container()
             ],

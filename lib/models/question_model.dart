@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:nebilimapp/domain/entities/question_entity.dart';
 import 'package:nebilimapp/models/question_insertion_model.dart';
 
@@ -43,4 +44,6 @@ class QuestionModel extends QuestionEntity with EquatableMixin {
         questionAdditionalInfo,
         questionMainWordPosition,
       ];
+
+  bool get hasImage => questionImageName.isNotEmpty;
 }

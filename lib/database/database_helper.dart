@@ -114,8 +114,8 @@ class DatabaseHelper {
   }
 
   static Future<bool> updateQuestionDatabaseIfNecessary() async {
-    final rawData = await rootBundle
-        .loadString("assets/Aktive Fragen Flutter - Sheet2.csv");
+    final rawData =
+        await rootBundle.loadString("assets/Aktive_Fragen_Flutter_Sheet2.csv");
     List<List<dynamic>> listData = const CsvToListConverter().convert(rawData);
 
     int currentDatabaseLength = listData.length;

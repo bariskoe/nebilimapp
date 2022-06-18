@@ -8,12 +8,13 @@ class Themes {
         headline1: TextStyle(
             fontSize: 36, fontWeight: FontWeight.bold, fontFamily: fontFamiliy),
         headline2: TextStyle(
-            fontSize: 72.0,
+            fontSize: 22.0,
             fontStyle: FontStyle.italic,
             fontFamily: fontFamiliy),
-        bodyText2: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
+        headline3: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
         bodyText1: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
-        subtitle1: TextStyle(fontSize: 12.0, fontFamily: fontFamiliy));
+        bodyText2: TextStyle(fontSize: 24.0, fontFamily: fontFamiliy),
+        subtitle1: TextStyle(fontSize: 14.0, fontFamily: fontFamiliy));
   }
 
   static ThemeData greentheme() {

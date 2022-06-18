@@ -10,7 +10,7 @@ abstract class QuestionState extends Equatable {
 class QuestionInitial extends QuestionState {}
 
 class QuestionStateLoaded extends QuestionState {
-  final QuestionEntity questionModel;
+  final QuestionModel questionModel;
 
   const QuestionStateLoaded({
     required this.questionModel,

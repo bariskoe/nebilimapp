@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 
 class QuestionInsertionModel extends Equatable {
@@ -129,6 +130,40 @@ extension QuestionCategoryExtension on QuestionCategory {
     const categories = QuestionCategory.values;
     return categories[serializedCategory];
   }
+
+  IconData getCategoryIcon() {
+    switch (this) {
+      case QuestionCategory.history:
+        return Icons.hourglass_empty;
+
+      case QuestionCategory.geography:
+        return Icons.public;
+
+      case QuestionCategory.science:
+        return Icons.science;
+
+      case QuestionCategory.sports:
+        return Icons.sports_tennis_outlined;
+
+      case QuestionCategory.medicine:
+        return Icons.medical_services_outlined;
+
+      case QuestionCategory.literature:
+        return Icons.menu_book;
+
+      case QuestionCategory.celebrities:
+        return Icons.camera_alt_outlined;
+
+      case QuestionCategory.food:
+        return Icons.fastfood;
+
+      case QuestionCategory.music:
+        return Icons.queue_music_rounded;
+
+      case QuestionCategory.arts:
+        return Icons.palette;
+    }
+  }
 }
 
 enum QuestionImageEnding { jpg }
@@ -136,6 +171,13 @@ enum QuestionImageEnding { jpg }
 extension QuestionImageEndingExtension on QuestionImageEnding {
   int serialize() {
     return QuestionImageEnding.values.indexOf(this);
+  }
+
+  String getname() {
+    switch (this) {
+      case QuestionImageEnding.jpg:
+        return 'jpg';
+    }
   }
 
   static QuestionImageEnding deserialize(int serialzedQuestionImageEnding) {
