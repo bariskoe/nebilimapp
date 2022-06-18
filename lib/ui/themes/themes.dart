@@ -6,7 +6,7 @@ class Themes {
 
     return const TextTheme(
         headline1: TextStyle(
-            fontSize: 36, fontWeight: FontWeight.bold, fontFamily: fontFamiliy),
+            fontSize: 24, fontWeight: FontWeight.bold, fontFamily: fontFamiliy),
         headline2: TextStyle(
             fontSize: 22.0,
             fontStyle: FontStyle.italic,

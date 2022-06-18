@@ -186,7 +186,11 @@ class QuestionContainer extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSecondary,
                   ))),
                   Expanded(
-                      child: QuestionHeadlineWidget(child: Text('Speichern'))),
+                      child: QuestionHeadlineWidget(
+                          child: Text(
+                    'Speichern',
+                    style: TextStyle(fontFamily: 'Cherry Swash'),
+                  ))),
                 ],
               )
             ],

@@ -1,14 +1,13 @@
 class Assets {
   Assets._();
-
+  
   /// Assets for resourceAhornsamen
   /// assets/ahornsamen.jpg
   static const String resourceAhornsamen = "assets/ahornsamen.jpg";
 
   /// Assets for resourceAktiveFragenFlutterSheet2
   /// assets/Aktive_Fragen_Flutter_Sheet2.csv
-  static const String resourceAktiveFragenFlutterSheet2 =
-      "assets/Aktive_Fragen_Flutter_Sheet2.csv";
+  static const String resourceAktiveFragenFlutterSheet2 = "assets/Aktive_Fragen_Flutter_Sheet2.csv";
 
   /// Assets for resourceAthen1
   /// assets/athen1.jpg
@@ -20,8 +19,7 @@ class Assets {
 
   /// Assets for resourceBudapestparlament
   /// assets/budapestparlament.jpg
-  static const String resourceBudapestparlament =
-      "assets/budapestparlament.jpg";
+  static const String resourceBudapestparlament = "assets/budapestparlament.jpg";
 
   /// Assets for resourceBulgarien1
   /// assets/bulgarien1.jpg
@@ -33,17 +31,11 @@ class Assets {
 
   /// Assets for resourceFontsCherrySwashBold
   /// assets/fonts/CherrySwash-Bold.ttf
-  static const String resourceFontsCherrySwashBold =
-      "assets/fonts/CherrySwash-Bold.ttf";
+  static const String resourceFontsCherrySwashBold = "assets/fonts/CherrySwash-Bold.ttf";
 
   /// Assets for resourceFontsCherrySwashRegular
   /// assets/fonts/CherrySwash-Regular.ttf
-  static const String resourceFontsCherrySwashRegular =
-      "assets/fonts/CherrySwash-Regular.ttf";
-
-  /// Assets for resourceFontsOFL
-  /// assets/fonts/OFL.txt
-  static const String resourceFontsOFL = "assets/fonts/OFL.txt";
+  static const String resourceFontsCherrySwashRegular = "assets/fonts/CherrySwash-Regular.ttf";
 
   /// Assets for resourceFragezeichen
   /// assets/fragezeichen.jpg
@@ -79,8 +71,7 @@ class Assets {
 
   /// Assets for resourceSchlossJohannisburg1
   /// assets/schloss_johannisburg1.jpg
-  static const String resourceSchlossJohannisburg1 =
-      "assets/schloss_johannisburg1.jpg";
+  static const String resourceSchlossJohannisburg1 = "assets/schloss_johannisburg1.jpg";
 
   /// Assets for resourceSuedamerika1
   /// assets/suedamerika1.jpg
