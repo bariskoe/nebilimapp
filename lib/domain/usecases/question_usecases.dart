@@ -1,8 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:nebilimapp/domain/entities/question_entity.dart';
-import 'package:nebilimapp/domain/failures/failures.dart';
-import 'package:nebilimapp/domain/repositories/question_repository.dart';
-import 'package:nebilimapp/models/question_model.dart';
+
+import '../../models/question_status_model.dart';
+import '../entities/question_entity.dart';
+import '../failures/failures.dart';
+import '../repositories/question_repository.dart';
 
 class QuestionUsecases {
   final QuestionRepository questionRepository;
@@ -13,5 +14,11 @@ class QuestionUsecases {
 
   Future<Either<Failure, QuestionEntity>> getRandomQuestion() async {
     return await questionRepository.getRandomQuestion();
+  }
+
+  Future<Either<Failure, int>> updateQuestionStatus(
+      {required QuestionStatusModel questionStatusModel}) async {
+    return await questionRepository.updateQuestionStatus(
+        questionStatusModel: questionStatusModel);
   }
 }

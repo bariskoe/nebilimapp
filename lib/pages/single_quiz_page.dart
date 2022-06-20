@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/models/question_model.dart';
+import 'package:nebilimapp/domain/entities/question_status_entity.dart';
+import 'package:nebilimapp/models/question_status_model.dart';
+import '../models/question_model.dart';
 
 import '../bloc/question_bloc/bloc/question_bloc.dart';
 import '../constants/assets.dart';
@@ -33,9 +35,7 @@ class SingleQuizPage extends StatelessWidget {
                   ? QuestionLoadedWidget(
                       state: state,
                     )
-                  : Container(
-                      child: Text('error'),
-                    ),
+                  : const Text('error'),
             ));
       },
     );
@@ -57,7 +57,7 @@ class QuestionLoadedWidget extends StatelessWidget {
         const SizedBox(
           height: UiConstantsPadding.xlarge,
         ),
-        QuestionImageContainer(),
+        const QuestionImageContainer(),
         const SizedBox(
           height: UiConstantsPadding.xlarge,
         ),
@@ -174,7 +174,13 @@ class QuestionContainer extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Expanded(child: QuestionHeadlineWidget(child: Text('Weg'))),
+                  Expanded(
+                      child: QuestionHeadlineWidget(
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  )),
                   Expanded(
                       child: QuestionHeadlineWidget(
                           child: IconButton(
@@ -182,15 +188,29 @@ class QuestionContainer extends StatelessWidget {
                       getIt<QuestionBloc>()
                           .add(QuestionEventGetRandomQuestion());
                     },
-                    icon: Icon(Icons.play_arrow),
+                    icon: const Icon(Icons.play_arrow),
                     color: Theme.of(context).colorScheme.onSecondary,
                   ))),
                   Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        //TODO lasttimeasked should be inserted by the databaseHelper
+                        QuestionStatusModel questionStatusModel =
+                            QuestionStatusModel(
+                                questionId: questionModel.questionId,
+                                questionStatus: QuestionStatus.favorited,
+                                lastTimeAsked: DateTime.now());
+                        getIt<QuestionBloc>().add(QuestionEventUpdateStatus(
+                            questionStatusModel: questionStatusModel));
+                      },
                       child: QuestionHeadlineWidget(
-                          child: Text(
-                    'Speichern',
-                    style: TextStyle(fontFamily: 'Cherry Swash'),
-                  ))),
+                        child: Icon(
+                          Icons.favorite_border,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               )
             ],

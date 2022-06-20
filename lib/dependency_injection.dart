@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
-import 'package:nebilimapp/bloc/question_bloc/bloc/question_bloc.dart';
-import 'package:nebilimapp/domain/repositories/question_repository.dart';
-import 'package:nebilimapp/domain/usecases/question_usecases.dart';
-import 'package:nebilimapp/infrastructure/repositories/question_repository_impl.dart';
+import 'bloc/question_bloc/bloc/question_bloc.dart';
+import 'domain/repositories/question_repository.dart';
+import 'domain/usecases/question_usecases.dart';
+import 'infrastructure/repositories/question_repository_impl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';

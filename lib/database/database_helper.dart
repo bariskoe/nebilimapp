@@ -5,7 +5,9 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/domain/entities/question_entity.dart';
+import 'package:nebilimapp/domain/entities/question_status_entity.dart';
+import 'package:nebilimapp/models/question_status_model.dart';
+import '../domain/entities/question_entity.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -109,7 +111,6 @@ class DatabaseHelper {
       version: 1,
       onConfigure: onConfigure,
       onCreate: _onCreate,
-      //onOpen: (database){}
     );
   }
 
@@ -192,6 +193,15 @@ class DatabaseHelper {
     Logger().d('Last Question in list: ${allQuestions.last}');
   }
 
+  static getAllQuestionStatuses() async {
+    Database db = await instance.database;
+    List<Map> allQuestionStatuses =
+        await db.rawQuery('SELECT * FROM $questionStatusTableName');
+    Logger().d('allQuestionStatuses is ${allQuestionStatuses}');
+    // Logger().d('First Question in list: ${allQuestionStatuses.first}');
+    // Logger().d('Last Question in list: ${allQuestionStatuses.last}');
+  }
+
   static Future<int> deleteAllQuestions() async {
     Database db = await instance.database;
     int count = await db.delete(questionTableName);
@@ -213,5 +223,46 @@ class DatabaseHelper {
     final model = QuestionEntity.fromMap(map: list.first).toModel();
 
     return model;
+  }
+
+  static Future<int> insertStatusToQuestionStatusTable(
+      {required QuestionStatusModel questionStatusModel}) async {
+    QuestionStatusEntity entity = QuestionStatusEntity.fromModel(
+      questionStatusModel: questionStatusModel,
+    );
+    Database db = await instance.database;
+    return await db.insert(
+      questionStatusTableName,
+      entity.toMap(),
+    );
+  }
+
+  static Future<bool> checkIfStatusExists({required int questionId}) async {
+    Database db = await instance.database;
+    final list = await db.rawQuery(
+        'SELECT 1 FROM $questionStatusTableName WHERE $questionStatusTableFieldQuestionID = ?',
+        [questionId]);
+    Logger().d('list von id $questionId in checkIfStatusExists  ist $list');
+    Logger().d('status existiert? ${list.isNotEmpty}');
+    return list.isNotEmpty;
+  }
+
+  static Future updateQuestionStatus(
+      {required QuestionStatusModel questionStatusModel}) async {
+    QuestionStatusEntity entity = QuestionStatusEntity.fromModel(
+      questionStatusModel: questionStatusModel,
+    );
+    Database db = await instance.database;
+    final bool exists =
+        await checkIfStatusExists(questionId: entity.questionId);
+    Logger().d('exists von id in updateQuestionStatus  ist $exists');
+    if (exists) {
+      //final success = await db.rawUpdate(sql)
+
+    } else {
+      final inserted = await insertStatusToQuestionStatusTable(
+          questionStatusModel: questionStatusModel);
+    }
+    getAllQuestionStatuses();
   }
 }

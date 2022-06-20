@@ -1,7 +1,7 @@
-import 'package:nebilimapp/domain/failures/failures.dart';
+import '../../domain/failures/failures.dart';
 
 import 'package:dartz/dartz.dart';
-import 'package:nebilimapp/infrastructure/datasources/local_sqlite_datasource.dart';
+import '../datasources/local_sqlite_datasource.dart';
 
 import '../../domain/repositories/data_preparation_repository.dart';
 

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:nebilimapp/domain/entities/question_entity.dart';
-import 'package:nebilimapp/models/question_insertion_model.dart';
+
+import '../domain/entities/question_entity.dart';
+import 'question_insertion_model.dart';
 
 class QuestionModel extends QuestionEntity with EquatableMixin {
   QuestionModel({

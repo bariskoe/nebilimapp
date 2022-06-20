@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nebilimapp/bloc/question_bloc/bloc/question_bloc.dart';
+import 'bloc/question_bloc/bloc/question_bloc.dart';
 
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import 'dependency_injection.dart' as di;

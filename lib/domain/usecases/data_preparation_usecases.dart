@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:nebilimapp/domain/failures/failures.dart';
-import 'package:nebilimapp/domain/repositories/data_preparation_repository.dart';
+import '../failures/failures.dart';
+import '../repositories/data_preparation_repository.dart';
 
 class DataPreparationUsecases {
   DataPreparationRepository dataPreparationRepository;

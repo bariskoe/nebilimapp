@@ -8,3 +8,16 @@ abstract class QuestionEvent extends Equatable {
 }
 
 class QuestionEventGetRandomQuestion extends QuestionEvent {}
+
+class QuestionEventUpdateStatus extends QuestionEvent {
+  final QuestionStatusModel questionStatusModel;
+
+  const QuestionEventUpdateStatus({
+    required this.questionStatusModel,
+  });
+
+  @override
+  List<Object> get props => [
+        questionStatusModel,
+      ];
+}

@@ -1,5 +1,5 @@
-import 'package:nebilimapp/infrastructure/datasources/shared_prefs_datasource.dart';
-import 'package:nebilimapp/infrastructure/exceptions/exceptions.dart';
+import 'shared_prefs_datasource.dart';
+import '../exceptions/exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefsDatasourceImpl implements SharedPrefsDatasource {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nebilimapp/pages/data_preparation_page.dart';
-import 'package:nebilimapp/pages/single_quiz_page.dart';
+import 'pages/data_preparation_page.dart';
+import 'pages/single_quiz_page.dart';
 
 class Routing {
   static String get dataPreparationPage => '/dataPreparationPage';

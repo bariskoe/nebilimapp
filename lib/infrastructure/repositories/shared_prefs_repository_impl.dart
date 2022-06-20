@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/domain/failures/failures.dart';
+import '../../domain/failures/failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:nebilimapp/domain/repositories/shared_prefs_repository.dart';
-import 'package:nebilimapp/infrastructure/datasources/shared_prefs_datasource.dart';
-import 'package:nebilimapp/infrastructure/exceptions/exceptions.dart';
+import '../../domain/repositories/shared_prefs_repository.dart';
+import '../datasources/shared_prefs_datasource.dart';
+import '../exceptions/exceptions.dart';
 
 class SharedPrefsRepositoryImpl implements SharePrefsRepository {
   SharedPrefsDatasource sharedPrefsDatasource;
