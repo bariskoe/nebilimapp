@@ -1,6 +1,5 @@
-import 'package:nebilimapp/models/question_status_model.dart';
-
-import '../../domain/entities/question_entity.dart';
+import '../../models/question_model.dart';
+import '../../models/question_status_model.dart';
 
 abstract class LocalSqliteDataSource {
   /// Checks if the asset assets/Aktive Fragen Flutter - Sheet2.csv has
@@ -9,8 +8,12 @@ abstract class LocalSqliteDataSource {
   /// database will be filled again with the new data
   Future<bool> updateQuestionDatabaseIfNeccessary();
 
-  /// Choses a random question from the database and returns a [QuestionEntity].
-  Future<QuestionEntity> getRandomQuestion();
+  /// Choses a random question from the database and returns a [QuestionModel].
+  Future<QuestionModel> getRandomQuestion();
+
+  /// Returns a [QuestionModel] which hold the data of the question with the
+  /// provided [questionId]
+  Future<QuestionModel> getQuestionById({required int questionId});
 
   /// Inserts an entry to [questionStatusTable] if no entry with the [QuestionId]
   /// exists. Updates the [QuestionStatus] in the [questionStatusTable] if an entry
@@ -18,4 +21,8 @@ abstract class LocalSqliteDataSource {
   Future<int> updateQuestionStatus({
     required QuestionStatusModel questionStatusModel,
   });
+
+  /// Toggles the Favorite Status of a question if a status exists. Sets it
+  /// as [Questionstatus.favorited] if no [QuestionStatus exists]
+  Future<int> toggleFavoriteStatus({required int questionId});
 }

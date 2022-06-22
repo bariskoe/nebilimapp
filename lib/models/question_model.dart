@@ -1,34 +1,36 @@
 import 'package:equatable/equatable.dart';
 
-import '../domain/entities/question_entity.dart';
 import 'question_insertion_model.dart';
+import 'question_status_model.dart';
 
-class QuestionModel extends QuestionEntity with EquatableMixin {
+class QuestionModel with EquatableMixin {
+  int questionId;
+  int questionDifficulty;
+  QuestionCategory questionCategory;
+  String questionText;
+  String questionAnswerText;
+  String questionAdditionalInfo;
+  int questionMainWordPosition;
+  String? questionImageName;
+  QuestionImageEnding? questionImageEnding;
+  String? questionMusicName;
+  String? questionMusicEnding;
+  QuestionStatusModel? questionStatusModel;
+
   QuestionModel({
-    required int questionId,
-    required int questionDifficulty,
-    required int questionCategory,
-    required String questionImageName,
-    required QuestionImageEnding? questionImageEnding,
-    required String questionMusicName,
-    required String questionMusicEnding,
-    required String questionText,
-    required String questionAnswerText,
-    required String questionAdditionalInfo,
-    required int questionMainWordPosition,
-  }) : super(
-          questionId: questionId,
-          questionDifficulty: questionDifficulty,
-          questionCategory: questionCategory,
-          questionImageName: questionImageName,
-          questionImageEnding: questionImageEnding,
-          questionMusicName: questionMusicName,
-          questionMusicEnding: questionMusicEnding,
-          questionText: questionText,
-          questionAnswerText: questionAnswerText,
-          questionAdditionalInfo: questionAdditionalInfo,
-          questionMainWordPosition: questionMainWordPosition,
-        );
+    required this.questionId,
+    required this.questionDifficulty,
+    required this.questionCategory,
+    required this.questionText,
+    required this.questionAnswerText,
+    required this.questionAdditionalInfo,
+    required this.questionMainWordPosition,
+    this.questionImageName,
+    this.questionImageEnding,
+    this.questionMusicName,
+    this.questionMusicEnding,
+    this.questionStatusModel,
+  });
 
   @override
   List<Object?> get props => [
@@ -45,5 +47,5 @@ class QuestionModel extends QuestionEntity with EquatableMixin {
         questionMainWordPosition,
       ];
 
-  bool get hasImage => questionImageName.isNotEmpty;
+  bool get hasImage => (questionImageName != null) && (questionImageName != '');
 }

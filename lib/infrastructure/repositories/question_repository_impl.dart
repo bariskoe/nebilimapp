@@ -1,9 +1,10 @@
-import 'package:nebilimapp/models/question_status_model.dart';
+import 'package:dartz/dartz.dart';
+import 'package:logger/logger.dart';
 
 import '../../domain/failures/failures.dart';
-import '../../domain/entities/question_entity.dart';
-import 'package:dartz/dartz.dart';
 import '../../domain/repositories/question_repository.dart';
+import '../../models/question_model.dart';
+import '../../models/question_status_model.dart';
 import '../datasources/local_sqlite_datasource.dart';
 
 class QuestionRepositoryImpl implements QuestionRepository {
@@ -14,11 +15,27 @@ class QuestionRepositoryImpl implements QuestionRepository {
   });
 
   @override
-  Future<Either<Failure, QuestionEntity>> getRandomQuestion() async {
+  Future<Either<Failure, QuestionModel>> getRandomQuestion() async {
     try {
       final model = await localSqliteDataSource.getRandomQuestion();
       return Right(model);
     } catch (e) {
+      Logger().e(
+          'Error in QuestionRepositoryImpl getRandomQuestion: ${e.toString()}');
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, QuestionModel>> getQuestionById(
+      {required int questionId}) async {
+    try {
+      final model =
+          await localSqliteDataSource.getQuestionById(questionId: questionId);
+      return Right(model);
+    } catch (e) {
+      Logger().e(
+          'Error in QuestionRepositoryImpl getQuestionById: ${e.toString()}');
       return Left(DatabaseFailure());
     }
   }
@@ -34,6 +51,18 @@ class QuestionRepositoryImpl implements QuestionRepository {
       return Left(
         DatabaseFailure(),
       );
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> toggleFavoriteStatus(
+      {required int questionId}) async {
+    try {
+      final success = await localSqliteDataSource.toggleFavoriteStatus(
+          questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
     }
   }
 }

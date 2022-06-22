@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-
 import '../database/database_helper.dart';
 
 class QuestionInsertionModel extends Equatable {
@@ -181,7 +180,11 @@ extension QuestionImageEndingExtension on QuestionImageEnding {
     }
   }
 
-  static QuestionImageEnding deserialize(int serialzedQuestionImageEnding) {
-    return QuestionImageEnding.values[serialzedQuestionImageEnding];
+  static QuestionImageEnding? deserialize(int? serialzedQuestionImageEnding) {
+    if (serialzedQuestionImageEnding == null) {
+      return null;
+    } else {
+      return QuestionImageEnding.values[serialzedQuestionImageEnding];
+    }
   }
 }

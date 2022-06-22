@@ -1,18 +1,19 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:logger/logger.dart';
-import 'package:nebilimapp/models/question_status_model.dart';
-import '../../../domain/entities/question_entity.dart';
+
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/question_usecases.dart';
 import '../../../models/question_model.dart';
+import '../../../models/question_status_model.dart';
 
 part 'question_event.dart';
 part 'question_state.dart';
 
 class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   QuestionUsecases questionUsecases;
+
+  int? currentQuestionId;
 
   QuestionBloc({
     required this.questionUsecases,
@@ -22,20 +23,45 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     // });
 
     on<QuestionEventGetRandomQuestion>((event, emit) async {
-      Logger().d('QuestionEventGetRandomQuestio eingelangt');
-      Either<Failure, QuestionEntity> failureOrQuestionModel =
+      Either<Failure, QuestionModel> failureOrQuestionModel =
           await questionUsecases.getRandomQuestion();
 
       failureOrQuestionModel.fold((l) {
         emit(QuestionStateError());
-      }, (r) => emit(QuestionStateLoaded(questionModel: r.toModel())));
+      }, (r) {
+        emit(QuestionStateLoaded(questionModel: r));
+        currentQuestionId = r.questionId;
+      });
     });
 
-    on<QuestionEventUpdateStatus>((event, emit) async {
-      Either<Failure, int> updated =
-          await questionUsecases.updateQuestionStatus(
-        questionStatusModel: event.questionStatusModel,
-      );
+    // on<QuestionEventUpdateStatus>((event, emit) async {
+    //   Either<Failure, int> updated =
+    //       await questionUsecases.updateQuestionStatus(
+    //     questionStatusModel: event.questionStatusModel,
+    //   );
+    // });
+
+    on<QuestionEventToggleFavoriteStatus>((event, emit) async {
+      if (currentQuestionId != null) {
+        Either<Failure, int> toggled = await questionUsecases
+            .toggleFavoriteStatus(questionId: event.questionId);
+        toggled.fold((l) => emit(QuestionStateError()), (r) {
+          add(QuestionEventGetQuestionById(questionId: event.questionId));
+        });
+      }
+    });
+
+    on<QuestionEventGetQuestionById>((event, emit) async {
+      emit(QuestionStateLoading());
+      Either<Failure, QuestionModel> failureOrQuestionModel =
+          await questionUsecases.getQuestionById(questionId: event.questionId);
+
+      failureOrQuestionModel.fold((l) {
+        emit(QuestionStateError());
+      }, (r) {
+        emit(QuestionStateLoaded(questionModel: r));
+        currentQuestionId = r.questionId;
+      });
     });
   }
 }

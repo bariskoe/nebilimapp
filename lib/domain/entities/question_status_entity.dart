@@ -22,13 +22,17 @@ class QuestionStatusEntity {
             questionStatusModel.lastTimeAsked?.millisecondsSinceEpoch);
   }
 
-  factory QuestionStatusEntity.fromMap(Map<String, dynamic> map) {
-    return QuestionStatusEntity(
-      questionId: map[DatabaseHelper.questionStatusTableFieldQuestionID],
-      questionStatusAsInt: map[DatabaseHelper.questionStatusTableFieldStatus],
-      lastTimeAskedAsInt:
-          map[DatabaseHelper.questionStatusTableFieldLastTimeAsked],
-    );
+  static QuestionStatusEntity? fromMap(Map<String, dynamic>? map) {
+    if (map == null) {
+      return null;
+    } else {
+      return QuestionStatusEntity(
+        questionId: map[DatabaseHelper.questionStatusTableFieldQuestionID],
+        questionStatusAsInt: map[DatabaseHelper.questionStatusTableFieldStatus],
+        lastTimeAskedAsInt:
+            map[DatabaseHelper.questionStatusTableFieldLastTimeAsked],
+      );
+    }
   }
 
   QuestionStatusModel toModel() {
@@ -64,4 +68,8 @@ extension QuestionStatusExtension on QuestionStatus {
   static QuestionStatus deserialize({required int serializedQuestionStatus}) {
     return QuestionStatus.values[serializedQuestionStatus];
   }
+
+  bool get isFavorited => this == QuestionStatus.favorited;
+  bool get isUnmarked => this == QuestionStatus.unmarked;
+  bool get isDontAskagain => this == QuestionStatus.dontAskAgain;
 }

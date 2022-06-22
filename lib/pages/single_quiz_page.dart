@@ -3,17 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/domain/entities/question_status_entity.dart';
-import 'package:nebilimapp/models/question_status_model.dart';
-import '../models/question_model.dart';
 
 import '../bloc/question_bloc/bloc/question_bloc.dart';
 import '../constants/assets.dart';
 import '../custom_widgets/standard_page_widget.dart';
 import '../dependency_injection.dart';
+import '../domain/entities/question_status_entity.dart';
+import '../models/question_insertion_model.dart';
+import '../models/question_model.dart';
 import '../ui/standard_widgets/standard_ui_widgets.dart';
 import '../ui/ui_constants/ui_constants.dart';
-import '../models/question_insertion_model.dart';
 
 class SingleQuizPage extends StatelessWidget {
   const SingleQuizPage({Key? key}) : super(key: key);
@@ -97,6 +96,7 @@ class QuestionImageContainer extends StatelessWidget {
 }
 
 _buildImage({required QuestionStateLoaded questionStateLoaded}) {
+  Logger().d('hasimage ist ${questionStateLoaded.questionModel.hasImage}');
   if (questionStateLoaded.questionModel.hasImage) {
     return Image.asset(
 
@@ -116,6 +116,7 @@ class QuestionContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Logger().d('Neuer build findet statt');
     final height = MediaQuery.of(context).size.height;
     return ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(
@@ -133,9 +134,7 @@ class QuestionContainer extends StatelessWidget {
                   Expanded(
                     child: QuestionHeadlineWidget(
                       child: Icon(
-                          QuestionCategoryExtension.deserialize(
-                                  questionModel.questionCategory)
-                              .getCategoryIcon(),
+                          questionModel.questionCategory.getCategoryIcon(),
                           color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
@@ -195,19 +194,32 @@ class QuestionContainer extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () {
                         //TODO lasttimeasked should be inserted by the databaseHelper
-                        QuestionStatusModel questionStatusModel =
-                            QuestionStatusModel(
-                                questionId: questionModel.questionId,
-                                questionStatus: QuestionStatus.favorited,
-                                lastTimeAsked: DateTime.now());
-                        getIt<QuestionBloc>().add(QuestionEventUpdateStatus(
-                            questionStatusModel: questionStatusModel));
+
+                        getIt<QuestionBloc>().add(
+                            QuestionEventToggleFavoriteStatus(
+                                questionId: questionModel.questionId));
                       },
                       child: QuestionHeadlineWidget(
-                        child: Icon(
-                          Icons.favorite_border,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
+                        child: questionModel.questionStatusModel == null
+                            ? Icon(
+                                Icons.favorite_border,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
+                              )
+                            : questionModel.questionStatusModel!.questionStatus
+                                    .isFavorited
+                                ? Icon(
+                                    Icons.favorite,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary,
+                                  )
+                                : Icon(
+                                    Icons.favorite_border,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary,
+                                  ),
                       ),
                     ),
                   ),

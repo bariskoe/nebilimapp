@@ -23,3 +23,5 @@ class QuestionStateLoaded extends QuestionState {
 }
 
 class QuestionStateError extends QuestionState {}
+
+class QuestionStateLoading extends QuestionState {}

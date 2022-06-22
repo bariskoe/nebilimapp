@@ -21,3 +21,22 @@ class QuestionEventUpdateStatus extends QuestionEvent {
         questionStatusModel,
       ];
 }
+
+class QuestionEventToggleFavoriteStatus extends QuestionEvent {
+  final int questionId;
+  const QuestionEventToggleFavoriteStatus({required this.questionId});
+
+  @override
+  List<Object> get props => [
+        questionId,
+      ];
+}
+
+class QuestionEventGetQuestionById extends QuestionEvent {
+  final int questionId;
+  const QuestionEventGetQuestionById({required this.questionId});
+  @override
+  List<Object> get props => [
+        questionId,
+      ];
+}

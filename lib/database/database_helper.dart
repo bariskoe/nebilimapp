@@ -5,8 +5,8 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/domain/entities/question_status_entity.dart';
-import 'package:nebilimapp/models/question_status_model.dart';
+import '../domain/entities/question_status_entity.dart';
+import '../models/question_status_model.dart';
 import '../domain/entities/question_entity.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,6 +17,7 @@ import '../domain/failures/failures.dart';
 import '../domain/usecases/sharedprefs_usecases.dart';
 import '../infrastructure/datasources/shared_prefs_datasource_impl.dart';
 import '../models/question_insertion_model.dart';
+import '../models/question_model.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
@@ -197,9 +198,7 @@ class DatabaseHelper {
     Database db = await instance.database;
     List<Map> allQuestionStatuses =
         await db.rawQuery('SELECT * FROM $questionStatusTableName');
-    Logger().d('allQuestionStatuses is ${allQuestionStatuses}');
-    // Logger().d('First Question in list: ${allQuestionStatuses.first}');
-    // Logger().d('Last Question in list: ${allQuestionStatuses.last}');
+    Logger().d('allQuestionStatuses is $allQuestionStatuses');
   }
 
   static Future<int> deleteAllQuestions() async {
@@ -214,14 +213,34 @@ class DatabaseHelper {
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
   }
 
-  static Future<QuestionEntity> getRandomQuestion() async {
+  static Future<QuestionModel> getRandomQuestion() async {
     Database db = await instance.database;
     List<Map<String, dynamic>> list = await db.rawQuery(
         'SELECT * FROM $questionTableName ORDER BY RANDOM() LIMIT 1;');
-    Logger().d(list);
 
-    final model = QuestionEntity.fromMap(map: list.first).toModel();
+    final questionStatusMap = await getQuestionStatusById(
+        questionId: list.first[DatabaseHelper.questionTableFieldId]);
 
+    final model = QuestionEntity.fromMap(
+            questionMap: list.first, questionStatusMap: questionStatusMap)
+        .toModel();
+
+    return model;
+  }
+
+  static Future<QuestionModel> getQuestionById(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    List<Map<String, dynamic>> list = await db.rawQuery(
+        'SELECT * FROM $questionTableName WHERE $questionTableFieldId = ?',
+        [questionId]);
+
+    final questionStatusMap = await getQuestionStatusById(
+        questionId: list.first[DatabaseHelper.questionTableFieldId]);
+
+    final model = QuestionEntity.fromMap(
+            questionMap: list.first, questionStatusMap: questionStatusMap)
+        .toModel();
     return model;
   }
 
@@ -240,14 +259,23 @@ class DatabaseHelper {
   static Future<bool> checkIfStatusExists({required int questionId}) async {
     Database db = await instance.database;
     final list = await db.rawQuery(
-        'SELECT 1 FROM $questionStatusTableName WHERE $questionStatusTableFieldQuestionID = ?',
+        'SELECT * FROM $questionStatusTableName WHERE $questionStatusTableFieldQuestionID = ?',
         [questionId]);
-    Logger().d('list von id $questionId in checkIfStatusExists  ist $list');
-    Logger().d('status existiert? ${list.isNotEmpty}');
+
     return list.isNotEmpty;
   }
 
-  static Future updateQuestionStatus(
+  static Future<Map<String, dynamic>?> getQuestionStatusById(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    final list = await db.rawQuery(
+        'SELECT * FROM $questionStatusTableName WHERE $questionStatusTableFieldQuestionID = ?',
+        [questionId]);
+
+    return list.isEmpty ? null : list.first;
+  }
+
+  static Future<int> updateQuestionStatus(
       {required QuestionStatusModel questionStatusModel}) async {
     QuestionStatusEntity entity = QuestionStatusEntity.fromModel(
       questionStatusModel: questionStatusModel,
@@ -255,14 +283,60 @@ class DatabaseHelper {
     Database db = await instance.database;
     final bool exists =
         await checkIfStatusExists(questionId: entity.questionId);
-    Logger().d('exists von id in updateQuestionStatus  ist $exists');
-    if (exists) {
-      //final success = await db.rawUpdate(sql)
 
+    if (exists) {
+      final updated = await db.rawUpdate(
+          'UPDATE $questionStatusTableName SET $questionStatusTableFieldStatus = ?, $questionStatusTableFieldLastTimeAsked = ? WHERE $questionStatusTableFieldQuestionID= ?',
+          [
+            entity.questionStatusAsInt,
+            entity.lastTimeAskedAsInt,
+            entity.questionId,
+          ]);
+      return updated;
     } else {
       final inserted = await insertStatusToQuestionStatusTable(
           questionStatusModel: questionStatusModel);
+      return inserted;
     }
-    getAllQuestionStatuses();
+  }
+
+  static Future<int> toggleFavoriteStatus({required int questionId}) async {
+    final statusMap = await getQuestionStatusById(questionId: questionId);
+    QuestionStatus? newQuestionStatus;
+    if (statusMap == null) {
+      /// statusMap == null means there is no status entry for this question
+      /// in [QuestionStatusTable]
+      QuestionStatusModel newQuestionStatusModel = QuestionStatusModel(
+        questionId: questionId,
+        questionStatus: QuestionStatus.favorited,
+        lastTimeAsked: DateTime.now(),
+      );
+      final inserted = await insertStatusToQuestionStatusTable(
+          questionStatusModel: newQuestionStatusModel);
+      return inserted;
+    } else {
+      final QuestionStatusModel? model =
+          QuestionStatusEntity.fromMap(statusMap)?.toModel();
+
+      if (model?.questionStatus == QuestionStatus.favorited) {
+        newQuestionStatus = QuestionStatus.unmarked;
+      } else if (model?.questionStatus == QuestionStatus.unmarked) {
+        newQuestionStatus = QuestionStatus.favorited;
+
+        /// This will actually never happen because the 'Add to favorites'
+        /// button will not be tappable if the status is [dontAskagain]
+      } else if (model?.questionStatus == QuestionStatus.dontAskAgain) {
+        newQuestionStatus = QuestionStatus.favorited;
+      }
+      QuestionStatusModel newQuestionStatusModel = QuestionStatusModel(
+        questionId: questionId,
+        questionStatus: newQuestionStatus ?? QuestionStatus.unmarked,
+        lastTimeAsked: DateTime.now(),
+      );
+      final updated = await updateQuestionStatus(
+          questionStatusModel: newQuestionStatusModel);
+
+      return updated;
+    }
   }
 }
