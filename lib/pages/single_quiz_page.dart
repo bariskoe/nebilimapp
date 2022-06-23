@@ -175,8 +175,18 @@ class QuestionContainer extends StatelessWidget {
                 children: [
                   Expanded(
                       child: QuestionHeadlineWidget(
-                    child: Icon(
-                      Icons.delete_outline,
+                    child: IconButton(
+                      icon: questionModel.questionStatusModel == null
+                          ? Icon(Icons.delete_outline)
+                          : questionModel.questionStatusModel!.questionStatus
+                                  .isDontAskagain
+                              ? Icon(Icons.delete)
+                              : Icon(Icons.delete_outline),
+                      onPressed: () {
+                        getIt<QuestionBloc>().add(
+                            QuestionEventToggleDontShowAgain(
+                                questionId: questionModel.questionId));
+                      },
                       color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   )),

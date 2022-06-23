@@ -40,3 +40,15 @@ class QuestionEventGetQuestionById extends QuestionEvent {
         questionId,
       ];
 }
+
+class QuestionEventToggleDontShowAgain extends QuestionEvent {
+  final int questionId;
+  const QuestionEventToggleDontShowAgain({
+    required this.questionId,
+  });
+
+  @override
+  List<Object> get props => [
+        questionId,
+      ];
+}

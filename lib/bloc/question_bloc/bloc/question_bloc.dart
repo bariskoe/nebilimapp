@@ -43,12 +43,25 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
 
     on<QuestionEventToggleFavoriteStatus>((event, emit) async {
       if (currentQuestionId != null) {
-        Either<Failure, int> toggled = await questionUsecases
+        Either<Failure, int> failureOrToggled = await questionUsecases
             .toggleFavoriteStatus(questionId: event.questionId);
-        toggled.fold((l) => emit(QuestionStateError()), (r) {
+        failureOrToggled.fold((l) => emit(QuestionStateError()), (r) {
           add(QuestionEventGetQuestionById(questionId: event.questionId));
         });
       }
+    });
+
+    on<QuestionEventToggleDontShowAgain>((event, emit) async {
+      Either<Failure, int> failureOrMarked =
+          await questionUsecases.toggleDontAskAgain(
+        questionId: event.questionId,
+      );
+      failureOrMarked.fold(
+        (l) => emit(
+          QuestionStateError(),
+        ),
+        (r) => add(QuestionEventGetQuestionById(questionId: event.questionId)),
+      );
     });
 
     on<QuestionEventGetQuestionById>((event, emit) async {

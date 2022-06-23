@@ -13,4 +13,5 @@ abstract class QuestionRepository {
       {required QuestionStatusModel questionStatusModel});
 
   Future<Either<Failure, int>> toggleFavoriteStatus({required int questionId});
+  Future<Either<Failure, int>> toggleDontAskAgain({required int questionId});
 }

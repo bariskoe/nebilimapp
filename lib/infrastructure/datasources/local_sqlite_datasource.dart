@@ -25,4 +25,7 @@ abstract class LocalSqliteDataSource {
   /// Toggles the Favorite Status of a question if a status exists. Sets it
   /// as [Questionstatus.favorited] if no [QuestionStatus exists]
   Future<int> toggleFavoriteStatus({required int questionId});
+
+  /// Marks the question as 'dontShowAgain' in the [QuestionStatusTable]
+  Future<int> toggleDontAskAgain({required int questionId});
 }

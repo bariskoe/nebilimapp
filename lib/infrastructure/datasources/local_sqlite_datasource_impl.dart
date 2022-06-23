@@ -31,4 +31,9 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   Future<int> toggleFavoriteStatus({required int questionId}) async {
     return await DatabaseHelper.toggleFavoriteStatus(questionId: questionId);
   }
+
+  @override
+  Future<int> toggleDontAskAgain({required int questionId}) async {
+    return await DatabaseHelper.toggleDontAskAgain(questionId: questionId);
+  }
 }

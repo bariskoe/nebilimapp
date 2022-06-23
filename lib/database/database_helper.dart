@@ -322,9 +322,6 @@ class DatabaseHelper {
         newQuestionStatus = QuestionStatus.unmarked;
       } else if (model?.questionStatus == QuestionStatus.unmarked) {
         newQuestionStatus = QuestionStatus.favorited;
-
-        /// This will actually never happen because the 'Add to favorites'
-        /// button will not be tappable if the status is [dontAskagain]
       } else if (model?.questionStatus == QuestionStatus.dontAskAgain) {
         newQuestionStatus = QuestionStatus.favorited;
       }
@@ -336,6 +333,41 @@ class DatabaseHelper {
       final updated = await updateQuestionStatus(
           questionStatusModel: newQuestionStatusModel);
 
+      return updated;
+    }
+  }
+
+  static Future<int> toggleDontAskAgain({required int questionId}) async {
+    final statusMap = await getQuestionStatusById(questionId: questionId);
+
+    QuestionStatusModel newQuestionStatusModel;
+    if (statusMap == null) {
+      /// statusMap == null means there is no status entry for this question
+      /// in [QuestionStatusTable]
+      newQuestionStatusModel = QuestionStatusModel(
+        questionId: questionId,
+        questionStatus: QuestionStatus.dontAskAgain,
+        lastTimeAsked: DateTime.now(),
+      );
+      final inserted = await insertStatusToQuestionStatusTable(
+          questionStatusModel: newQuestionStatusModel);
+      return inserted;
+    } else {
+      QuestionStatusModel oldQuestionStatusModel =
+          QuestionStatusEntity.fromMap(statusMap)!.toModel();
+      QuestionStatus newQuestionStatus;
+      if (oldQuestionStatusModel.questionStatus.isDontAskagain) {
+        newQuestionStatus = QuestionStatus.unmarked;
+      } else {
+        newQuestionStatus = QuestionStatus.dontAskAgain;
+      }
+      newQuestionStatusModel = QuestionStatusModel(
+        questionId: questionId,
+        questionStatus: newQuestionStatus,
+        lastTimeAsked: DateTime.now(),
+      );
+      final updated = await updateQuestionStatus(
+          questionStatusModel: newQuestionStatusModel);
       return updated;
     }
   }

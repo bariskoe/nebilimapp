@@ -65,4 +65,16 @@ class QuestionRepositoryImpl implements QuestionRepository {
       return Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, int>> toggleDontAskAgain(
+      {required int questionId}) async {
+    try {
+      final success = await localSqliteDataSource.toggleDontAskAgain(
+          questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
 }

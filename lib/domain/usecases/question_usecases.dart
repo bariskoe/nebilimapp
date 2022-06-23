@@ -32,4 +32,11 @@ class QuestionUsecases {
     return await questionRepository.toggleFavoriteStatus(
         questionId: questionId);
   }
+
+  Future<Either<Failure, int>> toggleDontAskAgain(
+      {required int questionId}) async {
+    return await questionRepository.toggleDontAskAgain(
+      questionId: questionId,
+    );
+  }
 }
