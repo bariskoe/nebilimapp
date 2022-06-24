@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import 'bloc/question_bloc/bloc/question_bloc.dart';
+import 'bloc/settings_bloc/bloc/settings_bloc.dart';
 import 'dependency_injection.dart' as di;
 import 'dependency_injection.dart';
 import 'pages/data_preparation_page.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => getIt<DataPreparationBloc>()),
         BlocProvider(create: (context) => getIt<QuestionBloc>()),
+        BlocProvider(create: (context) => getIt<SettingsBloc>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

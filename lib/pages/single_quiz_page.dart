@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/routing.dart';
 
 import '../bloc/question_bloc/bloc/question_bloc.dart';
 import '../constants/assets.dart';
@@ -25,6 +26,12 @@ class SingleQuizPage extends StatelessWidget {
     return BlocBuilder<QuestionBloc, QuestionState>(
       builder: (context, state) {
         return StandardPageWidget(
+            appbarActions: [
+              IconButton(
+                  onPressed: (() =>
+                      Navigator.pushNamed(context, Routing.settingsPage)),
+                  icon: const Icon(Icons.settings))
+            ],
             willPop: false,
             appBarTitle: AppLocalizations.of(context)!.appTitle,
             child: Padding(

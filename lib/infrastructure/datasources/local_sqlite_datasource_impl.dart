@@ -1,9 +1,13 @@
+import 'package:nebilimapp/database/settings_database_helper.dart';
+import 'package:nebilimapp/models/settings_model.dart';
+
 import '/database/database_helper.dart';
 import '../../models/question_model.dart';
 import '../../models/question_status_model.dart';
 import 'local_sqlite_datasource.dart';
 
 class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
+  //! Question Database --------------------------------------------------------
   @override
   Future<bool> updateQuestionDatabaseIfNeccessary() async {
     return await DatabaseHelper.updateQuestionDatabaseIfNecessary();
@@ -35,5 +39,12 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   @override
   Future<int> toggleDontAskAgain({required int questionId}) async {
     return await DatabaseHelper.toggleDontAskAgain(questionId: questionId);
+  }
+
+  //! Settings Database --------------------------------------------------------
+
+  @override
+  Future<SettingsModel> getAllSettings() async {
+    return await SettingsDatabaseHelper.getAllSettings();
   }
 }

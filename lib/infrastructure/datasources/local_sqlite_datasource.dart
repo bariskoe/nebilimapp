@@ -1,3 +1,5 @@
+import 'package:nebilimapp/models/settings_model.dart';
+
 import '../../models/question_model.dart';
 import '../../models/question_status_model.dart';
 
@@ -28,4 +30,8 @@ abstract class LocalSqliteDataSource {
 
   /// Marks the question as 'dontShowAgain' in the [QuestionStatusTable]
   Future<int> toggleDontAskAgain({required int questionId});
+
+  /// Returns a SettingsModel which holds all settings for the Questionfilters etc
+  /// (Category Settings, QuestionsStatus Settings etc.)
+  Future<SettingsModel> getAllSettings();
 }
