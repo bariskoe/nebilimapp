@@ -1,3 +1,19 @@
 {
-    "appTitle": "Nebilim App"
+    "appTitle": "Nebilim App",
+
+    "questionCategoryHistory": "Geschichte",
+    "questionCategoryGeography":"Geografie",
+    "questionCategoryScience":"Naturwissenschaften",
+    "questionCategorySports":"Sport",
+    "questionCategoryMedicine":"Medizin",
+    "questionCategoryLiterature":"Literatur",
+    "questionCategoryCelebrities":"Celebrities",
+    "questionCategoryFood":"Gaumenschmaus",
+    "questionCategoryMusic":"Musik",
+    "questionCategoryArts":"Kunst"
 }
+
+
+
+
+        

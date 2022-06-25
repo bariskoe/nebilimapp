@@ -1,3 +1,14 @@
 {
-    "appTitle": "Nebilim App"
+    "appTitle": "Nebilim App",
+
+    "questionCategoryHistory": "History",
+    "questionCategoryGeography":"Geography",
+    "questionCategoryScience":"Science",
+    "questionCategorySports":"Sports",
+    "questionCategoryMedicine":"Medicine",
+    "questionCategoryLiterature":"Literature",
+    "questionCategoryCelebrities":"Celebrities",
+    "questionCategoryFood":"Food",
+    "questionCategoryMusic":"Music",
+    "questionCategoryArts":"Arts"
 }

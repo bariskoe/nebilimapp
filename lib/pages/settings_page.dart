@@ -51,10 +51,55 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _buildCategories(SettingsState state) {
+    _categorySymbolBuilder(SettingsStateLoaded state) {
+      // List<Widget> list = [];
+      // Map<
+      // for(abc in state.settingsModel.categorySettingsModel)
+    }
+
     if (state is SettingsStateLoaded) {
-      return Text('${state.settingsModel.categorySettingsModel.props}');
+      return Text('${state.settingsModel.categorySettingsModel.props.asMap()}');
+      // Wrap(
+      //   children: [],
+      // );
     } else {
       return Text('not Loaded state: $state');
     }
+  }
+}
+
+class CategorySymbol extends StatelessWidget {
+  const CategorySymbol({
+    Key? key,
+    required this.name,
+    required this.icon,
+    required this.selected,
+  }) : super(key: key);
+  final String name;
+  final IconData icon;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(UiConstantsPadding.regular),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(UiConstantsRadius.regular),
+        border: Border.all(
+            width: selected ? 4 : 1,
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.secondary),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(name, style: Theme.of(context).textTheme.labelMedium),
+          const SizedBox(width: UiConstantsPadding.small),
+          Icon(icon)
+        ],
+      ),
+    );
   }
 }
