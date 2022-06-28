@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/database/settings_database_helper.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../models/question_status_model.dart';
 import '../domain/entities/question_entity.dart';
@@ -212,6 +213,18 @@ class DatabaseHelper {
     return await db.rawDelete(
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
   }
+
+  //static //Future<QuestionModel>
+  //    getFilterConformQuestion() async {
+  //  Database db = await instance.database;
+  //  final askableCategorieslist =
+  //      await SettingsDatabaseHelper.getListOfAskableCategories();
+  //  List<Map<String, dynamic>> questionList = await db.rawQuery(
+  //      'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN ($askableCategorieslist)');
+  //  Logger().d('askable questions: $askableCategorieslist');
+  //  Logger().d('question: $questionList');
+  //  //  return
+  //}
 
   static Future<QuestionModel> getRandomQuestion() async {
     Database db = await instance.database;

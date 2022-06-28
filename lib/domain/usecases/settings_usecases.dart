@@ -14,4 +14,8 @@ class SettingsUsecases {
   Future<Either<Failure, SettingsModel>> getAllSettings() {
     return settingsRepository.getAllSettings();
   }
+
+  Future<Either<Failure, int>> toggleAskCategory({required int categoryAsInt}) {
+    return settingsRepository.toggleAskCategory(categoryAsInt: categoryAsInt);
+  }
 }

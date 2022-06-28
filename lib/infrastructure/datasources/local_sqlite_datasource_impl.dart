@@ -47,4 +47,10 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   Future<SettingsModel> getAllSettings() async {
     return await SettingsDatabaseHelper.getAllSettings();
   }
+
+  @override
+  Future<int> toggleAskCategory({required int categoryAsInt}) async {
+    return await SettingsDatabaseHelper.toggleAskCategory(
+        categoryAsInt: categoryAsInt);
+  }
 }

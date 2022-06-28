@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:logger/logger.dart';
 import 'package:nebilimapp/domain/entities/category_settings_entity.dart';
+import 'package:nebilimapp/models/category_settings_model.dart';
+import 'package:nebilimapp/models/question_insertion_model.dart';
 import 'package:nebilimapp/models/settings_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,19 +22,24 @@ class SettingsDatabaseHelper {
   //!Fields of the CategorySettingsTable ---------------------------------------------------
   static const String categorySettingsTableName = 'category_settings_table';
 
-  /// There will only be one row
   /// Primary key
   static const String categorySettingsTableFieldId = 'row_id';
-  static const String categorySettingsTableFieldHistory = 'history';
-  static const String categorySettingsTableFieldGeography = 'geography';
-  static const String categorySettingsTableFieldScience = 'science';
-  static const String categorySettingsTableFieldSports = 'sports';
-  static const String categorySettingsTableFieldMedicine = 'medicine';
-  static const String categorySettingsTableFieldLiterature = 'literature';
-  static const String categorySettingsTableFieldCelebrities = 'celebrities';
-  static const String categorySettingsTableFieldFood = 'food';
-  static const String categorySettingsTableFieldMusic = 'music';
-  static const String categorySettingsTableFieldArts = 'arts';
+  static const String categorySettingsTableFieldCategoryAsInt =
+      'category_as_int';
+
+  //Wether a question belonging to this category should be asked or not
+  static const String categorySettingsTableFieldAsk = 'ask';
+
+  // static const String categorySettingsTableFieldHistory = 'history';
+  // static const String categorySettingsTableFieldGeography = 'geography';
+  // static const String categorySettingsTableFieldScience = 'science';
+  // static const String categorySettingsTableFieldSports = 'sports';
+  // static const String categorySettingsTableFieldMedicine = 'medicine';
+  // static const String categorySettingsTableFieldLiterature = 'literature';
+  // static const String categorySettingsTableFieldCelebrities = 'celebrities';
+  // static const String categorySettingsTableFieldFood = 'food';
+  // static const String categorySettingsTableFieldMusic = 'music';
+  // static const String categorySettingsTableFieldArts = 'arts';
 
   //!Fields of the DifficultySettingsTable --------------------------------------------------
   static const String difficultySettingsTableName = 'difficulty_settings_table';
@@ -85,25 +92,20 @@ class SettingsDatabaseHelper {
     await db.execute('''
       CREATE TABLE $categorySettingsTableName(
           $categorySettingsTableFieldId INTEGER PRIMARY KEY AUTOINCREMENT,
-          $categorySettingsTableFieldHistory INTEGER,
-          $categorySettingsTableFieldGeography INTEGER,
-          $categorySettingsTableFieldScience INTEGER,
-          $categorySettingsTableFieldSports INTEGER,
-          $categorySettingsTableFieldMedicine INTEGER,
-          $categorySettingsTableFieldLiterature INTEGER,
-          $categorySettingsTableFieldCelebrities INTEGER,
-          $categorySettingsTableFieldFood INTEGER,
-          $categorySettingsTableFieldMusic INTEGER,
-          $categorySettingsTableFieldArts INTEGER
+          $categorySettingsTableFieldCategoryAsInt INTEGER NOT NULL,
+         
+          $categorySettingsTableFieldAsk INTEGER NOT NULL
+         
 
       );
       ''');
+    await setupAskIfNotExists(db);
 
     await db.execute('''
       CREATE TABLE $difficultySettingsTableName(
           $difficultySettingsTableFieldId  INTEGER PRIMARY KEY AUTOINCREMENT,
           $difficultySettingsTableFieldDifficulty1 INTEGER,
-          $difficultySettingsTableFieldDifficulty2 INTEGER,
+          $difficultySettingsTableFieldDifficulty2 INTEGER, 
           $difficultySettingsTableFieldDifficulty3 INTEGER,
           $difficultySettingsTableFieldDifficulty4 INTEGER,
           $difficultySettingsTableFieldDifficulty5 INTEGER
@@ -133,22 +135,89 @@ class SettingsDatabaseHelper {
     );
   }
 
+  setupAskIfNotExists(Database db) async {
+    final list = await db.rawQuery(
+      'SELECT * FROM $categorySettingsTableName ',
+    );
+
+    if (list.isNotEmpty) {
+      return;
+    } else {
+      for (var category in QuestionCategory.values) {
+        await db.insert(
+          categorySettingsTableName,
+          {
+            categorySettingsTableFieldCategoryAsInt: category.serialze(),
+            categorySettingsTableFieldAsk: 1
+          },
+        );
+        Logger().d('setupAskIfNotExists durchgeführt');
+      }
+    }
+  }
+
+  static Future<List> getListOfAskableCategories() async {
+    Database db = await instance.database;
+    final listOfMaps = await db.rawQuery(
+        'SELECT $categorySettingsTableFieldCategoryAsInt FROM $categorySettingsTableName WHERE $categorySettingsTableFieldAsk = ?',
+        [1]);
+    List askableCategories = [];
+    for (Map map in listOfMaps) {
+      askableCategories.add(map[categorySettingsTableFieldCategoryAsInt]);
+    }
+    return askableCategories;
+  }
+
+  static Future<int> getAskOfCategory({required int categoryAsInt}) async {
+    Database db = await instance.database;
+    final ask = await db.rawQuery(
+        'SELECT $categorySettingsTableFieldAsk FROM $categorySettingsTableName WHERE $categorySettingsTableFieldCategoryAsInt = ?',
+        [categoryAsInt]);
+    Logger().d('ask ist: ${int.parse(ask[0].values.first.toString())}');
+    return int.parse(ask[0].values.first.toString());
+  }
+
+  static Future<int> toggleAskCategory({required int categoryAsInt}) async {
+    Database db = await instance.database;
+    int currentAsk = await getAskOfCategory(categoryAsInt: categoryAsInt);
+
+    Logger().d('currentask is $currentAsk');
+    final updated = await db.rawUpdate(
+        'UPDATE $categorySettingsTableName SET $categorySettingsTableFieldAsk = ? WHERE $categorySettingsTableFieldCategoryAsInt= ?',
+        [
+          currentAsk == 0 ? 1 : 0,
+          categoryAsInt,
+        ]);
+
+    return updated;
+  }
+
   static Future<SettingsModel> getAllSettings() async {
     Database db = await instance.database;
     List<Map<String, dynamic>> allCategorySettings =
         await db.rawQuery('SELECT * FROM $categorySettingsTableName');
     Logger().d('allCategorySettings: $allCategorySettings');
+    List<CategorySettingsModel> categorySettingsModelList = [];
 
-    CategorySettingsEntity categorySettingsEntity;
     if (allCategorySettings.isEmpty) {
-      categorySettingsEntity = CategorySettingsEntity();
+      for (QuestionCategory element in QuestionCategory.values) {
+        categorySettingsModelList.add(CategorySettingsEntity.fromEnumValue(
+                questionCategoryEnumValue: element)
+            .toModel());
+      }
     } else {
-      categorySettingsEntity =
-          CategorySettingsEntity.fromMap(allCategorySettings.first);
+      Logger().d('allCategorySettings.isNotEmpty');
+      for (Map<String, dynamic> rowMap in allCategorySettings) {
+        Logger().d('rowmap: $rowMap');
+        Logger().d('categoryentity ${CategorySettingsEntity.fromMap(rowMap)}');
+
+        categorySettingsModelList
+            .add(CategorySettingsEntity.fromMap(rowMap)!.toModel());
+      }
     }
 
     return SettingsModel(
-      categorySettingsModel: categorySettingsEntity.toModel(),
+      categorySettingsModelList: categorySettingsModelList,
     );
   }
 }

@@ -2,14 +2,14 @@ import 'package:equatable/equatable.dart';
 import 'package:nebilimapp/models/category_settings_model.dart';
 
 class SettingsModel extends Equatable {
-  final CategorySettingsModel categorySettingsModel;
+  final List<CategorySettingsModel> categorySettingsModelList;
 
   const SettingsModel({
-    required this.categorySettingsModel,
+    required this.categorySettingsModelList,
   });
 
   @override
   List<Object?> get props => [
-        categorySettingsModel,
+        categorySettingsModelList,
       ];
 }

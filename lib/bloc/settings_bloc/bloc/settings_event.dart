@@ -13,3 +13,15 @@ class SettingsEventGetAllSettings extends SettingsEvent {
   @override
   List<Object> get props => [];
 }
+
+class SettingsEventToggleAskCategory extends SettingsEvent {
+  final int categoryAsInt;
+
+  const SettingsEventToggleAskCategory({
+    required this.categoryAsInt,
+  });
+  @override
+  List<Object> get props => [
+        categoryAsInt,
+      ];
+}

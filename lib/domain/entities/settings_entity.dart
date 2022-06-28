@@ -8,15 +8,15 @@ class SettingsEntity {
     required this.categorySettingsEntity,
   });
 
-  SettingsModel toModel() {
-    return SettingsModel(
-        categorySettingsModel: categorySettingsEntity.toModel());
-  }
+  // SettingsModel toModel() {
+  //   return SettingsModel(
+  //       categorySettingsModelList: categorySettingsEntity.toModel());
+  // }
 
-  factory SettingsEntity.fromModel(SettingsModel model) {
-    return SettingsEntity(
-      categorySettingsEntity:
-          CategorySettingsEntity.fromModel(model: model.categorySettingsModel),
-    );
-  }
+  // factory SettingsEntity.fromModel(SettingsModel model) {
+  //   return SettingsEntity(
+  //     categorySettingsEntity:
+  //         CategorySettingsEntity.fromModel(model: model.categorySettingsModel),
+  //   );
+  // }
 }

@@ -17,7 +17,21 @@ class SettingsRepositoryImpl implements SettingsRepository {
           await localSqliteDataSource.getAllSettings();
       return Right(settingsModel);
     } catch (e) {
-      Logger().e('Error caught in SettingsRepositoryImpl: $e');
+      Logger().e('Error caught in SettingsRepositoryImpl getAllSettings(): $e');
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> toggleAskCategory(
+      {required int categoryAsInt}) async {
+    try {
+      int changesMade = await localSqliteDataSource.toggleAskCategory(
+          categoryAsInt: categoryAsInt);
+      return Right(changesMade);
+    } catch (e) {
+      Logger()
+          .e('Error caught in SettingsRepositoryImpl toggleAskCategory: $e');
       return Left(DatabaseFailure());
     }
   }

@@ -34,4 +34,8 @@ abstract class LocalSqliteDataSource {
   /// Returns a SettingsModel which holds all settings for the Questionfilters etc
   /// (Category Settings, QuestionsStatus Settings etc.)
   Future<SettingsModel> getAllSettings();
+
+  /// Sets the [ask] field of a row in the [categorySettingsTable] to 1 if its
+  /// current value is 0, and to 0 if its current value is 1.
+  Future<int> toggleAskCategory({required int categoryAsInt});
 }
