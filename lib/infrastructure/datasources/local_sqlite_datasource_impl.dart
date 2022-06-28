@@ -1,5 +1,5 @@
-import 'package:nebilimapp/database/settings_database_helper.dart';
-import 'package:nebilimapp/models/settings_model.dart';
+import '../../database/settings_database_helper.dart';
+import '../../models/settings_model.dart';
 
 import '/database/database_helper.dart';
 import '../../models/question_model.dart';

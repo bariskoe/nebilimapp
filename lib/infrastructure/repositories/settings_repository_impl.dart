@@ -1,9 +1,9 @@
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/domain/failures/failures.dart';
+import '../../domain/failures/failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:nebilimapp/domain/repositories/settings_repository.dart';
-import 'package:nebilimapp/infrastructure/datasources/local_sqlite_datasource.dart';
-import 'package:nebilimapp/models/settings_model.dart';
+import '../../domain/repositories/settings_repository.dart';
+import '../datasources/local_sqlite_datasource.dart';
+import '../../models/settings_model.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
   final LocalSqliteDataSource localSqliteDataSource;

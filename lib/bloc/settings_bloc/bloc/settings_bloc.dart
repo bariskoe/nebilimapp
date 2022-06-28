@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:nebilimapp/domain/failures/failures.dart';
-import 'package:nebilimapp/domain/usecases/settings_usecases.dart';
-import 'package:nebilimapp/models/settings_model.dart';
+import '../../../domain/failures/failures.dart';
+import '../../../domain/usecases/settings_usecases.dart';
+import '../../../models/settings_model.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';

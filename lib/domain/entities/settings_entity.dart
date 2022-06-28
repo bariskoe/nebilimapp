@@ -1,5 +1,5 @@
-import 'package:nebilimapp/domain/entities/category_settings_entity.dart';
-import 'package:nebilimapp/models/settings_model.dart';
+import 'category_settings_entity.dart';
+import '../../models/settings_model.dart';
 
 class SettingsEntity {
   final CategorySettingsEntity categorySettingsEntity;

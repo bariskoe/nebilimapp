@@ -1,4 +1,4 @@
-import 'package:nebilimapp/models/settings_model.dart';
+import '../../models/settings_model.dart';
 
 import '../../models/question_model.dart';
 import '../../models/question_status_model.dart';

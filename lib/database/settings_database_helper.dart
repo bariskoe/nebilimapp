@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/domain/entities/category_settings_entity.dart';
-import 'package:nebilimapp/models/category_settings_model.dart';
-import 'package:nebilimapp/models/question_insertion_model.dart';
-import 'package:nebilimapp/models/settings_model.dart';
+import '../domain/entities/category_settings_entity.dart';
+import '../models/category_settings_model.dart';
+import '../models/question_insertion_model.dart';
+import '../models/settings_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -174,7 +174,7 @@ class SettingsDatabaseHelper {
     final ask = await db.rawQuery(
         'SELECT $categorySettingsTableFieldAsk FROM $categorySettingsTableName WHERE $categorySettingsTableFieldCategoryAsInt = ?',
         [categoryAsInt]);
-    Logger().d('ask ist: ${int.parse(ask[0].values.first.toString())}');
+
     return int.parse(ask[0].values.first.toString());
   }
 
@@ -182,11 +182,25 @@ class SettingsDatabaseHelper {
     Database db = await instance.database;
     int currentAsk = await getAskOfCategory(categoryAsInt: categoryAsInt);
 
-    Logger().d('currentask is $currentAsk');
+    /// When only 1 selected category is left, deselecting must not be allowed, because at least one category
+    /// has to be selecte at any time. Therefor we need to count the selected categories before we decide
+    /// if we can deselect it or not
+    final numberOfaskableCategories = await db.rawQuery(
+        'SELECT COUNT(*) FROM $categorySettingsTableName WHERE $categorySettingsTableFieldAsk = ?',
+        [1]);
+
+    bool deselectingAllowed = false;
+    if (int.parse(numberOfaskableCategories.first['COUNT(*)'].toString()) > 1) {
+      deselectingAllowed = true;
+    }
     final updated = await db.rawUpdate(
         'UPDATE $categorySettingsTableName SET $categorySettingsTableFieldAsk = ? WHERE $categorySettingsTableFieldCategoryAsInt= ?',
         [
-          currentAsk == 0 ? 1 : 0,
+          currentAsk == 0
+              ? 1
+              : deselectingAllowed
+                  ? 0
+                  : 1,
           categoryAsInt,
         ]);
 

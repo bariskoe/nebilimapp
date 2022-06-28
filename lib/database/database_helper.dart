@@ -5,7 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/database/settings_database_helper.dart';
+import 'settings_database_helper.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../models/question_status_model.dart';
 import '../domain/entities/question_entity.dart';
@@ -236,7 +236,7 @@ class DatabaseHelper {
     final askableCategorieslist =
         await SettingsDatabaseHelper.getListOfAskableCategories();
     List<Map<String, dynamic>> questionList = await db.rawQuery(
-        'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM ${SettingsDatabaseHelper.categorySettingsTableName} WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
+        'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
     Logger().d('askable questions: $askableCategorieslist');
     Logger().d('question: $questionList');
 

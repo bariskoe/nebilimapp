@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:nebilimapp/database/settings_database_helper.dart';
-import 'package:nebilimapp/models/question_insertion_model.dart';
+import '../database/settings_database_helper.dart';
+import 'question_insertion_model.dart';
 
 class CategorySettingsModel with EquatableMixin {
   QuestionCategory questionCategory;

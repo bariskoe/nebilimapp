@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nebilimapp/bloc/settings_bloc/bloc/settings_bloc.dart';
-import 'package:nebilimapp/custom_widgets/standard_page_widget.dart';
-import 'package:nebilimapp/dependency_injection.dart';
-import 'package:nebilimapp/models/category_settings_model.dart';
-import 'package:nebilimapp/models/question_insertion_model.dart';
-import 'package:nebilimapp/ui/ui_constants/ui_constants.dart';
+import '../bloc/settings_bloc/bloc/settings_bloc.dart';
+import '../custom_widgets/standard_page_widget.dart';
+import '../dependency_injection.dart';
+import '../models/category_settings_model.dart';
+import '../models/question_insertion_model.dart';
+import '../ui/ui_constants/ui_constants.dart';
 
 import '../database/database_helper.dart';
 

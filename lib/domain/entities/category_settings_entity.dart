@@ -1,5 +1,5 @@
-import 'package:nebilimapp/models/category_settings_model.dart';
-import 'package:nebilimapp/models/question_insertion_model.dart';
+import '../../models/category_settings_model.dart';
+import '../../models/question_insertion_model.dart';
 
 import '../../database/settings_database_helper.dart';
 
