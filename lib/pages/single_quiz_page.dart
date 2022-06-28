@@ -184,11 +184,11 @@ class QuestionContainer extends StatelessWidget {
                       child: QuestionHeadlineWidget(
                     child: IconButton(
                       icon: questionModel.questionStatusModel == null
-                          ? Icon(Icons.delete_outline)
+                          ? const Icon(Icons.delete_outline)
                           : questionModel.questionStatusModel!.questionStatus
                                   .isDontAskagain
-                              ? Icon(Icons.delete)
-                              : Icon(Icons.delete_outline),
+                              ? const Icon(Icons.delete)
+                              : const Icon(Icons.delete_outline),
                       onPressed: () {
                         getIt<QuestionBloc>().add(
                             QuestionEventToggleDontShowAgain(
@@ -202,7 +202,7 @@ class QuestionContainer extends StatelessWidget {
                           child: IconButton(
                     onPressed: () {
                       getIt<QuestionBloc>()
-                          .add(QuestionEventGetRandomQuestion());
+                          .add(QuestionEventGetFilterConfromQuestion());
                     },
                     icon: const Icon(Icons.play_arrow),
                     color: Theme.of(context).colorScheme.onSecondary,

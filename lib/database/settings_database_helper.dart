@@ -18,6 +18,7 @@ class SettingsDatabaseHelper {
   static Database? _database;
   Future<Database> get database async => _database ??= await _initDatabase();
   static const String databaseName = 'settings_database.db';
+  static const String databaseAlias = 'SettingsDatabase';
 
   //!Fields of the CategorySettingsTable ---------------------------------------------------
   static const String categorySettingsTableName = 'category_settings_table';

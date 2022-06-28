@@ -20,7 +20,8 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     getIt<SettingsBloc>().add(const SettingsEventGetAllSettings());
-    //DatabaseHelper.getFilterConformQuestion();
+    DatabaseHelper.getFilterConformQuestion();
+
     super.initState();
   }
 
@@ -45,9 +46,14 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     _buildCategories(state),
+                    TextButton(
+                        onPressed: () {
+                          DatabaseHelper.settingsTest();
+                        },
+                        child: const Text('drück')),
                   ],
                 ),
-              )
+              ),
             ],
           )),
         );

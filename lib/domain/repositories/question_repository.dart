@@ -6,6 +6,7 @@ import '../failures/failures.dart';
 
 abstract class QuestionRepository {
   Future<Either<Failure, QuestionModel>> getRandomQuestion();
+  Future<Either<Failure, QuestionModel>> getFilterConformQuestion();
   Future<Either<Failure, QuestionModel>> getQuestionById(
       {required int questionId});
 

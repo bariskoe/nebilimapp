@@ -69,6 +69,17 @@ class DatabaseHelper {
   static const String questionStatusTableFieldLastTimeAsked =
       'last_time_asked ';
 
+  /// This function attaches a database from another file to the provided database
+  Future<Database> attachDb(
+      {required Database db,
+      required String databaseName,
+      required String databaseAlias}) async {
+    Directory documentDirectory = await getApplicationDocumentsDirectory();
+    String absoluteEndPath = join(documentDirectory.path, databaseName);
+    await db.rawQuery("ATTACH DATABASE '$absoluteEndPath' as '$databaseAlias'");
+    return db;
+  }
+
   Future onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
   }
@@ -103,6 +114,13 @@ class DatabaseHelper {
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
       ''');
+
+    /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
+    await attachDb(
+      db: db,
+      databaseName: SettingsDatabaseHelper.databaseName,
+      databaseAlias: SettingsDatabaseHelper.databaseAlias,
+    );
   }
 
   Future<Database> _initDatabase() async {
@@ -191,8 +209,7 @@ class DatabaseHelper {
     List<Map> allQuestions =
         await db.rawQuery('SELECT * FROM $questionTableName');
 
-    Logger().d('First Question in list: ${allQuestions.first}');
-    Logger().d('Last Question in list: ${allQuestions.last}');
+    Logger().d('allquestions: $allQuestions');
   }
 
   static getAllQuestionStatuses() async {
@@ -214,17 +231,32 @@ class DatabaseHelper {
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
   }
 
-  //static //Future<QuestionModel>
-  //    getFilterConformQuestion() async {
-  //  Database db = await instance.database;
-  //  final askableCategorieslist =
-  //      await SettingsDatabaseHelper.getListOfAskableCategories();
-  //  List<Map<String, dynamic>> questionList = await db.rawQuery(
-  //      'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN ($askableCategorieslist)');
-  //  Logger().d('askable questions: $askableCategorieslist');
-  //  Logger().d('question: $questionList');
-  //  //  return
-  //}
+  static Future<QuestionModel> getFilterConformQuestion() async {
+    Database db = await instance.database;
+    final askableCategorieslist =
+        await SettingsDatabaseHelper.getListOfAskableCategories();
+    List<Map<String, dynamic>> questionList = await db.rawQuery(
+        'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM ${SettingsDatabaseHelper.categorySettingsTableName} WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
+    Logger().d('askable questions: $askableCategorieslist');
+    Logger().d('question: $questionList');
+
+    final questionStatusMap = await getQuestionStatusById(
+        questionId: questionList.first[DatabaseHelper.questionTableFieldId]);
+
+    final model = QuestionEntity.fromMap(
+            questionMap: questionList.first,
+            questionStatusMap: questionStatusMap)
+        .toModel();
+    return model;
+  }
+
+  static settingsTest() async {
+    Database db = await instance.database;
+    final testList = await db.rawQuery(
+        'SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM ${SettingsDatabaseHelper.categorySettingsTableName} WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = ? ',
+        [1]);
+    Logger().d(' Daten von der Category settings database: $testList');
+  }
 
   static Future<QuestionModel> getRandomQuestion() async {
     Database db = await instance.database;

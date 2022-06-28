@@ -53,4 +53,9 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
     return await SettingsDatabaseHelper.toggleAskCategory(
         categoryAsInt: categoryAsInt);
   }
+
+  @override
+  Future<QuestionModel> getFilterConformQuestion() async {
+    return await DatabaseHelper.getFilterConformQuestion();
+  }
 }

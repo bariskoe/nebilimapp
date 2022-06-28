@@ -13,6 +13,9 @@ abstract class LocalSqliteDataSource {
   /// Choses a random question from the database and returns a [QuestionModel].
   Future<QuestionModel> getRandomQuestion();
 
+  /// Returns a [QuestionModel] which was built based on filter preferences
+  Future<QuestionModel> getFilterConformQuestion();
+
   /// Returns a [QuestionModel] which hold the data of the question with the
   /// provided [questionId]
   Future<QuestionModel> getQuestionById({required int questionId});

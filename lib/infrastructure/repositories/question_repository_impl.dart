@@ -27,6 +27,18 @@ class QuestionRepositoryImpl implements QuestionRepository {
   }
 
   @override
+  Future<Either<Failure, QuestionModel>> getFilterConformQuestion() async {
+    try {
+      final model = await localSqliteDataSource.getFilterConformQuestion();
+      return Right(model);
+    } catch (e) {
+      Logger().e(
+          'Error in QuestionRepositoryImpl getRandomQuestion: ${e.toString()}');
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, QuestionModel>> getQuestionById(
       {required int questionId}) async {
     try {

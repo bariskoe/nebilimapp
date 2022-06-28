@@ -16,6 +16,10 @@ class QuestionUsecases {
     return await questionRepository.getRandomQuestion();
   }
 
+  Future<Either<Failure, QuestionModel>> getFilterConformQuestion() async {
+    return await questionRepository.getFilterConformQuestion();
+  }
+
   Future<Either<Failure, QuestionModel>> getQuestionById(
       {required int questionId}) async {
     return await questionRepository.getQuestionById(questionId: questionId);

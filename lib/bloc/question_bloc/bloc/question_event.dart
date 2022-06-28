@@ -9,6 +9,8 @@ abstract class QuestionEvent extends Equatable {
 
 class QuestionEventGetRandomQuestion extends QuestionEvent {}
 
+class QuestionEventGetFilterConfromQuestion extends QuestionEvent {}
+
 class QuestionEventUpdateStatus extends QuestionEvent {
   final QuestionStatusModel questionStatusModel;
 

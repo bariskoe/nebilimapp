@@ -19,12 +19,23 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     required this.questionUsecases,
   }) : super(QuestionInitial()) {
     // on<>((event, emit) {
-
     // });
 
     on<QuestionEventGetRandomQuestion>((event, emit) async {
       Either<Failure, QuestionModel> failureOrQuestionModel =
           await questionUsecases.getRandomQuestion();
+
+      failureOrQuestionModel.fold((l) {
+        emit(QuestionStateError());
+      }, (r) {
+        emit(QuestionStateLoaded(questionModel: r));
+        currentQuestionId = r.questionId;
+      });
+    });
+
+    on<QuestionEventGetFilterConfromQuestion>((event, emit) async {
+      Either<Failure, QuestionModel> failureOrQuestionModel =
+          await questionUsecases.getFilterConformQuestion();
 
       failureOrQuestionModel.fold((l) {
         emit(QuestionStateError());
