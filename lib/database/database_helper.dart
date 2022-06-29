@@ -82,6 +82,13 @@ class DatabaseHelper {
 
   Future onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
+
+    /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
+    await attachDb(
+      db: db,
+      databaseName: SettingsDatabaseHelper.databaseName,
+      databaseAlias: SettingsDatabaseHelper.databaseAlias,
+    );
   }
 
   Future _onCreate(Database db, int version) async {
@@ -114,13 +121,6 @@ class DatabaseHelper {
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
       ''');
-
-    /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
-    await attachDb(
-      db: db,
-      databaseName: SettingsDatabaseHelper.databaseName,
-      databaseAlias: SettingsDatabaseHelper.databaseAlias,
-    );
   }
 
   Future<Database> _initDatabase() async {
