@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/models/difficulty_settings_model.dart';
 import '../domain/entities/category_settings_entity.dart';
+import '../domain/entities/difficulty_settings_entity.dart';
 import '../models/category_settings_model.dart';
 import '../models/question_insertion_model.dart';
 import '../models/settings_model.dart';
@@ -31,29 +33,14 @@ class SettingsDatabaseHelper {
   //Wether a question belonging to this category should be asked or not
   static const String categorySettingsTableFieldAsk = 'ask';
 
-  // static const String categorySettingsTableFieldHistory = 'history';
-  // static const String categorySettingsTableFieldGeography = 'geography';
-  // static const String categorySettingsTableFieldScience = 'science';
-  // static const String categorySettingsTableFieldSports = 'sports';
-  // static const String categorySettingsTableFieldMedicine = 'medicine';
-  // static const String categorySettingsTableFieldLiterature = 'literature';
-  // static const String categorySettingsTableFieldCelebrities = 'celebrities';
-  // static const String categorySettingsTableFieldFood = 'food';
-  // static const String categorySettingsTableFieldMusic = 'music';
-  // static const String categorySettingsTableFieldArts = 'arts';
-
   //!Fields of the DifficultySettingsTable --------------------------------------------------
   static const String difficultySettingsTableName = 'difficulty_settings_table';
 
-  ///There will only be one row
   /// Primary key
-  static const String difficultySettingsTableFieldId = 'difficulty_settings_id';
-
-  static const String difficultySettingsTableFieldDifficulty1 = 'difficulty_1';
-  static const String difficultySettingsTableFieldDifficulty2 = 'difficulty_2';
-  static const String difficultySettingsTableFieldDifficulty3 = 'difficulty_3';
-  static const String difficultySettingsTableFieldDifficulty4 = 'difficulty_4';
-  static const String difficultySettingsTableFieldDifficulty5 = 'difficulty_5';
+  static const String difficultySettingsTableFieldId = 'row_id';
+  static const String difficultySettingsTableFieldDifficultyAsInt =
+      'difficulty_as_int';
+  static const String difficultySettingsTableFieldAsk = 'ask';
 
   //!Fields of the OtherSettingsTable ------------------------------------------------------
   static const String otherSettingsTableName = 'other_settings_table';
@@ -100,16 +87,13 @@ class SettingsDatabaseHelper {
 
       );
       ''');
-    await setupAskIfNotExists(db);
 
     await db.execute('''
       CREATE TABLE $difficultySettingsTableName(
           $difficultySettingsTableFieldId  INTEGER PRIMARY KEY AUTOINCREMENT,
-          $difficultySettingsTableFieldDifficulty1 INTEGER,
-          $difficultySettingsTableFieldDifficulty2 INTEGER, 
-          $difficultySettingsTableFieldDifficulty3 INTEGER,
-          $difficultySettingsTableFieldDifficulty4 INTEGER,
-          $difficultySettingsTableFieldDifficulty5 INTEGER
+          $difficultySettingsTableFieldDifficultyAsInt INTEGER NOT NULL,
+          $difficultySettingsTableFieldAsk INTEGER NOT NULL 
+          
       );
       ''');
 
@@ -123,6 +107,8 @@ class SettingsDatabaseHelper {
           $otherSettingsTableFieldChainQuestions INTEGER
       );
       ''');
+    await setupAskOfCategoriesIfNotExists(db);
+    await setupAskOfDifficultiesIfNotExists(db);
   }
 
   Future<Database> _initDatabase() async {
@@ -136,7 +122,7 @@ class SettingsDatabaseHelper {
     );
   }
 
-  setupAskIfNotExists(Database db) async {
+  setupAskOfCategoriesIfNotExists(Database db) async {
     final list = await db.rawQuery(
       'SELECT * FROM $categorySettingsTableName ',
     );
@@ -152,7 +138,29 @@ class SettingsDatabaseHelper {
             categorySettingsTableFieldAsk: 1
           },
         );
-        Logger().d('setupAskIfNotExists durchgeführt');
+        Logger().d('setupAskOfCategoriesIfNotExists executec');
+      }
+    }
+  }
+
+  setupAskOfDifficultiesIfNotExists(Database db) async {
+    final list = await db.rawQuery(
+      'SELECT * FROM $difficultySettingsTableName ',
+    );
+
+    if (list.isNotEmpty) {
+      return;
+    } else {
+      for (var difficulty in DifficultyEnum.values) {
+        await db.insert(
+          difficultySettingsTableName,
+          {
+            difficultySettingsTableFieldDifficultyAsInt:
+                difficulty.getDifficultyAsInt,
+            difficultySettingsTableFieldAsk: 1
+          },
+        );
+        Logger().d('setupAskOfDifficultiesIfNotExist executed');
       }
     }
   }
@@ -221,7 +229,7 @@ class SettingsDatabaseHelper {
             .toModel());
       }
     } else {
-      Logger().d('allCategorySettings.isNotEmpty');
+      Logger().d('allCategorySettings isNotEmpty');
       for (Map<String, dynamic> rowMap in allCategorySettings) {
         Logger().d('rowmap: $rowMap');
         Logger().d('categoryentity ${CategorySettingsEntity.fromMap(rowMap)}');
@@ -231,8 +239,31 @@ class SettingsDatabaseHelper {
       }
     }
 
+    List<Map<String, dynamic>> allDifficultySettings =
+        await db.rawQuery('SELECT * FROM $difficultySettingsTableName');
+    Logger().d('allDifficultySettings: $allDifficultySettings');
+    List<DifficultySettingsModel> difficultySettingsModelList = [];
+
+    if (allDifficultySettings.isEmpty) {
+      for (DifficultyEnum element in DifficultyEnum.values) {
+        difficultySettingsModelList.add(
+            DifficultySettingsEntity.fromEnumValue(difficultyEnum: element)
+                .toModel());
+      }
+    } else {
+      Logger().d('allDifficultySettings isNotEmpty');
+      for (Map<String, dynamic> rowMap in allDifficultySettings) {
+        Logger().d('rowmap: $rowMap');
+        Logger()
+            .d('difficultyEntity ${DifficultySettingsEntity.fromMap(rowMap)}');
+
+        difficultySettingsModelList
+            .add(DifficultySettingsEntity.fromMap(rowMap).toModel());
+      }
+    }
+
     return SettingsModel(
-      categorySettingsModelList: categorySettingsModelList,
-    );
+        categorySettingsModelList: categorySettingsModelList,
+        difficultySettingsModelList: difficultySettingsModelList);
   }
 }
