@@ -5,4 +5,6 @@ import '../../models/settings_model.dart';
 abstract class SettingsRepository {
   Future<Either<Failure, SettingsModel>> getAllSettings();
   Future<Either<Failure, int>> toggleAskCategory({required int categoryAsInt});
+  Future<Either<Failure, int>> toggleAskDifficulty(
+      {required int difficultyAsInt});
 }

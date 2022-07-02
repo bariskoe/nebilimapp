@@ -21,7 +21,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     getIt<SettingsBloc>().add(const SettingsEventGetAllSettings());
-    DatabaseHelper.getFilterConformQuestion();
 
     super.initState();
   }
@@ -111,9 +110,9 @@ class _SettingsPageState extends State<SettingsPage> {
           in state.settingsModel.difficultySettingsModelList) {
         DifficultyEnum difficultyEnum = model.difficultyEnum;
         list.add(GestureDetector(
-          // onTap: (() => getIt<SettingsBloc>().add(
-          //     SettingsEventToggleAskDifficulty(
-          //         difficultyAsInt: model.difficultyEnum.getDifficultyAsInt))),
+          onTap: (() => getIt<SettingsBloc>().add(
+              SettingsEventToggleAskDifficulty(
+                  difficultyAsInt: model.difficultyEnum.getDifficultyAsInt))),
           child: SettingsSymbol(
               //TODO: make a name getter for the international name
               name:

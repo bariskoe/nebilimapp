@@ -18,4 +18,10 @@ class SettingsUsecases {
   Future<Either<Failure, int>> toggleAskCategory({required int categoryAsInt}) {
     return settingsRepository.toggleAskCategory(categoryAsInt: categoryAsInt);
   }
+
+  Future<Either<Failure, int>> toggleAskDifficulty(
+      {required int difficultyAsInt}) {
+    return settingsRepository.toggleAskDifficulty(
+        difficultyAsInt: difficultyAsInt);
+  }
 }

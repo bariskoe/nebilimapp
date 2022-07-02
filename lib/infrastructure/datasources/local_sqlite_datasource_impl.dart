@@ -55,6 +55,12 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   }
 
   @override
+  Future<int> toggleAskDifficulty({required int difficultyAsInt}) async {
+    return await SettingsDatabaseHelper.toggleAskDifficulty(
+        difficultyAsInt: difficultyAsInt);
+  }
+
+  @override
   Future<QuestionModel> getFilterConformQuestion() async {
     return await DatabaseHelper.getFilterConformQuestion();
   }

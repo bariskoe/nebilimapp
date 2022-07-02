@@ -35,4 +35,18 @@ class SettingsRepositoryImpl implements SettingsRepository {
       return Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, int>> toggleAskDifficulty(
+      {required int difficultyAsInt}) async {
+    try {
+      int changesMade = await localSqliteDataSource.toggleAskDifficulty(
+          difficultyAsInt: difficultyAsInt);
+      return Right(changesMade);
+    } catch (e) {
+      Logger()
+          .e('Error caught in SettingsRepositoryImpl toggleAskDifficulty: $e');
+      return Left(DatabaseFailure());
+    }
+  }
 }

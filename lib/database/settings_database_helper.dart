@@ -186,6 +186,15 @@ class SettingsDatabaseHelper {
     return int.parse(ask[0].values.first.toString());
   }
 
+  static Future<int> getAskOfDifficulty({required int difficultyAsInt}) async {
+    Database db = await instance.database;
+    final ask = await db.rawQuery(
+        'SELECT $difficultySettingsTableFieldAsk FROM $difficultySettingsTableName WHERE $difficultySettingsTableFieldDifficultyAsInt = ?',
+        [difficultyAsInt]);
+
+    return int.parse(ask[0].values.first.toString());
+  }
+
   static Future<int> toggleAskCategory({required int categoryAsInt}) async {
     Database db = await instance.database;
     int currentAsk = await getAskOfCategory(categoryAsInt: categoryAsInt);
@@ -210,6 +219,36 @@ class SettingsDatabaseHelper {
                   ? 0
                   : 1,
           categoryAsInt,
+        ]);
+
+    return updated;
+  }
+
+  static Future<int> toggleAskDifficulty({required int difficultyAsInt}) async {
+    Database db = await instance.database;
+    int currentAsk = await getAskOfDifficulty(difficultyAsInt: difficultyAsInt);
+
+    /// When only 1 selected difficulty is left, deselecting must not be allowed, because at least one difficulty
+    /// has to be selecte at any time. Therefor we need to count the selected difficulties before we decide
+    /// if we can deselect it or not
+    final numberOfaskabledifficulties = await db.rawQuery(
+        'SELECT COUNT(*) FROM $difficultySettingsTableName WHERE $difficultySettingsTableFieldAsk = ?',
+        [1]);
+
+    bool deselectingAllowed = false;
+    if (int.parse(numberOfaskabledifficulties.first['COUNT(*)'].toString()) >
+        1) {
+      deselectingAllowed = true;
+    }
+    final updated = await db.rawUpdate(
+        'UPDATE $difficultySettingsTableName SET $difficultySettingsTableFieldAsk = ? WHERE $difficultySettingsTableFieldDifficultyAsInt= ?',
+        [
+          currentAsk == 0
+              ? 1
+              : deselectingAllowed
+                  ? 0
+                  : 1,
+          difficultyAsInt,
         ]);
 
     return updated;

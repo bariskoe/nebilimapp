@@ -154,7 +154,7 @@ class QuestionContainer extends StatelessWidget {
                           Icons.fitness_center,
                           color: Theme.of(context).colorScheme.onSecondary,
                         ),
-                        Text('${questionModel.questionDifficulty}',
+                        Text('${questionModel.questionDifficulty + 1}',
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3!
@@ -204,7 +204,8 @@ class QuestionContainer extends StatelessWidget {
                       getIt<QuestionBloc>()
                           .add(QuestionEventGetFilterConfromQuestion());
                     },
-                    icon: const Icon(Icons.play_arrow),
+                    icon: const Icon(Icons.play_arrow,
+                        key: ValueKey('playButton')),
                     color: Theme.of(context).colorScheme.onSecondary,
                   ))),
                   Expanded(

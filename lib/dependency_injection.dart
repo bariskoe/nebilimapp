@@ -36,7 +36,6 @@ Future<void> setupDependencyInjectionWithGetIt() async {
   getIt.registerLazySingleton(() => SettingsBloc(
         settingsUsecases: getIt(),
       ));
-
 //! Usecases
 
   getIt.registerLazySingleton(

@@ -25,3 +25,15 @@ class SettingsEventToggleAskCategory extends SettingsEvent {
         categoryAsInt,
       ];
 }
+
+class SettingsEventToggleAskDifficulty extends SettingsEvent {
+  final int difficultyAsInt;
+
+  const SettingsEventToggleAskDifficulty({
+    required this.difficultyAsInt,
+  });
+  @override
+  List<Object> get props => [
+        difficultyAsInt,
+      ];
+}

@@ -82,13 +82,6 @@ class DatabaseHelper {
 
   Future onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
-
-    /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
-    await attachDb(
-      db: db,
-      databaseName: SettingsDatabaseHelper.databaseName,
-      databaseAlias: SettingsDatabaseHelper.databaseAlias,
-    );
   }
 
   Future _onCreate(Database db, int version) async {
@@ -123,15 +116,23 @@ class DatabaseHelper {
       ''');
   }
 
+  Future _onOpen(Database db) async {
+    /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
+    await attachDb(
+      db: db,
+      databaseName: SettingsDatabaseHelper.databaseName,
+      databaseAlias: SettingsDatabaseHelper.databaseAlias,
+    );
+  }
+
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, databaseName);
-    return await openDatabase(
-      path,
-      version: 1,
-      onConfigure: onConfigure,
-      onCreate: _onCreate,
-    );
+    return await openDatabase(path,
+        version: 1,
+        onConfigure: onConfigure,
+        onCreate: _onCreate,
+        onOpen: _onOpen);
   }
 
   static Future<bool> updateQuestionDatabaseIfNecessary() async {
@@ -233,11 +234,9 @@ class DatabaseHelper {
 
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
-    final askableCategorieslist =
-        await SettingsDatabaseHelper.getListOfAskableCategories();
+
     List<Map<String, dynamic>> questionList = await db.rawQuery(
-        'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
-    Logger().d('askable questions: $askableCategorieslist');
+        'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
     Logger().d('question: $questionList');
 
     final questionStatusMap = await getQuestionStatusById(
