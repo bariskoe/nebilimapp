@@ -37,3 +37,15 @@ class SettingsEventToggleAskDifficulty extends SettingsEvent {
         difficultyAsInt,
       ];
 }
+
+class SettingsEventToggleAskMarkedAs extends SettingsEvent {
+  final String statusName;
+
+  const SettingsEventToggleAskMarkedAs({
+    required this.statusName,
+  });
+  @override
+  List<Object> get props => [
+        statusName,
+      ];
+}

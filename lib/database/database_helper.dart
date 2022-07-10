@@ -114,9 +114,11 @@ class DatabaseHelper {
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
       ''');
+
+    await _attachSettingsDatabase(db);
   }
 
-  Future _onOpen(Database db) async {
+  Future _attachSettingsDatabase(Database db) async {
     /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
     await attachDb(
       db: db,
@@ -128,11 +130,12 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, databaseName);
-    return await openDatabase(path,
-        version: 1,
-        onConfigure: onConfigure,
-        onCreate: _onCreate,
-        onOpen: _onOpen);
+    return await openDatabase(
+      path,
+      version: 1,
+      onConfigure: onConfigure,
+      onCreate: _onCreate,
+    );
   }
 
   static Future<bool> updateQuestionDatabaseIfNecessary() async {
@@ -234,19 +237,39 @@ class DatabaseHelper {
 
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
-
+    int askUnmarkedAsInt = await SettingsDatabaseHelper.getValueOfOtherSetting(
+        nameOfOtherSetting:
+            SettingsDatabaseHelper.otherSettingsAskUnmarkedStatus);
+    bool askUnmarked = askUnmarkedAsInt == 0 ? false : true;
     List<Map<String, dynamic>> questionList = await db.rawQuery(
-        'SELECT * FROM $questionTableName WHERE $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
+        'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus IN (SELECT ${SettingsDatabaseHelper.otherSettingsTableFieldNameAsInt} FROM SettingsDatabase.other_settings_table WHERE ${SettingsDatabaseHelper.otherSettingsTableFieldValueAsInt} =1)) AND $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
     Logger().d('question: $questionList');
 
-    final questionStatusMap = await getQuestionStatusById(
-        questionId: questionList.first[DatabaseHelper.questionTableFieldId]);
+    if (questionList.isNotEmpty) {
+      final questionStatusMap = await getQuestionStatusById(
+          questionId: questionList.first[DatabaseHelper.questionTableFieldId]);
 
-    final model = QuestionEntity.fromMap(
-            questionMap: questionList.first,
-            questionStatusMap: questionStatusMap)
-        .toModel();
-    return model;
+      final model = QuestionEntity.fromMap(
+              questionMap: questionList.first,
+              questionStatusMap: questionStatusMap)
+          .toModel();
+      Logger().d('Returning question which is inside questionstatuslist');
+      return model;
+    } else {
+      if (askUnmarked) {
+        Logger().d(
+            'Returning unmarked question which is not in questionstatuslist');
+        List<Map<String, dynamic>> questionList = await db.rawQuery(
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName) ORDER BY RANDOM()');
+        final model = QuestionEntity.fromMap(
+          questionMap: questionList.first,
+        ).toModel();
+        return model;
+      } else {
+        Logger().d('Returning random question');
+        return getRandomQuestion();
+      }
+    }
   }
 
   static settingsTest() async {
@@ -254,7 +277,6 @@ class DatabaseHelper {
     final testList = await db.rawQuery(
         'SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM ${SettingsDatabaseHelper.categorySettingsTableName} WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = ? ',
         [1]);
-    Logger().d(' Daten von der Category settings database: $testList');
   }
 
   static Future<QuestionModel> getRandomQuestion() async {

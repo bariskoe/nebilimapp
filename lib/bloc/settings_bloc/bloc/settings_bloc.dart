@@ -43,5 +43,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         add(const SettingsEventGetAllSettings());
       });
     });
+
+    on<SettingsEventToggleAskMarkedAs>((event, emit) async {
+      Either<Failure, int> failureOrToggled = await settingsUsecases
+          .toggleAskMarkedAs(statusName: event.statusName);
+
+      failureOrToggled.fold((l) => emit(SettingsStateError()),
+          (r) => add(const SettingsEventGetAllSettings()));
+    });
   }
 }

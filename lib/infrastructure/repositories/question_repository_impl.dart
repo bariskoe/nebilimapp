@@ -33,7 +33,7 @@ class QuestionRepositoryImpl implements QuestionRepository {
       return Right(model);
     } catch (e) {
       Logger().e(
-          'Error in QuestionRepositoryImpl getRandomQuestion: ${e.toString()}');
+          'Error in QuestionRepositoryImpl getFilterConformQuestion: ${e.toString()}');
       return Left(DatabaseFailure());
     }
   }

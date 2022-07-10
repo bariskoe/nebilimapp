@@ -45,4 +45,8 @@ abstract class LocalSqliteDataSource {
   /// Sets the [ask] field of a row in the [difficultySettingsTable] to 1 if its
   /// current value is 0, and to 0 if its current value is 1.
   Future<int> toggleAskDifficulty({required int difficultyAsInt});
+
+  /// Sets the [ask] field of a row in the [otherSettingsTable] to 1 if its
+  /// current value is 0, and to 0 if its current value is 1.
+  Future<int> toggleAskMarkedAs({required String statusName});
 }

@@ -61,6 +61,12 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   }
 
   @override
+  Future<int> toggleAskMarkedAs({required String statusName}) async {
+    return await SettingsDatabaseHelper.toggleAskMarkedAs(
+        statusName: statusName);
+  }
+
+  @override
   Future<QuestionModel> getFilterConformQuestion() async {
     return await DatabaseHelper.getFilterConformQuestion();
   }

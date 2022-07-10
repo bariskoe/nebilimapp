@@ -49,4 +49,18 @@ class SettingsRepositoryImpl implements SettingsRepository {
       return Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, int>> toggleAskMarkedAs(
+      {required String statusName}) async {
+    try {
+      int changesMade =
+          await localSqliteDataSource.toggleAskMarkedAs(statusName: statusName);
+      return Right(changesMade);
+    } catch (e) {
+      Logger()
+          .e('Error caught in SettingsRepositoryImpl toggleAskMarkedAs: $e');
+      return Left(DatabaseFailure());
+    }
+  }
 }

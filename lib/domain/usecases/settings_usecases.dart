@@ -24,4 +24,8 @@ class SettingsUsecases {
     return settingsRepository.toggleAskDifficulty(
         difficultyAsInt: difficultyAsInt);
   }
+
+  Future<Either<Failure, int>> toggleAskMarkedAs({required String statusName}) {
+    return settingsRepository.toggleAskMarkedAs(statusName: statusName);
+  }
 }

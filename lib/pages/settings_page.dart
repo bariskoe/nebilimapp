@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../models/question_status_settings_model.dart';
 import '../bloc/settings_bloc/bloc/settings_bloc.dart';
 import '../custom_widgets/standard_page_widget.dart';
 import '../dependency_injection.dart';
+import '../domain/entities/question_status_entity.dart';
 import '../models/category_settings_model.dart';
 import '../models/difficulty_settings_model.dart';
 import '../models/question_insertion_model.dart';
@@ -55,6 +57,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     _buildDifficulties(state),
+                    const SizedBox(height: UiConstantsSize.large),
+                    Padding(
+                      padding: const EdgeInsets.all(UiConstantsPadding.large),
+                      child: Text(
+                        'Marked as...',
+                        style: Theme.of(context).textTheme.headline2,
+                      ),
+                    ),
+                    _buildMarkedAs(state),
                   ],
                 ),
               ),
@@ -112,11 +123,11 @@ class _SettingsPageState extends State<SettingsPage> {
         list.add(GestureDetector(
           onTap: (() => getIt<SettingsBloc>().add(
               SettingsEventToggleAskDifficulty(
-                  difficultyAsInt: model.difficultyEnum.getDifficultyAsInt))),
+                  difficultyAsInt: difficultyEnum.getDifficultyAsInt))),
           child: SettingsSymbol(
               //TODO: make a name getter for the international name
               name:
-                  '${model.difficultyEnum.getDifficultyAsInt + 1} : ${model.difficultyEnum.name}',
+                  '${difficultyEnum.getDifficultyAsInt + 1} : ${difficultyEnum.name}',
               icon: Icons.fitness_center,
               selected: model.ask),
         ));
@@ -134,6 +145,44 @@ class _SettingsPageState extends State<SettingsPage> {
           runSpacing: UiConstantsPadding.regular,
           alignment: WrapAlignment.spaceEvenly,
           children: _difficultySymbolBuilder(state),
+        ),
+      );
+    } else {
+      return Text('not Loaded state: $state');
+    }
+  }
+
+  _buildMarkedAs(SettingsState state) {
+    _markedAsSymbolBuilder(SettingsStateLoaded state) {
+      List<Widget> list = [];
+
+      for (QuestionStatusSettingsModel model
+          in state.settingsModel.questionStatusSettingsModelList) {
+        QuestionStatus questionStatusEnum = model.questionStatus;
+        list.add(GestureDetector(
+          onTap: (() => getIt<SettingsBloc>().add(
+              SettingsEventToggleAskMarkedAs(
+                  statusName: model.questionStatus.name))),
+          child: SettingsSymbol(
+              //TODO: make a name getter for the international name
+              name: model.questionStatus.getName(),
+              icon: model.questionStatus.getIcon(),
+              selected: model.ask),
+        ));
+      }
+      return list;
+    }
+
+    if (state is SettingsStateLoaded) {
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: UiConstantsPadding.regular,
+        ),
+        child: Wrap(
+          spacing: UiConstantsPadding.regular,
+          runSpacing: UiConstantsPadding.regular,
+          alignment: WrapAlignment.spaceEvenly,
+          children: _markedAsSymbolBuilder(state),
         ),
       );
     } else {

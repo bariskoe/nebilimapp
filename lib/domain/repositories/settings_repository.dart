@@ -7,4 +7,5 @@ abstract class SettingsRepository {
   Future<Either<Failure, int>> toggleAskCategory({required int categoryAsInt});
   Future<Either<Failure, int>> toggleAskDifficulty(
       {required int difficultyAsInt});
+  Future<Either<Failure, int>> toggleAskMarkedAs({required String statusName});
 }
