@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import '../database/database_helper.dart';
 import '../routing.dart';
 
 import '../bloc/question_bloc/bloc/question_bloc.dart';
@@ -201,6 +202,8 @@ class QuestionContainer extends StatelessWidget {
                       child: QuestionHeadlineWidget(
                           child: IconButton(
                     onPressed: () {
+                      DatabaseHelper.getAllQuestionStatuses();
+                      DatabaseHelper.getAllTimesFromLastTimeAskedTable();
                       getIt<QuestionBloc>()
                           .add(QuestionEventGetFilterConfromQuestion());
                     },
@@ -211,8 +214,6 @@ class QuestionContainer extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        //TODO lasttimeasked should be inserted by the databaseHelper
-
                         getIt<QuestionBloc>().add(
                             QuestionEventToggleFavoriteStatus(
                                 questionId: questionModel.questionId));

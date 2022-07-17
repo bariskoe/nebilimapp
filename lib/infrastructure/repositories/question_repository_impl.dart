@@ -89,4 +89,28 @@ class QuestionRepositoryImpl implements QuestionRepository {
       return Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, int>> insertQuestionIdToRecentlyAskedTable(
+      {required int questionId}) async {
+    try {
+      final success = await localSqliteDataSource
+          .insertQuestionIdToRecentlyAskedTable(questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> insertTimeToLastTimeAskedTable(
+      {required int questionId}) async {
+    try {
+      final success = await localSqliteDataSource
+          .insertTimeToLastTimeAskedTable(questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
 }

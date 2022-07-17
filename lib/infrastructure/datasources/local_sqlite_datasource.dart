@@ -49,4 +49,10 @@ abstract class LocalSqliteDataSource {
   /// Sets the [ask] field of a row in the [otherSettingsTable] to 1 if its
   /// current value is 0, and to 0 if its current value is 1.
   Future<int> toggleAskMarkedAs({required String statusName});
+
+  /// Inserts the provided [questionId] into [recentyAskedQuestionTable]
+  Future<int> insertQuestionIdToRecentlyAskedTable({required int questionId});
+
+  /// Inserts the current time in milliSecondSsinceEpoch into LastTimeAskedTable
+  Future<int> insertTimeToLastTimeAskedTable({required int questionId});
 }

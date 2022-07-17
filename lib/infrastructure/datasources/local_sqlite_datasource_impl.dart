@@ -41,6 +41,21 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
     return await DatabaseHelper.toggleDontAskAgain(questionId: questionId);
   }
 
+  @override
+  Future<int> insertQuestionIdToRecentlyAskedTable(
+      {required int questionId}) async {
+    return await DatabaseHelper.insertQuestionIdToRecentlyAskedTable(
+        questionId: questionId);
+  }
+
+  @override
+  Future<int> insertTimeToLastTimeAskedTable({
+    required int questionId,
+  }) async {
+    return await DatabaseHelper.insertTimeToLastTimeAskedTable(
+        questionId: questionId);
+  }
+
   //! Settings Database --------------------------------------------------------
 
   @override

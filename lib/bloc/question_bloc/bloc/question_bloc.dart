@@ -30,6 +30,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       }, (r) {
         emit(QuestionStateLoaded(questionModel: r));
         currentQuestionId = r.questionId;
+        questionUsecases.insertTimeToLastTimeAskedTable(
+            questionId: r.questionId);
+        questionUsecases.insertQuestionIdToRecentlyAskedTable(
+            questionId: r.questionId);
       });
     });
 
@@ -42,6 +46,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       }, (r) {
         emit(QuestionStateLoaded(questionModel: r));
         currentQuestionId = r.questionId;
+        questionUsecases.insertTimeToLastTimeAskedTable(
+            questionId: r.questionId);
+        questionUsecases.insertQuestionIdToRecentlyAskedTable(
+            questionId: r.questionId);
       });
     });
 
