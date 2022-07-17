@@ -1,9 +1,8 @@
-import '../../domain/failures/failures.dart';
-
 import 'package:dartz/dartz.dart';
-import '../datasources/local_sqlite_datasource.dart';
 
+import '../../domain/failures/failures.dart';
 import '../../domain/repositories/data_preparation_repository.dart';
+import '../datasources/local_sqlite_datasource.dart';
 
 class DataPreparationRepositoryImpl implements DataPreparationRepository {
   final LocalSqliteDataSource localSqliteDataSource;

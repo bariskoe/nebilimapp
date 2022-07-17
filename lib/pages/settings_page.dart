@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/question_status_settings_model.dart';
+
 import '../bloc/settings_bloc/bloc/settings_bloc.dart';
 import '../custom_widgets/standard_page_widget.dart';
 import '../dependency_injection.dart';
@@ -8,9 +8,8 @@ import '../domain/entities/question_status_entity.dart';
 import '../models/category_settings_model.dart';
 import '../models/difficulty_settings_model.dart';
 import '../models/question_insertion_model.dart';
+import '../models/question_status_settings_model.dart';
 import '../ui/ui_constants/ui_constants.dart';
-
-import '../database/database_helper.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -162,11 +161,11 @@ class _SettingsPageState extends State<SettingsPage> {
         list.add(GestureDetector(
           onTap: (() => getIt<SettingsBloc>().add(
               SettingsEventToggleAskMarkedAs(
-                  statusName: model.questionStatus.name))),
+                  statusName: questionStatusEnum.name))),
           child: SettingsSymbol(
               //TODO: make a name getter for the international name
-              name: model.questionStatus.getName(),
-              icon: model.questionStatus.getIcon(),
+              name: questionStatusEnum.getName(),
+              icon: questionStatusEnum.getIcon(),
               selected: model.ask),
         ));
       }

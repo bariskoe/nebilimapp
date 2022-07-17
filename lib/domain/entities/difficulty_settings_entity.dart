@@ -1,5 +1,5 @@
-import 'package:nebilimapp/database/settings_database_helper.dart';
-import 'package:nebilimapp/models/difficulty_settings_model.dart';
+import '../../database/settings_database_helper.dart';
+import '../../models/difficulty_settings_model.dart';
 
 class DifficultySettingsEntity {
   final int difficultyAsInt;

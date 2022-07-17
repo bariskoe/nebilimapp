@@ -1,5 +1,5 @@
-import 'package:nebilimapp/database/settings_database_helper.dart';
-import 'package:nebilimapp/domain/entities/question_status_entity.dart';
+import '../../database/settings_database_helper.dart';
+import 'question_status_entity.dart';
 
 import '../../models/question_status_settings_model.dart';
 

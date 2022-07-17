@@ -404,11 +404,11 @@ class SettingsDatabaseHelper {
     List<Map<String, dynamic>> askUnmarkedSetting = await db.rawQuery(
         'SELECT * FROM $otherSettingsTableName WHERE  $otherSettingsTableFieldNameOfSetting =?',
         [otherSettingsAskUnmarkedStatus]);
-    ;
+
     List<Map<String, dynamic>> askDontAskAgainSetting = await db.rawQuery(
         'SELECT * FROM $otherSettingsTableName WHERE  $otherSettingsTableFieldNameOfSetting =?',
         [otherSettingsDontAskAgainStatus]);
-    ;
+    
     List<Map<String, dynamic>> askFavoritedSetting = await db.rawQuery(
         'SELECT * FROM $otherSettingsTableName WHERE  $otherSettingsTableFieldNameOfSetting =?',
         [otherSettingsAskFavoritedStatus]);

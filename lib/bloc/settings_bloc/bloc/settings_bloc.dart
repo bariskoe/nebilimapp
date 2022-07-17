@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/settings_usecases.dart';
 import '../../../models/settings_model.dart';

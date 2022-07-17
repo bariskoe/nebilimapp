@@ -272,13 +272,6 @@ class DatabaseHelper {
     }
   }
 
-  static settingsTest() async {
-    Database db = await instance.database;
-    final testList = await db.rawQuery(
-        'SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM ${SettingsDatabaseHelper.categorySettingsTableName} WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = ? ',
-        [1]);
-  }
-
   static Future<QuestionModel> getRandomQuestion() async {
     Database db = await instance.database;
     List<Map<String, dynamic>> list = await db.rawQuery(
