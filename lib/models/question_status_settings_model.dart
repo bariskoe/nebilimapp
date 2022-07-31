@@ -1,21 +1,18 @@
 import 'package:equatable/equatable.dart';
-
 import '../domain/entities/question_status_entity.dart';
 
-class QuestionStatusModel with EquatableMixin {
-  int questionId;
+class QuestionStatusSettingsModel with EquatableMixin {
   QuestionStatus questionStatus;
-  DateTime? lastTimeAsked;
-  QuestionStatusModel({
-    required this.questionId,
+  bool ask;
+
+  QuestionStatusSettingsModel({
     required this.questionStatus,
-    required this.lastTimeAsked,
+    required this.ask,
   });
 
   @override
   List<Object?> get props => [
-        questionId,
         questionStatus,
-        lastTimeAsked,
+        ask,
       ];
 }

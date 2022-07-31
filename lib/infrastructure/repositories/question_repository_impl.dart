@@ -27,6 +27,18 @@ class QuestionRepositoryImpl implements QuestionRepository {
   }
 
   @override
+  Future<Either<Failure, QuestionModel>> getFilterConformQuestion() async {
+    try {
+      final model = await localSqliteDataSource.getFilterConformQuestion();
+      return Right(model);
+    } catch (e) {
+      Logger().e(
+          'Error in QuestionRepositoryImpl getFilterConformQuestion: ${e.toString()}');
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, QuestionModel>> getQuestionById(
       {required int questionId}) async {
     try {
@@ -72,6 +84,30 @@ class QuestionRepositoryImpl implements QuestionRepository {
     try {
       final success = await localSqliteDataSource.toggleDontAskAgain(
           questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> insertQuestionIdToRecentlyAskedTable(
+      {required int questionId}) async {
+    try {
+      final success = await localSqliteDataSource
+          .insertQuestionIdToRecentlyAskedTable(questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> insertTimeToLastTimeAskedTable(
+      {required int questionId}) async {
+    try {
+      final success = await localSqliteDataSource
+          .insertTimeToLastTimeAskedTable(questionId: questionId);
       return Right(success);
     } catch (e) {
       return Left(DatabaseFailure());

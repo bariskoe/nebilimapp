@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/routing.dart';
+import '../database/database_helper.dart';
+import '../routing.dart';
 
 import '../bloc/question_bloc/bloc/question_bloc.dart';
 import '../constants/assets.dart';
@@ -154,7 +155,7 @@ class QuestionContainer extends StatelessWidget {
                           Icons.fitness_center,
                           color: Theme.of(context).colorScheme.onSecondary,
                         ),
-                        Text('${questionModel.questionDifficulty}',
+                        Text('${questionModel.questionDifficulty + 1}',
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3!
@@ -184,11 +185,11 @@ class QuestionContainer extends StatelessWidget {
                       child: QuestionHeadlineWidget(
                     child: IconButton(
                       icon: questionModel.questionStatusModel == null
-                          ? Icon(Icons.delete_outline)
+                          ? const Icon(Icons.delete_outline)
                           : questionModel.questionStatusModel!.questionStatus
                                   .isDontAskagain
-                              ? Icon(Icons.delete)
-                              : Icon(Icons.delete_outline),
+                              ? const Icon(Icons.delete)
+                              : const Icon(Icons.delete_outline),
                       onPressed: () {
                         getIt<QuestionBloc>().add(
                             QuestionEventToggleDontShowAgain(
@@ -201,17 +202,18 @@ class QuestionContainer extends StatelessWidget {
                       child: QuestionHeadlineWidget(
                           child: IconButton(
                     onPressed: () {
+                      DatabaseHelper.getAllQuestionStatuses();
+                      DatabaseHelper.getAllTimesFromLastTimeAskedTable();
                       getIt<QuestionBloc>()
-                          .add(QuestionEventGetRandomQuestion());
+                          .add(QuestionEventGetFilterConfromQuestion());
                     },
-                    icon: const Icon(Icons.play_arrow),
+                    icon: const Icon(Icons.play_arrow,
+                        key: ValueKey('playButton')),
                     color: Theme.of(context).colorScheme.onSecondary,
                   ))),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        //TODO lasttimeasked should be inserted by the databaseHelper
-
                         getIt<QuestionBloc>().add(
                             QuestionEventToggleFavoriteStatus(
                                 questionId: questionModel.questionId));

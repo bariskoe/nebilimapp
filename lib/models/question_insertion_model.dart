@@ -131,6 +131,10 @@ extension QuestionCategoryExtension on QuestionCategory {
     return categories[serializedCategory];
   }
 
+  String getName() {
+    return name;
+  }
+
   IconData getCategoryIcon() {
     switch (this) {
       case QuestionCategory.history:

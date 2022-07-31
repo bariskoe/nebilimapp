@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nebilimapp/pages/settings_page.dart';
+import 'pages/settings_page.dart';
 import 'pages/data_preparation_page.dart';
 import 'pages/single_quiz_page.dart';
 

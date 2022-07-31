@@ -16,6 +16,10 @@ class QuestionUsecases {
     return await questionRepository.getRandomQuestion();
   }
 
+  Future<Either<Failure, QuestionModel>> getFilterConformQuestion() async {
+    return await questionRepository.getFilterConformQuestion();
+  }
+
   Future<Either<Failure, QuestionModel>> getQuestionById(
       {required int questionId}) async {
     return await questionRepository.getQuestionById(questionId: questionId);
@@ -38,5 +42,17 @@ class QuestionUsecases {
     return await questionRepository.toggleDontAskAgain(
       questionId: questionId,
     );
+  }
+
+  Future<Either<Failure, int>> insertQuestionIdToRecentlyAskedTable(
+      {required int questionId}) async {
+    return await questionRepository.insertQuestionIdToRecentlyAskedTable(
+        questionId: questionId);
+  }
+
+  Future<Either<Failure, int>> insertTimeToLastTimeAskedTable(
+      {required int questionId}) async {
+    return await questionRepository.insertTimeToLastTimeAskedTable(
+        questionId: questionId);
   }
 }

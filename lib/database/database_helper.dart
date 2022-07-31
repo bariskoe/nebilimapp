@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
+import 'settings_database_helper.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../models/question_status_model.dart';
 import '../domain/entities/question_entity.dart';
@@ -68,6 +69,31 @@ class DatabaseHelper {
   static const String questionStatusTableFieldLastTimeAsked =
       'last_time_asked ';
 
+  /// Fields of the lastTimeAsked Table --------------------------------------------------
+  static const String lastTimeAskedTableName = 'last_time_asekd_table';
+
+  /// Foreign key
+  static const String lastTimeAsekdTableFieldQuestionID = 'questionid_fk';
+  static const String lastTimeAsekdTableLastTimeAskedInMsSinceEpoch =
+      'last_time_asked';
+
+  /// Fields of the recentyAsked Table ---------------------------------------------------
+  static const String recentlyAskedTableName = 'recently_asekd_table';
+
+  /// Foreign key
+  static const String recentlyAskedTableFieldQuestionID = 'questionid_fk';
+
+  /// This function attaches a database from another file to the provided database
+  Future<Database> attachDb(
+      {required Database db,
+      required String databaseName,
+      required String databaseAlias}) async {
+    Directory documentDirectory = await getApplicationDocumentsDirectory();
+    String absoluteEndPath = join(documentDirectory.path, databaseName);
+    await db.rawQuery("ATTACH DATABASE '$absoluteEndPath' as '$databaseAlias'");
+    return db;
+  }
+
   Future onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
   }
@@ -102,6 +128,31 @@ class DatabaseHelper {
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
       ''');
+    await db.execute('''
+      CREATE TABLE $lastTimeAskedTableName(
+          $lastTimeAsekdTableFieldQuestionID  INTEGER PRIMARY KEY UNIQUE,
+          $lastTimeAsekdTableLastTimeAskedInMsSinceEpoch INTEGER,
+          FOREIGN KEY ($lastTimeAsekdTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
+      );
+      ''');
+
+    await db.execute('''
+      CREATE TABLE $recentlyAskedTableName(
+          $recentlyAskedTableFieldQuestionID  INTEGER PRIMARY KEY UNIQUE,
+         
+          FOREIGN KEY ($recentlyAskedTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
+      );
+      ''');
+    await _attachSettingsDatabase(db);
+  }
+
+  Future _attachSettingsDatabase(Database db) async {
+    /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
+    await attachDb(
+      db: db,
+      databaseName: SettingsDatabaseHelper.databaseName,
+      databaseAlias: SettingsDatabaseHelper.databaseAlias,
+    );
   }
 
   Future<Database> _initDatabase() async {
@@ -190,8 +241,7 @@ class DatabaseHelper {
     List<Map> allQuestions =
         await db.rawQuery('SELECT * FROM $questionTableName');
 
-    Logger().d('First Question in list: ${allQuestions.first}');
-    Logger().d('Last Question in list: ${allQuestions.last}');
+    Logger().d('allquestions: $allQuestions');
   }
 
   static getAllQuestionStatuses() async {
@@ -211,6 +261,47 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.rawDelete(
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
+  }
+
+  static Future<QuestionModel> getFilterConformQuestion() async {
+    Database db = await instance.database;
+    int askUnmarkedAsInt = await SettingsDatabaseHelper.getValueOfOtherSetting(
+        nameOfOtherSetting:
+            SettingsDatabaseHelper.otherSettingsAskUnmarkedStatus);
+    bool askUnmarked = askUnmarkedAsInt == 0 ? false : true;
+    List<Map<String, dynamic>> questionList = await db.rawQuery(
+        'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) AND $questionTableFieldId IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus IN (SELECT ${SettingsDatabaseHelper.otherSettingsTableFieldNameAsInt} FROM SettingsDatabase.other_settings_table WHERE ${SettingsDatabaseHelper.otherSettingsTableFieldValueAsInt} =1)) AND $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
+    Logger().d('question: $questionList');
+
+    if (questionList.isNotEmpty) {
+      Logger().d('filterconformquestions: $questionList');
+      final questionStatusMap = await getQuestionStatusById(
+          questionId: questionList.first[DatabaseHelper.questionTableFieldId]);
+
+      final model = QuestionEntity.fromMap(
+              questionMap: questionList.first,
+              questionStatusMap: questionStatusMap)
+          .toModel();
+      Logger().d('Returning question which is inside questionstatuslist');
+      return model;
+    } else {
+      if (askUnmarked) {
+        Logger().d(
+            'Returning unmarked question which is not in questionstatuslist');
+        List<Map<String, dynamic>> questionList = await db.rawQuery(
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName) AND $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) ORDER BY RANDOM()');
+        final model = QuestionEntity.fromMap(
+          questionMap: questionList.first,
+        ).toModel();
+        return model;
+      } else {
+        ///Current Situation: When there are no filterconformquestions left and all unmarked questions have been asked, a random question is being asked as kind of a fallback.
+        /// What should be is that a dialog should be shown, asking if the filterconform questions should be asked again. If yes, all entries in
+        /// recently asked questions table should be deleted
+        Logger().d('Returning random question');
+        return getRandomQuestion();
+      }
+    }
   }
 
   static Future<QuestionModel> getRandomQuestion() async {
@@ -370,5 +461,66 @@ class DatabaseHelper {
           questionStatusModel: newQuestionStatusModel);
       return updated;
     }
+  }
+
+  static Future<bool> checkIfLastTimeAskedExists(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    final mapList = await db.rawQuery(
+        'SELECT $lastTimeAsekdTableLastTimeAskedInMsSinceEpoch FROM $lastTimeAskedTableName WHERE $lastTimeAsekdTableFieldQuestionID = ?',
+        [questionId]);
+    // returns true if an entry exists for this questionId.
+    return mapList.isNotEmpty;
+  }
+
+  static Future<int> insertTimeToLastTimeAskedTable(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    final lastTimeAsked = DateTime.now().millisecondsSinceEpoch;
+    final map = {
+      lastTimeAsekdTableFieldQuestionID: questionId,
+      lastTimeAsekdTableLastTimeAskedInMsSinceEpoch: lastTimeAsked,
+    };
+    return await db.insert(
+      lastTimeAskedTableName,
+      map,
+    );
+  }
+
+  static Future<int> insertQuestionIdToRecentlyAskedTable(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    final alreadyExists = await db.rawQuery(
+        'SELECT * FROM $recentlyAskedTableName WHERE $recentlyAskedTableFieldQuestionID =?',
+        [questionId]);
+    if (alreadyExists.isEmpty) {
+      final map = {recentlyAskedTableFieldQuestionID: questionId};
+      final inserted = await db.insert(recentlyAskedTableName, map);
+
+      return inserted;
+    } else {
+      return 0;
+    }
+  }
+
+  static Future<int> deleteQuestionIdFromRecentlyAskedQuestionsTable(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    final deleted = db.rawDelete(
+        'DELETE * FROM $recentlyAskedTableName WHERE $recentlyAskedTableFieldQuestionID = ?',
+        [questionId]);
+    return deleted;
+  }
+
+  static getAllRecentlyAskedQuestionIds() async {
+    Database db = await instance.database;
+    final mapList = await db.rawQuery('SELECT * from $recentlyAskedTableName');
+    Logger().d('recently asked questions ist: $mapList');
+  }
+
+  static getAllTimesFromLastTimeAskedTable() async {
+    Database db = await instance.database;
+    final mapList = await db.rawQuery('SELECT * from $lastTimeAskedTableName');
+    Logger().d('all last time asked : $mapList');
   }
 }

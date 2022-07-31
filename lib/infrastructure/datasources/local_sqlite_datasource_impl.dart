@@ -1,5 +1,5 @@
-import 'package:nebilimapp/database/settings_database_helper.dart';
-import 'package:nebilimapp/models/settings_model.dart';
+import '../../database/settings_database_helper.dart';
+import '../../models/settings_model.dart';
 
 import '/database/database_helper.dart';
 import '../../models/question_model.dart';
@@ -41,10 +41,48 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
     return await DatabaseHelper.toggleDontAskAgain(questionId: questionId);
   }
 
+  @override
+  Future<int> insertQuestionIdToRecentlyAskedTable(
+      {required int questionId}) async {
+    return await DatabaseHelper.insertQuestionIdToRecentlyAskedTable(
+        questionId: questionId);
+  }
+
+  @override
+  Future<int> insertTimeToLastTimeAskedTable({
+    required int questionId,
+  }) async {
+    return await DatabaseHelper.insertTimeToLastTimeAskedTable(
+        questionId: questionId);
+  }
+
   //! Settings Database --------------------------------------------------------
 
   @override
   Future<SettingsModel> getAllSettings() async {
     return await SettingsDatabaseHelper.getAllSettings();
+  }
+
+  @override
+  Future<int> toggleAskCategory({required int categoryAsInt}) async {
+    return await SettingsDatabaseHelper.toggleAskCategory(
+        categoryAsInt: categoryAsInt);
+  }
+
+  @override
+  Future<int> toggleAskDifficulty({required int difficultyAsInt}) async {
+    return await SettingsDatabaseHelper.toggleAskDifficulty(
+        difficultyAsInt: difficultyAsInt);
+  }
+
+  @override
+  Future<int> toggleAskMarkedAs({required String statusName}) async {
+    return await SettingsDatabaseHelper.toggleAskMarkedAs(
+        statusName: statusName);
+  }
+
+  @override
+  Future<QuestionModel> getFilterConformQuestion() async {
+    return await DatabaseHelper.getFilterConformQuestion();
   }
 }

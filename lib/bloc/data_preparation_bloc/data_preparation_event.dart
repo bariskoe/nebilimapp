@@ -14,3 +14,11 @@ class DataPreparationEventUpdateQuestionDatabaseIfNeccessary
   @override
   List<Object> get props => [];
 }
+
+class DataPreparationEventInitializeSettingsDatabase
+    extends DataPreparationEvent {
+  const DataPreparationEventInitializeSettingsDatabase();
+
+  @override
+  List<Object> get props => [];
+}

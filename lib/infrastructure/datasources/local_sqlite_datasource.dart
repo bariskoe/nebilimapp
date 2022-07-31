@@ -1,4 +1,4 @@
-import 'package:nebilimapp/models/settings_model.dart';
+import '../../models/settings_model.dart';
 
 import '../../models/question_model.dart';
 import '../../models/question_status_model.dart';
@@ -12,6 +12,9 @@ abstract class LocalSqliteDataSource {
 
   /// Choses a random question from the database and returns a [QuestionModel].
   Future<QuestionModel> getRandomQuestion();
+
+  /// Returns a [QuestionModel] which was built based on filter preferences
+  Future<QuestionModel> getFilterConformQuestion();
 
   /// Returns a [QuestionModel] which hold the data of the question with the
   /// provided [questionId]
@@ -34,4 +37,22 @@ abstract class LocalSqliteDataSource {
   /// Returns a SettingsModel which holds all settings for the Questionfilters etc
   /// (Category Settings, QuestionsStatus Settings etc.)
   Future<SettingsModel> getAllSettings();
+
+  /// Sets the [ask] field of a row in the [categorySettingsTable] to 1 if its
+  /// current value is 0, and to 0 if its current value is 1.
+  Future<int> toggleAskCategory({required int categoryAsInt});
+
+  /// Sets the [ask] field of a row in the [difficultySettingsTable] to 1 if its
+  /// current value is 0, and to 0 if its current value is 1.
+  Future<int> toggleAskDifficulty({required int difficultyAsInt});
+
+  /// Sets the [ask] field of a row in the [otherSettingsTable] to 1 if its
+  /// current value is 0, and to 0 if its current value is 1.
+  Future<int> toggleAskMarkedAs({required String statusName});
+
+  /// Inserts the provided [questionId] into [recentyAskedQuestionTable]
+  Future<int> insertQuestionIdToRecentlyAskedTable({required int questionId});
+
+  /// Inserts the current time in milliSecondSsinceEpoch into LastTimeAskedTable
+  Future<int> insertTimeToLastTimeAskedTable({required int questionId});
 }

@@ -6,12 +6,25 @@ import '../failures/failures.dart';
 
 abstract class QuestionRepository {
   Future<Either<Failure, QuestionModel>> getRandomQuestion();
-  Future<Either<Failure, QuestionModel>> getQuestionById(
-      {required int questionId});
+  Future<Either<Failure, QuestionModel>> getFilterConformQuestion();
+  Future<Either<Failure, QuestionModel>> getQuestionById({
+    required int questionId,
+  });
 
-  Future<Either<Failure, int>> updateQuestionStatus(
-      {required QuestionStatusModel questionStatusModel});
+  Future<Either<Failure, int>> updateQuestionStatus({
+    required QuestionStatusModel questionStatusModel,
+  });
 
-  Future<Either<Failure, int>> toggleFavoriteStatus({required int questionId});
-  Future<Either<Failure, int>> toggleDontAskAgain({required int questionId});
+  Future<Either<Failure, int>> toggleFavoriteStatus({
+    required int questionId,
+  });
+  Future<Either<Failure, int>> toggleDontAskAgain({
+    required int questionId,
+  });
+  Future<Either<Failure, int>> insertQuestionIdToRecentlyAskedTable({
+    required int questionId,
+  });
+  Future<Either<Failure, int>> insertTimeToLastTimeAskedTable({
+    required int questionId,
+  });
 }

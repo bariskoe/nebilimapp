@@ -29,20 +29,23 @@ class Themes {
     const Color onBackground = Color.fromRGBO(38, 37, 37, opacity);
     const Color surface = Color.fromRGBO(250, 250, 250, opacity);
     const Color onSurface = Color.fromRGBO(38, 37, 37, opacity);
+    const Color tertiary = Color.fromRGBO(224, 224, 224, opacity);
 
     return ThemeData(
         textTheme: appTextTheme(),
         colorScheme: const ColorScheme(
-            brightness: Brightness.light,
-            primary: primary,
-            onPrimary: onPrimary,
-            secondary: secondary,
-            onSecondary: onSecondary,
-            error: error,
-            onError: onError,
-            background: background,
-            onBackground: onBackground,
-            surface: surface,
-            onSurface: onSurface));
+          brightness: Brightness.light,
+          primary: primary,
+          onPrimary: onPrimary,
+          secondary: secondary,
+          onSecondary: onSecondary,
+          error: error,
+          onError: onError,
+          background: background,
+          onBackground: onBackground,
+          surface: surface,
+          onSurface: onSurface,
+          tertiary: tertiary,
+        ));
   }
 }

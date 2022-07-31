@@ -15,6 +15,7 @@ import 'ui/themes/themes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.setupDependencyInjectionWithGetIt();
+
   runApp(const MyApp());
 }
 

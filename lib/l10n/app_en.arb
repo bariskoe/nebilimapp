@@ -10,5 +10,14 @@
     "questionCategoryCelebrities":"Celebrities",
     "questionCategoryFood":"Food",
     "questionCategoryMusic":"Music",
-    "questionCategoryArts":"Arts"
+    "questionCategoryArts":"Arts",
+
+    "questionDifficulty1": "easy peasy",
+    "questionDifficulty2": "easy",
+    "questionDifficulty3": "average",
+    "questionDifficulty4":"hard",
+    "questionDifficulty5": "superbrain",
+
+
+    "end":"end"
 }

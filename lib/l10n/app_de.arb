@@ -10,7 +10,15 @@
     "questionCategoryCelebrities":"Celebrities",
     "questionCategoryFood":"Gaumenschmaus",
     "questionCategoryMusic":"Musik",
-    "questionCategoryArts":"Kunst"
+    "questionCategoryArts":"Kunst",
+
+    "questionDifficulty1": "easy peasy",
+    "questionDifficulty2": "leicht",
+    "questionDifficulty3": "normal",
+    "questionDifficulty4":"schwer",
+    "questionDifficulty5": "superbrain",
+
+    "end":"end"
 }
 
 

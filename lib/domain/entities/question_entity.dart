@@ -5,7 +5,7 @@ import '../../models/question_insertion_model.dart';
 import '../../database/database_helper.dart';
 import '../../models/question_model.dart';
 
-//TODO: The Entity should only have raw Data, whereas the model should hold the respective ready-to-use data. Fix this entity!
+
 
 class QuestionEntity {
   final int questionId;
