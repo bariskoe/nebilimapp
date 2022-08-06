@@ -13,6 +13,7 @@ class DataPreparationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future.delayed(const Duration(seconds: 0), () async {
+      //Initialize settings database
       await SettingsDatabaseHelper.functionToInitializeSettingsDatabase();
       getIt<DataPreparationBloc>()
           .add(const DataPreparationEventUpdateQuestionDatabaseIfNeccessary());
