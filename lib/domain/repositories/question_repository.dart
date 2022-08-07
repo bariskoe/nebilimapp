@@ -27,4 +27,6 @@ abstract class QuestionRepository {
   Future<Either<Failure, int>> insertTimeToLastTimeAskedTable({
     required int questionId,
   });
+
+  Future<Either<Failure, int>> clearRecentlyAskedTable();
 }

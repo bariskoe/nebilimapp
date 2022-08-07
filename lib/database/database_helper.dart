@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/infrastructure/exceptions/exceptions.dart';
 import 'settings_database_helper.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../models/question_status_model.dart';
@@ -84,13 +85,18 @@ class DatabaseHelper {
   static const String recentlyAskedTableFieldQuestionID = 'questionid_fk';
 
   /// This function attaches a database from another file to the provided database
-  Future<Database> attachDb(
+  static Future<Database> attachDb(
       {required Database db,
       required String databaseName,
       required String databaseAlias}) async {
     Directory documentDirectory = await getApplicationDocumentsDirectory();
     String absoluteEndPath = join(documentDirectory.path, databaseName);
-    await db.rawQuery("ATTACH DATABASE '$absoluteEndPath' as '$databaseAlias'");
+    try {
+      await db
+          .rawQuery("ATTACH DATABASE '$absoluteEndPath' as '$databaseAlias'");
+    } catch (e) {
+      Logger().d('Caught error: $e');
+    }
     return db;
   }
 
@@ -146,7 +152,7 @@ class DatabaseHelper {
     await _attachSettingsDatabase(db);
   }
 
-  Future _attachSettingsDatabase(Database db) async {
+  static Future _attachSettingsDatabase(Database db) async {
     /// Attach the [SettingsDatabase] to this [QuestionDatabase] (db) to be able to filter
     await attachDb(
       db: db,
@@ -265,6 +271,11 @@ class DatabaseHelper {
 
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
+    try {
+      _attachSettingsDatabase(db);
+    } catch (e) {
+      Logger().d('Error while attaching: $e');
+    }
     int askUnmarkedAsInt = await SettingsDatabaseHelper.getValueOfOtherSetting(
         nameOfOtherSetting:
             SettingsDatabaseHelper.otherSettingsAskUnmarkedStatus);
@@ -290,16 +301,22 @@ class DatabaseHelper {
             'Returning unmarked question which is not in questionstatuslist');
         List<Map<String, dynamic>> questionList = await db.rawQuery(
             'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName) AND $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) ORDER BY RANDOM()');
-        final model = QuestionEntity.fromMap(
-          questionMap: questionList.first,
-        ).toModel();
-        return model;
+        if (questionList.isNotEmpty) {
+          final model = QuestionEntity.fromMap(
+            questionMap: questionList.first,
+          ).toModel();
+          return model;
+        } else {
+          Logger().d(
+              'No unmarked Questions left. Returning NoQuestionLeftException');
+          throw NoQuestionLeftException();
+        }
       } else {
         ///Current Situation: When there are no filterconformquestions left and all unmarked questions have been asked, a random question is being asked as kind of a fallback.
         /// What should be is that a dialog should be shown, asking if the filterconform questions should be asked again. If yes, all entries in
         /// recently asked questions table should be deleted
-        Logger().d('Returning random question');
-        return getRandomQuestion();
+        Logger().d('No Questions left. Returning NoQuestionLeftException');
+        throw NoQuestionLeftException();
       }
     }
   }
@@ -510,6 +527,12 @@ class DatabaseHelper {
         'DELETE * FROM $recentlyAskedTableName WHERE $recentlyAskedTableFieldQuestionID = ?',
         [questionId]);
     return deleted;
+  }
+
+  static Future<int> clearRecentlyAskedTable() async {
+    Database db = await instance.database;
+    int count = await db.delete(recentlyAskedTableName);
+    return count;
   }
 
   static getAllRecentlyAskedQuestionIds() async {

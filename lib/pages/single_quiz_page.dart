@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/ui/standard_widgets/dialog.dart';
 import '../database/database_helper.dart';
 import '../routing.dart';
 
@@ -22,9 +23,19 @@ class SingleQuizPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     getIt<QuestionBloc>().add(QuestionEventGetRandomQuestion());
+
     String currentLocale = Intl.getCurrentLocale();
     Logger().d('currentlocale is $currentLocale');
-    return BlocBuilder<QuestionBloc, QuestionState>(
+    return BlocConsumer<QuestionBloc, QuestionState>(
+      listener: (context, state) async {
+        if (state is QuestionStateNoQuestionsLeft) {
+          await dialogScaffold(context,
+              content: const Text('No questions left. Starting again.'),
+              onOkpressed: () {
+            getIt<QuestionBloc>().add(QuestionEventClearRecentlyAskedTable());
+          });
+        }
+      },
       builder: (context, state) {
         return StandardPageWidget(
             appbarActions: [

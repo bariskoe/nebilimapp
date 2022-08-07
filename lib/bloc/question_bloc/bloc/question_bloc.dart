@@ -42,7 +42,11 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           await questionUsecases.getFilterConformQuestion();
 
       failureOrQuestionModel.fold((l) {
-        emit(QuestionStateError());
+        if (l is NoQuestionsLeftFailure) {
+          emit(QuestionStateNoQuestionsLeft());
+        } else {
+          emit(QuestionStateError());
+        }
       }, (r) {
         emit(QuestionStateLoaded(questionModel: r));
         currentQuestionId = r.questionId;
@@ -94,6 +98,14 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         emit(QuestionStateLoaded(questionModel: r));
         currentQuestionId = r.questionId;
       });
+    });
+
+    on<QuestionEventClearRecentlyAskedTable>((event, emit) async {
+      emit(QuestionStateLoading());
+      Either<Failure, int> failureOrDeletedRowsCount =
+          await questionUsecases.clearRecentlyAskedQuestionsTable();
+      failureOrDeletedRowsCount.fold((l) => emit(QuestionStateError()),
+          (r) => add(QuestionEventGetFilterConfromQuestion()));
     });
   }
 }

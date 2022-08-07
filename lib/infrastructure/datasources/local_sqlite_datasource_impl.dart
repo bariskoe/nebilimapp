@@ -85,4 +85,9 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   Future<QuestionModel> getFilterConformQuestion() async {
     return await DatabaseHelper.getFilterConformQuestion();
   }
+
+  @override
+  Future<int> clearRecentlyAskedTable() async {
+    return await DatabaseHelper.clearRecentlyAskedTable();
+  }
 }

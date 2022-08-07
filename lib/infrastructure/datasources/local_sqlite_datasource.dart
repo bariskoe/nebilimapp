@@ -55,4 +55,7 @@ abstract class LocalSqliteDataSource {
 
   /// Inserts the current time in milliSecondSsinceEpoch into LastTimeAskedTable
   Future<int> insertTimeToLastTimeAskedTable({required int questionId});
+
+  /// Deletes all entries from [RecentlyAskedTable]
+  Future<int> clearRecentlyAskedTable();
 }

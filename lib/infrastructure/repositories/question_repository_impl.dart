@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/infrastructure/exceptions/exceptions.dart';
 
 import '../../domain/failures/failures.dart';
 import '../../domain/repositories/question_repository.dart';
@@ -32,6 +33,9 @@ class QuestionRepositoryImpl implements QuestionRepository {
       final model = await localSqliteDataSource.getFilterConformQuestion();
       return Right(model);
     } catch (e) {
+      if (e is NoQuestionLeftException) {
+        return Left(NoQuestionsLeftFailure());
+      }
       Logger().e(
           'Error in QuestionRepositoryImpl getFilterConformQuestion: ${e.toString()}');
       return Left(DatabaseFailure());
@@ -108,6 +112,16 @@ class QuestionRepositoryImpl implements QuestionRepository {
     try {
       final success = await localSqliteDataSource
           .insertTimeToLastTimeAskedTable(questionId: questionId);
+      return Right(success);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> clearRecentlyAskedTable() async {
+    try {
+      final success = await localSqliteDataSource.clearRecentlyAskedTable();
       return Right(success);
     } catch (e) {
       return Left(DatabaseFailure());

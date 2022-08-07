@@ -54,3 +54,5 @@ class QuestionEventToggleDontShowAgain extends QuestionEvent {
         questionId,
       ];
 }
+
+class QuestionEventClearRecentlyAskedTable extends QuestionEvent {}

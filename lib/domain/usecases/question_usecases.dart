@@ -55,4 +55,8 @@ class QuestionUsecases {
     return await questionRepository.insertTimeToLastTimeAskedTable(
         questionId: questionId);
   }
+
+  Future<Either<Failure, int>> clearRecentlyAskedQuestionsTable() async {
+    return await questionRepository.clearRecentlyAskedTable();
+  }
 }
