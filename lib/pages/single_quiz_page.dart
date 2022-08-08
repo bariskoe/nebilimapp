@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/ui/standard_widgets/dialog.dart';
+import 'package:nebilimapp/ui/standard_widgets/dialog_scaffold.dart';
 import '../database/database_helper.dart';
 import '../routing.dart';
 
@@ -22,7 +22,8 @@ class SingleQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    getIt<QuestionBloc>().add(QuestionEventGetRandomQuestion());
+    // getIt<QuestionBloc>().add(QuestionEventGetRandomQuestion());
+    getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion());
 
     String currentLocale = Intl.getCurrentLocale();
     Logger().d('currentlocale is $currentLocale');
@@ -213,8 +214,6 @@ class QuestionContainer extends StatelessWidget {
                       child: QuestionHeadlineWidget(
                           child: IconButton(
                     onPressed: () {
-                      DatabaseHelper.getAllQuestionStatuses();
-                      DatabaseHelper.getAllTimesFromLastTimeAskedTable();
                       getIt<QuestionBloc>()
                           .add(QuestionEventGetFilterConfromQuestion());
                     },

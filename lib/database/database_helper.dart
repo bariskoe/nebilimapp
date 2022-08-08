@@ -129,7 +129,7 @@ class DatabaseHelper {
       CREATE TABLE $questionStatusTableName(
           $questionStatusTableFieldId  INTEGER PRIMARY KEY AUTOINCREMENT,
           $questionStatusTableFieldStatus INTEGER,
-          $questionStatusTableFieldLastTimeAsked INTEGER,
+          $questionStatusTableFieldLastTimeAsked INTEGER, //TODO diese Spalte hat hier eigentlich  nichts verloren
           $questionStatusTableFieldQuestionID INTEGER,
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
@@ -269,6 +269,7 @@ class DatabaseHelper {
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
   }
 
+  /// Das Problem liegt sicherlich beim statusfilter.
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
     try {
@@ -280,6 +281,17 @@ class DatabaseHelper {
         nameOfOtherSetting:
             SettingsDatabaseHelper.otherSettingsAskUnmarkedStatus);
     bool askUnmarked = askUnmarkedAsInt == 0 ? false : true;
+    final numberOfMarkedStatusesAsList =
+        await db.rawQuery('SELECT COUNT(*) FROM $questionStatusTableName');
+    int numberOfMarkedStatuses =
+        int.parse(numberOfMarkedStatusesAsList.first['COUNT(*)'].toString());
+    print('numberOfMarkedStatuses ist $numberOfMarkedStatuses');
+    //TODO: Da eine Frage als "unmarked" in dieser Liste drin bleibt wenn sie
+    //TODO unmarked wird, bleibt der count gleich und es sieht so aus als
+    //TODO wären Fragen explizit markiert. Daher muss der unmarked status aus
+    //TODO den status enums entfernt werden. Ein Eintrag muss aus dieser Liste
+    //TODO entfernt werden wenn die Frage unmarked wird
+
     List<Map<String, dynamic>> questionList = await db.rawQuery(
         'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) AND $questionTableFieldId IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus IN (SELECT ${SettingsDatabaseHelper.otherSettingsTableFieldNameAsInt} FROM SettingsDatabase.other_settings_table WHERE ${SettingsDatabaseHelper.otherSettingsTableFieldValueAsInt} =1)) AND $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
     Logger().d('question: $questionList');
@@ -312,9 +324,6 @@ class DatabaseHelper {
           throw NoQuestionLeftException();
         }
       } else {
-        ///Current Situation: When there are no filterconformquestions left and all unmarked questions have been asked, a random question is being asked as kind of a fallback.
-        /// What should be is that a dialog should be shown, asking if the filterconform questions should be asked again. If yes, all entries in
-        /// recently asked questions table should be deleted
         Logger().d('No Questions left. Returning NoQuestionLeftException');
         throw NoQuestionLeftException();
       }
@@ -392,6 +401,8 @@ class DatabaseHelper {
     final bool exists =
         await checkIfStatusExists(questionId: entity.questionId);
 
+//TODO:Wenn eine Frage unmarked wird, muss sie aus der Liste entfernt werden. dazu
+//TODO muss noch der  status unmarked aus dem questionstatus enum entfernt werden
     if (exists) {
       final updated = await db.rawUpdate(
           'UPDATE $questionStatusTableName SET $questionStatusTableFieldStatus = ?, $questionStatusTableFieldLastTimeAsked = ? WHERE $questionStatusTableFieldQuestionID= ?',

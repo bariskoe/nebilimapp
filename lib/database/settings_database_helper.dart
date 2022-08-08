@@ -48,12 +48,12 @@ class SettingsDatabaseHelper {
 
   //!Fields of the OtherSettingsTable ------------------------------------------------------
   /// This table will look like this:
-  /// nameOfSetting     |    valueAsInt   |   otherSettingsGroup
-  /// dont_ask_again  |         0         |           0
-  /// unmarked        |         1         |           0
-  /// favorited       |         1         |           0
-  /// seconds_to_think|         15        |           1
-  /// chain_questions |         0         |           2
+  /// nameOfSetting     |  nameAsInt     valueAsInt   |   otherSettingsGroup
+  /// dont_ask_again  |       2               0         |           0
+  /// unmarked        |       0               1         |           0
+  /// favorited       |       1               1         |           0
+  /// seconds_to_think|                      15        |           1
+  /// chain_questions |                      0         |           2
 
   static const String otherSettingsTableName = 'other_settings_table';
 
@@ -197,7 +197,7 @@ class SettingsDatabaseHelper {
       });
       await db.insert(otherSettingsTableName, {
         otherSettingsTableFieldNameOfSetting: otherSettingsDontAskAgainStatus,
-        otherSettingsTableFieldValueAsInt: 0,
+        otherSettingsTableFieldValueAsInt: 0,  
         otherSettingsTableFieldGroup: 0,
         otherSettingsTableFieldNameAsInt: 2,
       });
@@ -408,7 +408,6 @@ class SettingsDatabaseHelper {
     List<Map<String, dynamic>> askDontAskAgainSetting = await db.rawQuery(
         'SELECT * FROM $otherSettingsTableName WHERE  $otherSettingsTableFieldNameOfSetting =?',
         [otherSettingsDontAskAgainStatus]);
-    
     List<Map<String, dynamic>> askFavoritedSetting = await db.rawQuery(
         'SELECT * FROM $otherSettingsTableName WHERE  $otherSettingsTableFieldNameOfSetting =?',
         [otherSettingsAskFavoritedStatus]);

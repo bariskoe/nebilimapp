@@ -24,6 +24,8 @@ class QuestionStatusEntity {
             questionStatusModel.lastTimeAsked?.millisecondsSinceEpoch);
   }
 
+  ///TODO: unmarked has to be removed. If a question is unmarked, it simply has to be removed
+  /// TODO: from the table
   static QuestionStatusEntity? fromMap(Map<String, dynamic>? map) {
     if (map == null) {
       return null;
