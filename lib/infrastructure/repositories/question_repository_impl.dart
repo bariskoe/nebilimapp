@@ -33,8 +33,8 @@ class QuestionRepositoryImpl implements QuestionRepository {
       final model = await localSqliteDataSource.getFilterConformQuestion();
       return Right(model);
     } catch (e) {
-      if (e is NoQuestionLeftException) {
-        return Left(NoQuestionsLeftFailure());
+      if (e is AllfilterConformQuestionsRecentlyAskedException) {
+        return Left(AllfilterConformQuestionsRecentlyAskedFailure());
       }
       Logger().e(
           'Error in QuestionRepositoryImpl getFilterConformQuestion: ${e.toString()}');

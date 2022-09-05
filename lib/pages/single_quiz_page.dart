@@ -29,12 +29,18 @@ class SingleQuizPage extends StatelessWidget {
     Logger().d('currentlocale is $currentLocale');
     return BlocConsumer<QuestionBloc, QuestionState>(
       listener: (context, state) async {
-        if (state is QuestionStateNoQuestionsLeft) {
+        if (state is QuestionStateAllfilterConformQuestionsRecentlyAsked) {
           await dialogScaffold(context,
-              content: const Text('No questions left. Starting again.'),
+              cancelButtonChild: const Text('Cancel'),
+              onCancelPressed: () {
+                getIt<QuestionBloc>()
+                    .add(QuestionEventTurnBackToInitialState());
+              },
+              content: const Text('No questions left. Start again?'),
               onOkpressed: () {
-            getIt<QuestionBloc>().add(QuestionEventClearRecentlyAskedTable());
-          });
+                getIt<QuestionBloc>()
+                    .add(QuestionEventClearRecentlyAskedTable());
+              });
         }
       },
       builder: (context, state) {
@@ -54,9 +60,56 @@ class SingleQuizPage extends StatelessWidget {
                   ? QuestionLoadedWidget(
                       state: state,
                     )
-                  : const Text('error'),
+                  : state is QuestionStateInitial
+                      ? const QuestionInitialWidget()
+                      : state is QuestionStateAllfilterConformQuestionsRecentlyAsked
+                          ? const QuestionInitialWidget()
+                          : state is QuestionStateNotYetCoveredFailure
+                              ? const CaseNotYetCoveredWidget()
+                              : const Text('State not yet covered'),
             ));
       },
+    );
+  }
+}
+
+class QuestionInitialWidget extends StatelessWidget {
+  const QuestionInitialWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        IconButton(
+            onPressed: () {
+              getIt<QuestionBloc>()
+                  .add(QuestionEventGetFilterConfromQuestion());
+            },
+            icon: const Icon(Icons.play_arrow))
+      ],
+    );
+  }
+}
+
+class CaseNotYetCoveredWidget extends StatelessWidget {
+  const CaseNotYetCoveredWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('State not yet covered'),
+        IconButton(
+            onPressed: () {
+              getIt<QuestionBloc>()
+                  .add(QuestionEventGetFilterConfromQuestion());
+            },
+            icon: const Icon(Icons.play_arrow))
+      ],
     );
   }
 }

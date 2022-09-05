@@ -7,6 +7,8 @@ abstract class QuestionEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class QuestionEventTurnBackToInitialState extends QuestionEvent {}
+
 class QuestionEventGetRandomQuestion extends QuestionEvent {}
 
 class QuestionEventGetFilterConfromQuestion extends QuestionEvent {}

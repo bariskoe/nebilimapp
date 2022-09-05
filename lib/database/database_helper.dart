@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/bloc/question_bloc/bloc/question_bloc.dart';
 import 'package:nebilimapp/infrastructure/exceptions/exceptions.dart';
 import 'settings_database_helper.dart';
 import '../domain/entities/question_status_entity.dart';
@@ -125,11 +126,12 @@ class DatabaseHelper {
 
       );
       ''');
+    //TODO questionStatusTableFieldLastTimeAsked diese Spalte hat hier eigentlich  nichts verloren
     await db.execute('''
       CREATE TABLE $questionStatusTableName(
           $questionStatusTableFieldId  INTEGER PRIMARY KEY AUTOINCREMENT,
           $questionStatusTableFieldStatus INTEGER,
-          $questionStatusTableFieldLastTimeAsked INTEGER, //TODO diese Spalte hat hier eigentlich  nichts verloren
+          $questionStatusTableFieldLastTimeAsked INTEGER, 
           $questionStatusTableFieldQuestionID INTEGER,
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
@@ -269,7 +271,14 @@ class DatabaseHelper {
         'DELETE FROM $questionTableName WHERE $questionTableFieldId = ?', [id]);
   }
 
-  /// Das Problem liegt sicherlich beim statusfilter.
+// QS means Query String
+  static String recentlyAskedQuestionsQS =
+      '(SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName)';
+  static String askableCategoriesQS =
+      '(SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1)';
+  static String askableDifficultiesQS =
+      '(SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1)';
+
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
     try {
@@ -277,57 +286,159 @@ class DatabaseHelper {
     } catch (e) {
       Logger().d('Error while attaching: $e');
     }
+
+    final askableStatuses =
+        await SettingsDatabaseHelper.getAllAskableStatusesAsInt();
+
     int askUnmarkedAsInt = await SettingsDatabaseHelper.getValueOfOtherSetting(
         nameOfOtherSetting:
             SettingsDatabaseHelper.otherSettingsAskUnmarkedStatus);
     bool askUnmarked = askUnmarkedAsInt == 0 ? false : true;
     final numberOfMarkedStatusesAsList =
         await db.rawQuery('SELECT COUNT(*) FROM $questionStatusTableName');
-    int numberOfMarkedStatuses =
+    int statusTableCount =
         int.parse(numberOfMarkedStatusesAsList.first['COUNT(*)'].toString());
-    print('numberOfMarkedStatuses ist $numberOfMarkedStatuses');
-    //TODO: Da eine Frage als "unmarked" in dieser Liste drin bleibt wenn sie
-    //TODO unmarked wird, bleibt der count gleich und es sieht so aus als
-    //TODO wären Fragen explizit markiert. Daher muss der unmarked status aus
-    //TODO den status enums entfernt werden. Ein Eintrag muss aus dieser Liste
-    //TODO entfernt werden wenn die Frage unmarked wird
 
-    List<Map<String, dynamic>> questionList = await db.rawQuery(
-        'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) AND $questionTableFieldId IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus IN (SELECT ${SettingsDatabaseHelper.otherSettingsTableFieldNameAsInt} FROM SettingsDatabase.other_settings_table WHERE ${SettingsDatabaseHelper.otherSettingsTableFieldValueAsInt} =1)) AND $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
-    Logger().d('question: $questionList');
-
-    if (questionList.isNotEmpty) {
-      Logger().d('filterconformquestions: $questionList');
-      final questionStatusMap = await getQuestionStatusById(
-          questionId: questionList.first[DatabaseHelper.questionTableFieldId]);
-
-      final model = QuestionEntity.fromMap(
-              questionMap: questionList.first,
-              questionStatusMap: questionStatusMap)
-          .toModel();
-      Logger().d('Returning question which is inside questionstatuslist');
-      return model;
-    } else {
-      if (askUnmarked) {
+    if (statusTableCount == 0) {
+      // QuestionStatusTable is empty
+      // This is i.e. the case right at the start when there is no question marked in any way.
+      // Return a question which complies with the category and difficulty filter:
+      Logger().d(
+          'StatusTable is empty. Trying to find questions which satisfy the other filters...');
+      List<Map<String, dynamic>> questionList = await db.rawQuery(
+          'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $recentlyAskedQuestionsQS AND $questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS ORDER BY RANDOM()');
+      if (questionList.isNotEmpty) {
+        final model = QuestionEntity.fromMap(
+          questionMap: questionList.first,
+          // QuestionStatusMap muss hier nicht übergeben werden, weil es noch keinen Statuseintrag gibt
+        ).toModel();
         Logger().d(
-            'Returning unmarked question which is not in questionstatuslist');
-        List<Map<String, dynamic>> questionList = await db.rawQuery(
-            'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName) AND $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) ORDER BY RANDOM()');
-        if (questionList.isNotEmpty) {
-          final model = QuestionEntity.fromMap(
-            questionMap: questionList.first,
-          ).toModel();
-          return model;
-        } else {
-          Logger().d(
-              'No unmarked Questions left. Returning NoQuestionLeftException');
-          throw NoQuestionLeftException();
-        }
+            'Status table is empty. Returning unmarked question which satisfies the other filters.');
+        return model;
       } else {
-        Logger().d('No Questions left. Returning NoQuestionLeftException');
-        throw NoQuestionLeftException();
+        Logger().d(
+            'No unmarked Questions left which satisfy the other filters. Returning NoQuestionLeftException');
+        throw AllfilterConformQuestionsRecentlyAskedException();
       }
+    } else {
+      // QuestionStatusTable is not empty
+      Logger().d('NumberOfMarkedstatuses = $statusTableCount');
+      // 0 = unmarked, 1= favorited, 2 = dont ask again
+      Logger().d('askableStatuses.length ist ${askableStatuses.length}');
+      Logger().d('askableStatuses ist $askableStatuses');
+      if (askableStatuses.length == 1 && askableStatuses.contains(1)) {
+        // favorite is the only status which is selected
+        Logger().d('favorite is the only status which is selected');
+
+        String favoritedQuestionIdsQS =
+            '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus = 1)';
+
+        String mapOfFilterConformQuestionsQS =
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN $favoritedQuestionIdsQS AND $questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS';
+        List<Map<String, dynamic>> mapOfFilterConformQuestions =
+            await db.rawQuery(mapOfFilterConformQuestionsQS);
+        Logger().d(
+            'mapOfFilterConformQuestionIds ist $mapOfFilterConformQuestions');
+        if (mapOfFilterConformQuestions.isEmpty) {
+          Logger().d('Es gibt keine filterkonformen Fragen');
+          throw NoFilterConformQuestionsExistException();
+        } else {
+          List<Map<String, dynamic>> mapOfAskableQuestions = await db.rawQuery(
+              '$mapOfFilterConformQuestionsQS AND $questionTableFieldId NOT IN $recentlyAskedQuestionsQS ORDER BY RANDOM()');
+          if (mapOfAskableQuestions.isEmpty) {
+            Logger().d('Alle filter konformen Fragen wurden kürzlich gestellt');
+            throw AllfilterConformQuestionsRecentlyAskedException();
+          } else {
+            final questionStatusMap = await getQuestionStatusById(
+                questionId: mapOfAskableQuestions
+                    .first[DatabaseHelper.questionTableFieldId]);
+            final model = QuestionEntity.fromMap(
+              questionMap: mapOfAskableQuestions.first,
+              questionStatusMap: questionStatusMap,
+            ).toModel();
+            return model;
+          }
+        }
+      }
+
+      if (askableStatuses.length == 1 && askableStatuses.contains(0)) {
+        // unmarked is the only status which is selected
+        // 0 = unmarked, 1= favorited, 2 = dont ask again
+        // Unmarked questions are not saved in the questionStatusTable. Therefor they
+        //
+        String questionIdsInQuestionStatusTableQS =
+            '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName)';
+
+        String mapOfFilterConformQuestionsQS =
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $questionIdsInQuestionStatusTableQS AND $questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS';
+        List<Map<String, dynamic>> mapOfFilterConformQuestions =
+            await db.rawQuery(mapOfFilterConformQuestionsQS);
+
+        if (mapOfFilterConformQuestions.isEmpty) {
+          Logger().d('Es gibt keine filterkonformen Fragen');
+          throw NoFilterConformQuestionsExistException();
+        } else {
+          List<Map<String, dynamic>> mapOfAskableQuestions = await db.rawQuery(
+              '$mapOfFilterConformQuestionsQS AND $questionTableFieldId NOT IN $recentlyAskedQuestionsQS ORDER BY RANDOM()');
+          if (mapOfAskableQuestions.isEmpty) {
+            Logger().d('Alle filter konformen Fragen wurden kürzlich gestellt');
+            throw AllfilterConformQuestionsRecentlyAskedException();
+          } else {
+            //No questionStatusMap is needed if the Question is unmarked
+            final model = QuestionEntity.fromMap(
+              questionMap: mapOfAskableQuestions.first,
+            ).toModel();
+            return model;
+          }
+        }
+      }
+      // Hier muss man jetzt weitermachen mit dem nächsten Fall, dass nämlich etwas anderes als ausschließlich "favorited" oder "unmarked" gefragt werden soll
+
+      // Nur zu testzwecken
+      //Logger().d('NotYetCoveredCaseException wird testweise geworfen');
+      //throw NotYetCoveredCaseException();
+
+      Logger().d(
+          'AllfilterConformQuestionsRecentlyAskedException wird testweise geworfen');
+      throw AllfilterConformQuestionsRecentlyAskedException();
     }
+
+    // List<Map<String, dynamic>> questionList = await db.rawQuery(
+    //     'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) AND $questionTableFieldId IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus IN (SELECT ${SettingsDatabaseHelper.otherSettingsTableFieldNameAsInt} FROM SettingsDatabase.other_settings_table WHERE ${SettingsDatabaseHelper.otherSettingsTableFieldValueAsInt} =1)) AND $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
+    // Logger().d('question: $questionList');
+
+    // if (questionList.isNotEmpty) {
+    //   Logger().d('filterconformquestions: $questionList');
+    //   final questionStatusMap = await getQuestionStatusById(
+    //       questionId: questionList.first[DatabaseHelper.questionTableFieldId]);
+
+    //   final model = QuestionEntity.fromMap(
+    //           questionMap: questionList.first,
+    //           questionStatusMap: questionStatusMap)
+    //       .toModel();
+    //   Logger().d('Returning question which is inside questionstatuslist');
+    //   return model;
+    // } else {
+    //   if (askUnmarked) {
+    //     Logger().d(
+    //         'Returning unmarked question which is not in questionstatuslist');
+    //     List<Map<String, dynamic>> questionList = await db.rawQuery(
+    //         'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN (SELECT $recentlyAskedTableFieldQuestionID FROM $recentlyAskedTableName) AND $questionTableFieldCategory IN (SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1) AND $questionTableFieldDifficulty IN (SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1) ORDER BY RANDOM()');
+    //     if (questionList.isNotEmpty) {
+    //       final model = QuestionEntity.fromMap(
+    //         questionMap: questionList.first,
+    //       ).toModel();
+    //       return model;
+    //     } else {
+    //       Logger().d(
+    //           'No unmarked Questions left. Returning NoQuestionLeftException');
+    //       throw NoQuestionLeftException();
+    //     }
+    //   } else {
+    //     Logger().d('No Questions left. Returning NoQuestionLeftException');
+    //     throw NoQuestionLeftException();
+    //   }
+    // }
   }
 
   static Future<QuestionModel> getRandomQuestion() async {
@@ -373,6 +484,22 @@ class DatabaseHelper {
     );
   }
 
+  /// Deletes an entry if a question is marked as unmarked
+  static Future<int> deleteQuestionFromQuestionStatusTable(
+      {required int questionId}) async {
+    Database db = await instance.database;
+    final entryExists = await checkIfStatusExists(questionId: questionId);
+
+    if (entryExists) {
+      final deleted = await db.rawDelete(
+          'DELETE FROM $questionStatusTableName WHERE $questionStatusTableFieldQuestionID = ?',
+          [questionId]);
+      return deleted;
+    } else {
+      return 0;
+    }
+  }
+
   static Future<bool> checkIfStatusExists({required int questionId}) async {
     Database db = await instance.database;
     final list = await db.rawQuery(
@@ -401,17 +528,20 @@ class DatabaseHelper {
     final bool exists =
         await checkIfStatusExists(questionId: entity.questionId);
 
-//TODO:Wenn eine Frage unmarked wird, muss sie aus der Liste entfernt werden. dazu
-//TODO muss noch der  status unmarked aus dem questionstatus enum entfernt werden
     if (exists) {
-      final updated = await db.rawUpdate(
-          'UPDATE $questionStatusTableName SET $questionStatusTableFieldStatus = ?, $questionStatusTableFieldLastTimeAsked = ? WHERE $questionStatusTableFieldQuestionID= ?',
-          [
-            entity.questionStatusAsInt,
-            entity.lastTimeAskedAsInt,
-            entity.questionId,
-          ]);
-      return updated;
+      if (questionStatusModel.questionStatus == QuestionStatus.unmarked) {
+        return await deleteQuestionFromQuestionStatusTable(
+            questionId: questionStatusModel.questionId);
+      } else {
+        final updated = await db.rawUpdate(
+            'UPDATE $questionStatusTableName SET $questionStatusTableFieldStatus = ?, $questionStatusTableFieldLastTimeAsked = ? WHERE $questionStatusTableFieldQuestionID= ?',
+            [
+              entity.questionStatusAsInt,
+              entity.lastTimeAskedAsInt,
+              entity.questionId,
+            ]);
+        return updated;
+      }
     } else {
       final inserted = await insertStatusToQuestionStatusTable(
           questionStatusModel: questionStatusModel);

@@ -197,7 +197,7 @@ class SettingsDatabaseHelper {
       });
       await db.insert(otherSettingsTableName, {
         otherSettingsTableFieldNameOfSetting: otherSettingsDontAskAgainStatus,
-        otherSettingsTableFieldValueAsInt: 0,  
+        otherSettingsTableFieldValueAsInt: 0,
         otherSettingsTableFieldGroup: 0,
         otherSettingsTableFieldNameAsInt: 2,
       });
@@ -359,6 +359,19 @@ class SettingsDatabaseHelper {
         ]);
 
     return updated;
+  }
+
+  static Future<List> getAllAskableStatusesAsInt() async {
+    Database db = await instance.database;
+    List<Map<String, dynamic>> allAskableStatusesAsMap = await db.rawQuery(
+        'SELECT $otherSettingsTableFieldNameAsInt FROM $otherSettingsTableName WHERE $otherSettingsTableFieldValueAsInt = ? AND $otherSettingsTableFieldGroup = ?',
+        [1, 0]);
+    final askableStatusesList = <int>[];
+    for (Map map in allAskableStatusesAsMap) {
+      askableStatusesList
+          .add(map[SettingsDatabaseHelper.otherSettingsTableFieldNameAsInt]);
+    }
+    return askableStatusesList;
   }
 
   static Future<SettingsModel> getAllSettings() async {

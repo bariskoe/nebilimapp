@@ -17,9 +17,13 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
 
   QuestionBloc({
     required this.questionUsecases,
-  }) : super(QuestionInitial()) {
+  }) : super(QuestionStateInitial()) {
     // on<>((event, emit) {
     // });
+
+    on<QuestionEventTurnBackToInitialState>((event, emit) {
+      emit(QuestionStateInitial());
+    });
 
     on<QuestionEventGetRandomQuestion>((event, emit) async {
       Either<Failure, QuestionModel> failureOrQuestionModel =
@@ -42,8 +46,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           await questionUsecases.getFilterConformQuestion();
 
       failureOrQuestionModel.fold((l) {
-        if (l is NoQuestionsLeftFailure) {
-          emit(QuestionStateNoQuestionsLeft());
+        if (l is AllfilterConformQuestionsRecentlyAskedFailure) {
+          emit(QuestionStateAllfilterConformQuestionsRecentlyAsked());
+        } else if (l is NotYetCoveredCaseExceptionFailure) {
+          emit(QuestionStateNotYetCoveredFailure());
         } else {
           emit(QuestionStateError());
         }

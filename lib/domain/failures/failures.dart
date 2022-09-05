@@ -12,7 +12,13 @@ class DatabaseFailure extends Failure with EquatableMixin {
   List<Object?> get props => [];
 }
 
-class NoQuestionsLeftFailure extends Failure with EquatableMixin {
+class AllfilterConformQuestionsRecentlyAskedFailure extends Failure
+    with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}
+
+class NotYetCoveredCaseExceptionFailure extends Failure with EquatableMixin {
   @override
   List<Object?> get props => [];
 }

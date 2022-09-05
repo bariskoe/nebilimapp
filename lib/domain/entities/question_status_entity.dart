@@ -102,6 +102,6 @@ extension QuestionStatusExtension on QuestionStatus {
   }
 
   bool get isFavorited => this == QuestionStatus.favorited;
-  bool get isUnmarked => this == QuestionStatus.unmarked;
+
   bool get isDontAskagain => this == QuestionStatus.dontAskAgain;
 }
