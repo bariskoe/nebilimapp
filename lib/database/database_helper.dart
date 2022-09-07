@@ -278,6 +278,10 @@ class DatabaseHelper {
       '(SELECT ${SettingsDatabaseHelper.categorySettingsTableFieldCategoryAsInt} FROM SettingsDatabase.category_settings_table WHERE ${SettingsDatabaseHelper.categorySettingsTableFieldAsk} = 1)';
   static String askableDifficultiesQS =
       '(SELECT ${SettingsDatabaseHelper.difficultySettingsTableFieldDifficultyAsInt} FROM SettingsDatabase.difficulty_settings_table WHERE ${SettingsDatabaseHelper.difficultySettingsTableFieldAsk} = 1)';
+  static String orderByRandomAndLimit({int limit = 1}) =>
+      'ORDER BY RANDOM() LIMIT $limit;';
+  static String categoryAndDifficultyFilterQS =
+      '$questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS';
 
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
@@ -306,7 +310,7 @@ class DatabaseHelper {
       Logger().d(
           'StatusTable is empty. Trying to find questions which satisfy the other filters...');
       List<Map<String, dynamic>> questionList = await db.rawQuery(
-          'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $recentlyAskedQuestionsQS AND $questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS ORDER BY RANDOM()');
+          'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $recentlyAskedQuestionsQS AND $categoryAndDifficultyFilterQS ${orderByRandomAndLimit()}');
       if (questionList.isNotEmpty) {
         final model = QuestionEntity.fromMap(
           questionMap: questionList.first,
@@ -322,43 +326,20 @@ class DatabaseHelper {
       }
     } else {
       // QuestionStatusTable is not empty
-      Logger().d('NumberOfMarkedstatuses = $statusTableCount');
       // 0 = unmarked, 1= favorited, 2 = dont ask again
-      Logger().d('askableStatuses.length ist ${askableStatuses.length}');
-      Logger().d('askableStatuses ist $askableStatuses');
+      List<Map<String, dynamic>> mapOfFilterConformQuestions = [];
+      List<Map<String, dynamic>> mapOfAskableQuestions = [];
+      String mapOfFilterConformQuestionsQS = '';
+
       if (askableStatuses.length == 1 && askableStatuses.contains(1)) {
         // favorite is the only status which is selected
-        Logger().d('favorite is the only status which is selected');
-
         String favoritedQuestionIdsQS =
             '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus = 1)';
 
-        String mapOfFilterConformQuestionsQS =
-            'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN $favoritedQuestionIdsQS AND $questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS';
-        List<Map<String, dynamic>> mapOfFilterConformQuestions =
+        mapOfFilterConformQuestionsQS =
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN $favoritedQuestionIdsQS AND $categoryAndDifficultyFilterQS';
+        mapOfFilterConformQuestions =
             await db.rawQuery(mapOfFilterConformQuestionsQS);
-        Logger().d(
-            'mapOfFilterConformQuestionIds ist $mapOfFilterConformQuestions');
-        if (mapOfFilterConformQuestions.isEmpty) {
-          Logger().d('Es gibt keine filterkonformen Fragen');
-          throw NoFilterConformQuestionsExistException();
-        } else {
-          List<Map<String, dynamic>> mapOfAskableQuestions = await db.rawQuery(
-              '$mapOfFilterConformQuestionsQS AND $questionTableFieldId NOT IN $recentlyAskedQuestionsQS ORDER BY RANDOM()');
-          if (mapOfAskableQuestions.isEmpty) {
-            Logger().d('Alle filter konformen Fragen wurden kürzlich gestellt');
-            throw AllfilterConformQuestionsRecentlyAskedException();
-          } else {
-            final questionStatusMap = await getQuestionStatusById(
-                questionId: mapOfAskableQuestions
-                    .first[DatabaseHelper.questionTableFieldId]);
-            final model = QuestionEntity.fromMap(
-              questionMap: mapOfAskableQuestions.first,
-              questionStatusMap: questionStatusMap,
-            ).toModel();
-            return model;
-          }
-        }
       }
 
       if (askableStatuses.length == 1 && askableStatuses.contains(0)) {
@@ -369,27 +350,57 @@ class DatabaseHelper {
         String questionIdsInQuestionStatusTableQS =
             '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName)';
 
-        String mapOfFilterConformQuestionsQS =
-            'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $questionIdsInQuestionStatusTableQS AND $questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS';
-        List<Map<String, dynamic>> mapOfFilterConformQuestions =
+        mapOfFilterConformQuestionsQS =
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $questionIdsInQuestionStatusTableQS AND $categoryAndDifficultyFilterQS';
+        mapOfFilterConformQuestions =
             await db.rawQuery(mapOfFilterConformQuestionsQS);
+      }
 
-        if (mapOfFilterConformQuestions.isEmpty) {
-          Logger().d('Es gibt keine filterkonformen Fragen');
-          throw NoFilterConformQuestionsExistException();
+      if (askableStatuses.length == 1 && askableStatuses.contains(2)) {
+        // don't ask again is the only status which is selected
+        // 0 = unmarked, 1= favorited, 2 = dont ask again
+        String dismissedQuestionIdsQS =
+            '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus = 2)';
+
+        mapOfFilterConformQuestionsQS =
+            'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN $dismissedQuestionIdsQS AND $categoryAndDifficultyFilterQS';
+        mapOfFilterConformQuestions =
+            await db.rawQuery(mapOfFilterConformQuestionsQS);
+      }
+
+      if (askableStatuses.length == 2 &&
+          askableStatuses.contains(0) &&
+          askableStatuses.contains(1)) {
+        // unmarked and favorited are selected
+        //!Das folgende ist nur copy paste von oben
+        // String unmarkedAndFavoritedQuestionIdsQS =
+        //     '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus = 2)';
+
+        // mapOfFilterConformQuestionsQS =
+        //     'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN $dismissedQuestionIdsQS AND $categoryAndDifficultyFilterQS';
+        // mapOfFilterConformQuestions =
+        //     await db.rawQuery(mapOfFilterConformQuestionsQS);
+      }
+
+//----------------------------------------------------------------------------------------------------------------
+      if (mapOfFilterConformQuestions.isEmpty) {
+        Logger().d('Es gibt keine filterkonformen Fragen');
+        throw NoFilterConformQuestionsExistException();
+      } else {
+        mapOfAskableQuestions = await db.rawQuery(
+            '$mapOfFilterConformQuestionsQS AND $questionTableFieldId NOT IN $recentlyAskedQuestionsQS ${orderByRandomAndLimit()}');
+        if (mapOfAskableQuestions.isEmpty) {
+          Logger().d('Alle filter konformen Fragen wurden kürzlich gestellt');
+          throw AllfilterConformQuestionsRecentlyAskedException();
         } else {
-          List<Map<String, dynamic>> mapOfAskableQuestions = await db.rawQuery(
-              '$mapOfFilterConformQuestionsQS AND $questionTableFieldId NOT IN $recentlyAskedQuestionsQS ORDER BY RANDOM()');
-          if (mapOfAskableQuestions.isEmpty) {
-            Logger().d('Alle filter konformen Fragen wurden kürzlich gestellt');
-            throw AllfilterConformQuestionsRecentlyAskedException();
-          } else {
-            //No questionStatusMap is needed if the Question is unmarked
-            final model = QuestionEntity.fromMap(
-              questionMap: mapOfAskableQuestions.first,
-            ).toModel();
-            return model;
-          }
+          final questionStatusMap = await getQuestionStatusById(
+              questionId: mapOfAskableQuestions
+                  .first[DatabaseHelper.questionTableFieldId]);
+          final model = QuestionEntity.fromMap(
+            questionMap: mapOfAskableQuestions.first,
+            questionStatusMap: questionStatusMap,
+          ).toModel();
+          return model;
         }
       }
       // Hier muss man jetzt weitermachen mit dem nächsten Fall, dass nämlich etwas anderes als ausschließlich "favorited" oder "unmarked" gefragt werden soll
