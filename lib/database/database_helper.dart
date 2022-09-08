@@ -282,7 +282,8 @@ class DatabaseHelper {
       'ORDER BY RANDOM() LIMIT $limit;';
   static String categoryAndDifficultyFilterQS =
       '$questionTableFieldCategory IN $askableCategoriesQS AND $questionTableFieldDifficulty IN $askableDifficultiesQS';
-
+  static String questionIdsInQuestionStatusTableQS =
+      '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName)';
   static Future<QuestionModel> getFilterConformQuestion() async {
     Database db = await instance.database;
     try {
@@ -346,9 +347,7 @@ class DatabaseHelper {
         // unmarked is the only status which is selected
         // 0 = unmarked, 1= favorited, 2 = dont ask again
         // Unmarked questions are not saved in the questionStatusTable. Therefor they
-        //
-        String questionIdsInQuestionStatusTableQS =
-            '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName)';
+        // must not be present in the questionStatusTable
 
         mapOfFilterConformQuestionsQS =
             'SELECT * FROM $questionTableName WHERE $questionTableFieldId NOT IN $questionIdsInQuestionStatusTableQS AND $categoryAndDifficultyFilterQS';
@@ -372,14 +371,12 @@ class DatabaseHelper {
           askableStatuses.contains(0) &&
           askableStatuses.contains(1)) {
         // unmarked and favorited are selected
-        //!Das folgende ist nur copy paste von oben
-        // String unmarkedAndFavoritedQuestionIdsQS =
-        //     '(SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus = 2)';
 
-        // mapOfFilterConformQuestionsQS =
-        //     'SELECT * FROM $questionTableName WHERE $questionTableFieldId IN $dismissedQuestionIdsQS AND $categoryAndDifficultyFilterQS';
-        // mapOfFilterConformQuestions =
-        //     await db.rawQuery(mapOfFilterConformQuestionsQS);
+        mapOfFilterConformQuestionsQS =
+            'SELECT * FROM $questionTableName WHERE (($questionTableFieldId NOT IN $questionIdsInQuestionStatusTableQS AND $categoryAndDifficultyFilterQS) OR ($questionTableFieldId IN (SELECT $questionStatusTableFieldQuestionID FROM $questionStatusTableName WHERE $questionStatusTableFieldStatus = 1 AND $categoryAndDifficultyFilterQS)))';
+        //! das hier auch raus tun
+        mapOfFilterConformQuestions =
+            await db.rawQuery(mapOfFilterConformQuestionsQS);
       }
 
 //----------------------------------------------------------------------------------------------------------------
@@ -389,6 +386,7 @@ class DatabaseHelper {
       } else {
         mapOfAskableQuestions = await db.rawQuery(
             '$mapOfFilterConformQuestionsQS AND $questionTableFieldId NOT IN $recentlyAskedQuestionsQS ${orderByRandomAndLimit()}');
+
         if (mapOfAskableQuestions.isEmpty) {
           Logger().d('Alle filter konformen Fragen wurden kürzlich gestellt');
           throw AllfilterConformQuestionsRecentlyAskedException();
