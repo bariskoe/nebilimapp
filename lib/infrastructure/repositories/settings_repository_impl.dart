@@ -63,4 +63,20 @@ class SettingsRepositoryImpl implements SettingsRepository {
       return Left(DatabaseFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, int>> updateOtherSetting(
+      {required String otherSettingsName, required int newValue}) async {
+    try {
+      int changesMade = await localSqliteDataSource.updateOtherSetting(
+        otherSettingsName: otherSettingsName,
+        newValue: newValue,
+      );
+      return Right(changesMade);
+    } catch (e) {
+      Logger()
+          .e('Error caught in SettingsRepositoryImpl updateOtherSetting: $e');
+      return Left(DatabaseFailure());
+    }
+  }
 }

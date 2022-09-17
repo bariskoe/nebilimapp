@@ -58,4 +58,10 @@ abstract class LocalSqliteDataSource {
 
   /// Deletes all entries from [RecentlyAskedTable]
   Future<int> clearRecentlyAskedTable();
+
+  /// Updates a value in the [otherSettingsTable] of the [SettingsDatabase]
+  Future<int> updateOtherSetting({
+    required String otherSettingsName,
+    required int newValue,
+  });
 }

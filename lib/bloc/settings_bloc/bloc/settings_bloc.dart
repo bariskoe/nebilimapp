@@ -52,5 +52,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       failureOrToggled.fold((l) => emit(SettingsStateError()),
           (r) => add(const SettingsEventGetAllSettings()));
     });
+
+    on<SettingsEventUpdateOtherSetting>((event, emit) async {
+      Either<Failure, int> failureOrUpdated =
+          await settingsUsecases.updateOtherSetting(
+        otherSettingsName: event.otherSettingsName,
+        newValue: event.newValue,
+      );
+
+      failureOrUpdated.fold((l) => emit(SettingsStateError()),
+          (r) => add(const SettingsEventGetAllSettings()));
+    });
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../database/settings_database_helper.dart';
+import '../utils/utils.dart';
 
 import '../bloc/settings_bloc/bloc/settings_bloc.dart';
 import '../custom_widgets/standard_page_widget.dart';
@@ -65,6 +67,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     _buildMarkedAs(state),
+                    const SizedBox(height: UiConstantsSize.large),
+                    Padding(
+                      padding: const EdgeInsets.all(UiConstantsPadding.large),
+                      child: Text(
+                        'Thinking Time',
+                        style: Theme.of(context).textTheme.headline2,
+                      ),
+                    ),
+                    _buildThinkingTime(state),
                   ],
                 ),
               ),
@@ -184,6 +195,107 @@ class _SettingsPageState extends State<SettingsPage> {
           children: _markedAsSymbolBuilder(state),
         ),
       );
+    } else {
+      return Text('not Loaded state: $state');
+    }
+  }
+
+//TODO: Build the Thinking Time Settings
+  _buildThinkingTime(SettingsState state) {
+    _thinkingTimeSymbolBuilder(SettingsStateLoaded state) {
+      List<Widget> list = [];
+
+      list.add(GestureDetector(
+        onTap: (() => getIt<SettingsBloc>().add(SettingsEventUpdateOtherSetting(
+            otherSettingsName:
+                SettingsDatabaseHelper.otherSettingsSecondsToThinkActive,
+            newValue: boolToInt(false)))),
+        child: SettingsSymbol(
+            //TODO: make a name getter for the international name
+            name: 'Unlimited',
+            icon: Icons.timer,
+            selected: !state.settingsModel.thinkingTimeModel.active),
+      ));
+
+      list.add(GestureDetector(
+        onTap: (() => getIt<SettingsBloc>().add(SettingsEventUpdateOtherSetting(
+            otherSettingsName:
+                SettingsDatabaseHelper.otherSettingsSecondsToThinkActive,
+            newValue: boolToInt(true)))),
+        child: SettingsSymbol(
+            //TODO: make a name getter for the international name
+            name: 'Limit to...',
+            icon: Icons.timer,
+            selected: state.settingsModel.thinkingTimeModel.active),
+      ));
+      return list;
+    }
+
+    if (state is SettingsStateLoaded) {
+      double sliderValue =
+          state.settingsModel.thinkingTimeModel.seconds.toDouble();
+      Color? activeColor = state.settingsModel.thinkingTimeModel.active
+          ? null
+          : Theme.of(context).colorScheme.tertiary;
+      Color? inactiveColor = state.settingsModel.thinkingTimeModel.active
+          ? null
+          : Theme.of(context).colorScheme.tertiary;
+      return StatefulBuilder(builder: (BuildContext context, setState) {
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiConstantsPadding.regular,
+          ),
+          child: Column(
+            children: [
+              Wrap(
+                spacing: UiConstantsPadding.regular,
+                runSpacing: UiConstantsPadding.regular,
+                alignment: WrapAlignment.spaceEvenly,
+                children: _thinkingTimeSymbolBuilder(state),
+              ),
+              const SizedBox(
+                height: UiConstantsPadding.large,
+              ),
+              IgnorePointer(
+                ignoring: !state.settingsModel.thinkingTimeModel.active,
+                child: Slider(
+                    activeColor: activeColor,
+                    inactiveColor: inactiveColor,
+                    min: 0,
+                    max: 120,
+                    divisions: 24,
+                    value: sliderValue,
+                    onChangeEnd: (value) => getIt<SettingsBloc>().add(
+                        SettingsEventUpdateOtherSetting(
+                            otherSettingsName: SettingsDatabaseHelper
+                                .otherSettingsSecondsToThink,
+                            newValue: value.toInt())),
+                    onChanged: ((value) {
+                      setState(() => sliderValue = value);
+                    })),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: UiConstantsPadding.regular),
+                  child: Text(
+                    '${sliderValue.toInt()} seconds',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                        color: state.settingsModel.thinkingTimeModel.active
+                            ? null
+                            : Theme.of(context).colorScheme.tertiary),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 60,
+              ),
+            ],
+          ),
+        );
+      });
     } else {
       return Text('not Loaded state: $state');
     }

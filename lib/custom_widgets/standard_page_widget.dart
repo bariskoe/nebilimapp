@@ -5,7 +5,7 @@ import '../ui/ui_constants/ui_constants.dart';
 class StandardPageWidget extends StatelessWidget {
   final Widget child;
   final bool showAppbar;
-  final bool willPop;
+  final bool? willPop;
   final String? appBarTitle;
   final List<Widget>? appbarActions;
   final Function? onPop;
@@ -15,18 +15,20 @@ class StandardPageWidget extends StatelessWidget {
     Key? key,
     required this.child,
     this.showAppbar = true,
-    this.willPop = true,
+    this.willPop,
     this.appBarTitle,
     this.appbarActions,
     this.onPop,
     this.drawer,
-  }) : super(key: key);
+  })  : _willPop = willPop ?? true,
+        super(key: key);
 
+  final bool _willPop;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        if (willPop && Navigator.canPop(context)) {
+        if (_willPop && Navigator.canPop(context)) {
           Navigator.pop(context);
         }
         onPop != null ? onPop!() : () {};
@@ -36,7 +38,7 @@ class StandardPageWidget extends StatelessWidget {
         endDrawer: drawer,
         appBar: showAppbar
             ? AppBar(
-                leading: (willPop && Navigator.canPop(context))
+                leading: (_willPop && Navigator.canPop(context))
                     ? GestureDetector(
                         child: const SizedBox(
                             height: UiConstantsSize.xlarge,
@@ -46,7 +48,7 @@ class StandardPageWidget extends StatelessWidget {
                           Navigator.pop(context);
                           onPop != null ? onPop!() : () {};
                         })
-                    : null,
+                    : Container(),
                 title: appBarTitle != null
                     ? Text(
                         appBarTitle!,

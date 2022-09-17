@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import '../../../models/question_insertion_model.dart';
 
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/question_usecases.dart';
@@ -14,11 +15,12 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   QuestionUsecases questionUsecases;
 
   int? currentQuestionId;
+  QuestionStateLoaded? currentQuestionStateLoaded;
 
   QuestionBloc({
     required this.questionUsecases,
   }) : super(QuestionStateInitial()) {
-    // on<>((event, emit) {
+    // on<>((event, emit)async {
     // });
 
     on<QuestionEventTurnBackToInitialState>((event, emit) {
@@ -55,6 +57,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         }
       }, (r) {
         emit(QuestionStateLoaded(questionModel: r));
+        currentQuestionStateLoaded = QuestionStateLoaded(questionModel: r);
         currentQuestionId = r.questionId;
         questionUsecases.insertTimeToLastTimeAskedTable(
             questionId: r.questionId);
@@ -112,6 +115,16 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           await questionUsecases.clearRecentlyAskedQuestionsTable();
       failureOrDeletedRowsCount.fold((l) => emit(QuestionStateError()),
           (r) => add(QuestionEventGetFilterConfromQuestion()));
+    });
+
+    on<QuestionEventShowAnswer>((event, emit) async {
+      if (currentQuestionStateLoaded != null) {
+        print('emitting currentQuestionStateLoaded mit showanswer true');
+        // emit(QuestionStateLoaded(
+        //     questionModel: currentQuestionStateLoaded!.questionModel,
+        //     showAnswer: true));
+        emit(currentQuestionStateLoaded!.copyWith(showAnswer: true));
+      }
     });
   }
 }

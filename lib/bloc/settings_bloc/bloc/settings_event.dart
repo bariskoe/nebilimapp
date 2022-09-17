@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'settings_bloc.dart';
 
 abstract class SettingsEvent extends Equatable {
@@ -47,5 +48,21 @@ class SettingsEventToggleAskMarkedAs extends SettingsEvent {
   @override
   List<Object> get props => [
         statusName,
+      ];
+}
+
+class SettingsEventUpdateOtherSetting extends SettingsEvent {
+  // The values in the [otherSettingsTabe] are all saved as ints
+  final String otherSettingsName;
+  final int newValue;
+
+  const SettingsEventUpdateOtherSetting({
+    required this.otherSettingsName,
+    required this.newValue,
+  });
+  @override
+  List<Object> get props => [
+        otherSettingsName,
+        newValue,
       ];
 }

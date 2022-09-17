@@ -56,6 +56,16 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
         questionId: questionId);
   }
 
+  @override
+  Future<QuestionModel> getFilterConformQuestion() async {
+    return await DatabaseHelper.getFilterConformQuestion();
+  }
+
+  @override
+  Future<int> clearRecentlyAskedTable() async {
+    return await DatabaseHelper.clearRecentlyAskedTable();
+  }
+
   //! Settings Database --------------------------------------------------------
 
   @override
@@ -82,12 +92,13 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
   }
 
   @override
-  Future<QuestionModel> getFilterConformQuestion() async {
-    return await DatabaseHelper.getFilterConformQuestion();
-  }
-
-  @override
-  Future<int> clearRecentlyAskedTable() async {
-    return await DatabaseHelper.clearRecentlyAskedTable();
+  Future<int> updateOtherSetting({
+    required String otherSettingsName,
+    required int newValue,
+  }) async {
+    return await SettingsDatabaseHelper.updateValueOfOtherSetting(
+      nameOfOtherSetting: otherSettingsName,
+      value: newValue,
+    );
   }
 }

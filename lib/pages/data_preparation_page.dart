@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nebilimapp/bloc/settings_bloc/bloc/settings_bloc.dart';
-import 'package:nebilimapp/database/settings_database_helper.dart';
+import '../bloc/settings_bloc/bloc/settings_bloc.dart';
+import '../database/settings_database_helper.dart';
 
 import '../bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import '../custom_widgets/standard_page_widget.dart';

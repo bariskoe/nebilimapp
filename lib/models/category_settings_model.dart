@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../database/settings_database_helper.dart';
+
 import 'question_insertion_model.dart';
 
 class CategorySettingsModel with EquatableMixin {

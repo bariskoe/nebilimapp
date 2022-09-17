@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+import '../domain/entities/thinking_time_entity.dart';
+import '../models/thinking_time_model.dart';
+import '../utils/utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -77,6 +80,11 @@ class SettingsDatabaseHelper {
   /// This field will will probably only be used by status settings. It was created
   /// in order to be able to translate status names to integers
   static String otherSettingsTableFieldNameAsInt = 'name_as_int';
+
+  /// Whether the user should have unlimited time to Think or not. Standard value
+  /// is 0, so there is no time limit by default
+  static String otherSettingsSecondsToThinkActive =
+      'other_settings_seconds_to_think_active';
 
   /// Seconds that will pass between the questions in order to give the user time
   /// to think. Standard value: 10.
@@ -201,6 +209,16 @@ class SettingsDatabaseHelper {
         otherSettingsTableFieldGroup: 0,
         otherSettingsTableFieldNameAsInt: 2,
       });
+
+      await db.insert(
+        otherSettingsTableName,
+        {
+          otherSettingsTableFieldNameOfSetting:
+              otherSettingsSecondsToThinkActive,
+          otherSettingsTableFieldValueAsInt: 0,
+          otherSettingsTableFieldGroup: 1,
+        },
+      );
       await db.insert(
         otherSettingsTableName,
         {
@@ -227,7 +245,7 @@ class SettingsDatabaseHelper {
     /// created with instance.database. This function should be called in
     /// the [DataPreparationPage]
     Database db = await instance.database;
-    Logger().d('$db created');
+    Logger().d('SettingsDatabase $db created');
   }
 
   static Future<List> getListOfAskableCategories() async {
@@ -268,6 +286,15 @@ class SettingsDatabaseHelper {
         [nameOfOtherSetting]);
 
     return int.parse(ask[0].values.first.toString());
+  }
+
+  static Future<int> updateValueOfOtherSetting(
+      {required String nameOfOtherSetting, required int value}) async {
+    Database db = await instance.database;
+    final update = await db.rawUpdate(
+        'UPDATE $otherSettingsTableName SET $otherSettingsTableFieldValueAsInt = ? WHERE $otherSettingsTableFieldNameOfSetting = ?',
+        [value, nameOfOtherSetting]);
+    return update;
   }
 
   static Future<int> toggleAskCategory({required int categoryAsInt}) async {
@@ -435,10 +462,22 @@ class SettingsDatabaseHelper {
           .add(QuestionStatusSettingsEntity.fromMap(rowMap).toModel());
     }
 
+    //! secondsToThink:
+    final secondsToThinkIsActive = await getValueOfOtherSetting(
+        nameOfOtherSetting: otherSettingsSecondsToThinkActive);
+
+    final secondsToThink = await getValueOfOtherSetting(
+        nameOfOtherSetting: otherSettingsSecondsToThink);
+
+    final thinkingTimeModel = ThinkingTimeEntity(
+            active: secondsToThinkIsActive, secondsToThink: secondsToThink)
+        .toModel();
+    //--------------------------------------------------------------------------
     return SettingsModel(
       categorySettingsModelList: categorySettingsModelList,
       difficultySettingsModelList: difficultySettingsModelList,
       questionStatusSettingsModelList: questionStatusSettingsModelList,
+      thinkingTimeModel: thinkingTimeModel,
     );
   }
 }

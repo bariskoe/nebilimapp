@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'bloc/animation_bloc/bloc/animation_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
@@ -35,6 +36,10 @@ Future<void> setupDependencyInjectionWithGetIt() async {
 
   getIt.registerLazySingleton(() => SettingsBloc(
         settingsUsecases: getIt(),
+      ));
+
+  getIt.registerLazySingleton(() => AnimationBloc(
+        settingsBloc: getIt(),
       ));
 //! Usecases
 

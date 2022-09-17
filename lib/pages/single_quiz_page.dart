@@ -1,19 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/ui/standard_widgets/dialog_scaffold.dart';
-import '../database/database_helper.dart';
-import '../routing.dart';
 
+import '../bloc/animation_bloc/bloc/animation_bloc.dart';
 import '../bloc/question_bloc/bloc/question_bloc.dart';
 import '../constants/assets.dart';
 import '../custom_widgets/standard_page_widget.dart';
+import '../custom_widgets/thinking_time_indicator.dart';
 import '../dependency_injection.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../models/question_insertion_model.dart';
 import '../models/question_model.dart';
+import '../routing.dart';
+import '../ui/standard_widgets/dialog_scaffold.dart';
 import '../ui/standard_widgets/standard_ui_widgets.dart';
 import '../ui/ui_constants/ui_constants.dart';
 
@@ -22,7 +25,6 @@ class SingleQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // getIt<QuestionBloc>().add(QuestionEventGetRandomQuestion());
     getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion());
 
     String currentLocale = Intl.getCurrentLocale();
@@ -30,6 +32,7 @@ class SingleQuizPage extends StatelessWidget {
     return BlocConsumer<QuestionBloc, QuestionState>(
       listener: (context, state) async {
         if (state is QuestionStateAllfilterConformQuestionsRecentlyAsked) {
+          getIt<AnimationBloc>().add(AnimationEventResetAnimation());
           await dialogScaffold(context,
               cancelButtonChild: const Text('Cancel'),
               onCancelPressed: () {
@@ -40,6 +43,8 @@ class SingleQuizPage extends StatelessWidget {
               onOkpressed: () {
                 getIt<QuestionBloc>()
                     .add(QuestionEventClearRecentlyAskedTable());
+                getIt<QuestionBloc>()
+                    .add(QuestionEventGetFilterConfromQuestion());
               });
         }
       },
@@ -102,7 +107,7 @@ class CaseNotYetCoveredWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('State not yet covered'),
+        const Text('State not yet covered'),
         IconButton(
             onPressed: () {
               getIt<QuestionBloc>()
@@ -124,7 +129,16 @@ class QuestionLoadedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!state.showAnswer) {
+      Timer(
+          const Duration(seconds: 3),
+          () => getIt<AnimationBloc>().add(
+              const AnimationEventStartThinkingTimeAnimation(
+                  totalAnimationDuration: 0)));
+    }
+
     return Column(
+      mainAxisSize: MainAxisSize.max,
       children: [
         const SizedBox(
           height: UiConstantsPadding.xlarge,
@@ -137,7 +151,50 @@ class QuestionLoadedWidget extends StatelessWidget {
         const SizedBox(
           height: UiConstantsPadding.xlarge,
         ),
-        AnswerContainer(answerText: state.questionModel.questionAnswerText),
+        AnswerContainer(
+            child: state.showAnswer
+                ? Expanded(
+                    child: Column(
+                      children: [
+                        Text(state.questionModel.questionAnswerText),
+                        const Spacer()
+                      ],
+                    ),
+                  )
+                : BlocBuilder<AnimationBloc, AnimationState>(
+                    builder: (context, animationState) {
+                      if (animationState is AnimationInitial) {
+                        return Align(
+                          alignment: Alignment.bottomLeft,
+                          child: ThinkingTimeIndicator(
+                              height: 20,
+                              totalAnimationDuration:
+                                  animationState.totalAnimationDuration,
+                              width: 0,
+                              onEnd: () {}),
+                        );
+                      }
+                      if (animationState
+                          is AnimationStateThinkingTimeAnimationRunning) {
+                        return Align(
+                          alignment: Alignment.bottomLeft,
+                          child: ThinkingTimeIndicator(
+                              height: 20,
+                              totalAnimationDuration:
+                                  animationState.totalAnimationDuration,
+                              width: MediaQuery.of(context).size.width -
+                                  UiConstantsPadding.xxlarge * 2,
+                              onEnd: () {
+                                getIt<QuestionBloc>()
+                                    .add(QuestionEventShowAnswer());
+                                // getIt<AnimationBloc>()
+                                //     .add(AnimationEventResetAnimation());
+                              }),
+                        );
+                      }
+                      return const Text('Error');
+                    },
+                  ))
       ],
     );
   }
@@ -267,6 +324,8 @@ class QuestionContainer extends StatelessWidget {
                       child: QuestionHeadlineWidget(
                           child: IconButton(
                     onPressed: () {
+                      getIt<AnimationBloc>()
+                          .add(AnimationEventResetAnimation());
                       getIt<QuestionBloc>()
                           .add(QuestionEventGetFilterConfromQuestion());
                     },
@@ -334,35 +393,36 @@ class QuestionHeadlineWidget extends StatelessWidget {
 }
 
 class AnswerContainer extends StatelessWidget {
-  final String answerText;
-  const AnswerContainer({Key? key, required this.answerText}) : super(key: key);
+  final Widget? child;
+  const AnswerContainer({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(
-        UiConstantsRadius.regular,
-      )),
-      child: Container(
-          decoration: StandardUiWidgets.standardBoxDecoration(context: context),
-          height: height * 0.2,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const QuestionHeadlineWidget(child: Text('Antwort')),
-              Center(
-                child: AnimatedContainer(
-                    color: Colors.red,
-                    height: 30,
-                    duration: const Duration(seconds: 1),
-                    child: Text(
-                      answerText,
-                      style: Theme.of(context).textTheme.bodyText1,
-                    )),
-              ),
-              Container()
-            ],
-          )),
+    return Container(
+      decoration: StandardUiWidgets.standardBoxDecoration(context: context),
+      height: height * 0.2,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(
+          UiConstantsRadius.regular,
+        )),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            QuestionHeadlineWidget(
+                child: Text('Antwort',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ))),
+            const Spacer(),
+            child ?? Container(),
+            Container()
+          ],
+        ),
+      ),
     );
   }
 }

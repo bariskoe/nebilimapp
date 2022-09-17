@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'bloc/animation_bloc/bloc/animation_bloc.dart';
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import 'bloc/question_bloc/bloc/question_bloc.dart';
 import 'bloc/settings_bloc/bloc/settings_bloc.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<DataPreparationBloc>()),
         BlocProvider(create: (context) => getIt<QuestionBloc>()),
         BlocProvider(create: (context) => getIt<SettingsBloc>()),
+        BlocProvider(create: (context) => getIt<AnimationBloc>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

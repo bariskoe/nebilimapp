@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/infrastructure/exceptions/exceptions.dart';
+import '../exceptions/exceptions.dart';
 
 import '../../domain/failures/failures.dart';
 import '../../domain/repositories/question_repository.dart';

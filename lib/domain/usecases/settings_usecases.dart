@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import '../../utils/utils.dart';
 import '../failures/failures.dart';
 import '../../models/settings_model.dart';
 
@@ -27,5 +28,11 @@ class SettingsUsecases {
 
   Future<Either<Failure, int>> toggleAskMarkedAs({required String statusName}) {
     return settingsRepository.toggleAskMarkedAs(statusName: statusName);
+  }
+
+  Future<Either<Failure, int>> updateOtherSetting(
+      {required String otherSettingsName, required int newValue}) {
+    return settingsRepository.updateOtherSetting(
+        otherSettingsName: otherSettingsName, newValue: newValue);
   }
 }

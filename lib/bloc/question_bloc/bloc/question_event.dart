@@ -58,3 +58,8 @@ class QuestionEventToggleDontShowAgain extends QuestionEvent {
 }
 
 class QuestionEventClearRecentlyAskedTable extends QuestionEvent {}
+
+class QuestionEventShowAnswer extends QuestionEvent {
+  @override
+  List<Object> get props => [];
+}

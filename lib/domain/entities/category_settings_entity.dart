@@ -1,7 +1,7 @@
+import '../../database/settings_database_helper.dart';
 import '../../models/category_settings_model.dart';
 import '../../models/question_insertion_model.dart';
-
-import '../../database/settings_database_helper.dart';
+import '../../utils/utils.dart';
 
 class CategorySettingsEntity {
   final int categoryAsInt;
@@ -52,21 +52,5 @@ class CategorySettingsEntity {
       categoryAsInt: model.questionCategory.serialze(),
       askAsInt: boolToInt(model.ask),
     );
-  }
-
-  bool intToBool(int boolAsInt) {
-    if (boolAsInt == 1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static int boolToInt(bool intAsBool) {
-    if (intAsBool == true) {
-      return 1;
-    } else {
-      return 0;
-    }
   }
 }
