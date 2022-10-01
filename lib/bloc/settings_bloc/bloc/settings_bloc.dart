@@ -12,6 +12,7 @@ part 'settings_state.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsUsecases settingsUsecases;
 
+  static SettingsModel? currentSettings;
   SettingsBloc({
     required this.settingsUsecases,
   }) : super(SettingsInitial()) {
@@ -23,6 +24,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           await settingsUsecases.getAllSettings();
 
       failureOrSettingsModel.fold((l) => emit(SettingsStateError()), (r) {
+        currentSettings = r;
         emit(SettingsStateLoaded(settingsModel: r));
       });
     });

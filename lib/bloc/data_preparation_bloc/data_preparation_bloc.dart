@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../domain/failures/failures.dart';
 import '../../domain/usecases/data_preparation_usecases.dart';
@@ -35,11 +36,14 @@ class DataPreparationBloc
       );
     });
 
-    // on<DataPreparationEventInitializeSettingsDatabase>((event, emit)async {
-    //     Either<Failure,bool> failureOrDatabaseInitialized = await dataPreparationUsecases.initializeSettingsDatabase();
-    //     failureOrDatabaseInitialized.fold((l) => emit(
-    //       DataPreparationStateQuestionDatabaseUpdateWentWrong(),
-    //     ), (r) => null)
-    // });
+    on<DataPreparationEventInitializeSettingsDatabase>((event, emit) async {
+      Either<Failure, Database> failureOrDatabaseInitialized =
+          await dataPreparationUsecases.initializeSettingsDatabase();
+      failureOrDatabaseInitialized.fold(
+          (l) => emit(
+                DataPreparationStateQuestionDatabaseUpdateWentWrong(),
+              ),
+          (r) => null);
+    });
   }
 }

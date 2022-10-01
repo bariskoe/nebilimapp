@@ -63,3 +63,24 @@ class QuestionEventShowAnswer extends QuestionEvent {
   @override
   List<Object> get props => [];
 }
+
+class QuestionEventSpeakHasFinished extends QuestionEvent {
+  final bool wasQuestion;
+  final bool wasAdditionalInfo;
+  final bool wasAnswer;
+
+  const QuestionEventSpeakHasFinished({
+    required this.wasQuestion,
+    required this.wasAdditionalInfo,
+    required this.wasAnswer,
+  });
+
+  @override
+  List<Object> get props => [
+        wasQuestion,
+        wasAdditionalInfo,
+        wasAnswer,
+      ];
+}
+
+class QuestionEventThinkingTimeAnimationHasFinished extends QuestionEvent {}

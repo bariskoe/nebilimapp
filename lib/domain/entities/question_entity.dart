@@ -1,11 +1,9 @@
 import 'package:intl/intl.dart';
-import 'question_status_entity.dart';
-import '../../models/question_insertion_model.dart';
 
 import '../../database/database_helper.dart';
+import '../../models/question_insertion_model.dart';
 import '../../models/question_model.dart';
-
-
+import 'question_status_entity.dart';
 
 class QuestionEntity {
   final int questionId;

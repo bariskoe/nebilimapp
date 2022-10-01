@@ -1,5 +1,4 @@
 import 'category_settings_entity.dart';
-import '../../models/settings_model.dart';
 
 class SettingsEntity {
   final CategorySettingsEntity categorySettingsEntity;

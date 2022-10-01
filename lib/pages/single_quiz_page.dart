@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -129,14 +127,6 @@ class QuestionLoadedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!state.showAnswer) {
-      Timer(
-          const Duration(seconds: 3),
-          () => getIt<AnimationBloc>().add(
-              const AnimationEventStartThinkingTimeAnimation(
-                  totalAnimationDuration: 0)));
-    }
-
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
@@ -153,50 +143,41 @@ class QuestionLoadedWidget extends StatelessWidget {
         ),
         AnswerContainer(
             child: state.showAnswer
-                ? Expanded(
-                    child: Column(
-                      children: [
-                        Text(state.questionModel.questionAnswerText),
-                        const Spacer()
-                      ],
+                ? AnswerBox(text: state.questionModel.questionAnswerText)
+                : GestureDetector(
+                    child: AnswerBox(
+                      text: 'Tap for answer',
+                      backgrondColor: Colors.grey.shade300,
                     ),
-                  )
-                : BlocBuilder<AnimationBloc, AnimationState>(
-                    builder: (context, animationState) {
-                      if (animationState is AnimationInitial) {
-                        return Align(
-                          alignment: Alignment.bottomLeft,
-                          child: ThinkingTimeIndicator(
-                              height: 20,
-                              totalAnimationDuration:
-                                  animationState.totalAnimationDuration,
-                              width: 0,
-                              onEnd: () {}),
-                        );
-                      }
-                      if (animationState
-                          is AnimationStateThinkingTimeAnimationRunning) {
-                        return Align(
-                          alignment: Alignment.bottomLeft,
-                          child: ThinkingTimeIndicator(
-                              height: 20,
-                              totalAnimationDuration:
-                                  animationState.totalAnimationDuration,
-                              width: MediaQuery.of(context).size.width -
-                                  UiConstantsPadding.xxlarge * 2,
-                              onEnd: () {
-                                getIt<QuestionBloc>()
-                                    .add(QuestionEventShowAnswer());
-                                // getIt<AnimationBloc>()
-                                //     .add(AnimationEventResetAnimation());
-                              }),
-                        );
-                      }
-                      return const Text('Error');
+                    onTap: () {
+                      getIt<QuestionBloc>().add(QuestionEventShowAnswer());
                     },
                   ))
       ],
     );
+  }
+}
+
+class AnswerBox extends StatelessWidget {
+  final String text;
+  final Color? backgrondColor;
+  const AnswerBox({
+    required this.text,
+    this.backgrondColor,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(UiConstantsRadius.large),
+          color: backgrondColor,
+        ),
+        margin: const EdgeInsets.all(UiConstantsPadding.regular),
+        padding: const EdgeInsets.all(UiConstantsPadding.large),
+        height: 60,
+        child: Text(text));
   }
 }
 
@@ -246,7 +227,6 @@ class QuestionContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Logger().d('Neuer build findet statt');
     final height = MediaQuery.of(context).size.height;
     return ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(
@@ -277,7 +257,7 @@ class QuestionContainer extends StatelessWidget {
                           Icons.fitness_center,
                           color: Theme.of(context).colorScheme.onSecondary,
                         ),
-                        Text('${questionModel.questionDifficulty + 1}',
+                        Text('${questionModel.getOneBasedDifficulty}',
                             style: Theme.of(context)
                                 .textTheme
                                 .headline3!
@@ -393,10 +373,12 @@ class QuestionHeadlineWidget extends StatelessWidget {
 }
 
 class AnswerContainer extends StatelessWidget {
+  final Function()? onTap;
   final Widget? child;
   const AnswerContainer({
     Key? key,
     required this.child,
+    this.onTap,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -414,11 +396,42 @@ class AnswerContainer extends StatelessWidget {
           children: [
             QuestionHeadlineWidget(
                 child: Text('Antwort',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ))),
+                    style: Theme.of(context).textTheme.headline2!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary))),
             const Spacer(),
             child ?? Container(),
+            BlocBuilder<AnimationBloc, AnimationState>(
+              builder: (context, animationState) {
+                if (animationState is AnimationInitial) {
+                  return Align(
+                    alignment: Alignment.bottomLeft,
+                    child: ThinkingTimeIndicator(
+                        height: 20,
+                        totalAnimationDuration:
+                            animationState.totalAnimationDuration,
+                        width: 0,
+                        onEnd: () {}),
+                  );
+                }
+                if (animationState
+                    is AnimationStateThinkingTimeAnimationRunning) {
+                  return Align(
+                    alignment: Alignment.bottomLeft,
+                    child: ThinkingTimeIndicator(
+                        height: 20,
+                        totalAnimationDuration:
+                            animationState.totalAnimationDuration,
+                        width: MediaQuery.of(context).size.width -
+                            UiConstantsPadding.xxlarge * 2,
+                        onEnd: () {
+                          getIt<AnimationBloc>().add(
+                              AnimationEventThinkingTimeAnimationHasFinished());
+                        }),
+                  );
+                }
+                return const Text('Error');
+              },
+            ),
             Container()
           ],
         ),

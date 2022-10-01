@@ -1,9 +1,10 @@
-import '../../database/settings_database_helper.dart';
-import '../../models/settings_model.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 
 import '/database/database_helper.dart';
+import '../../database/settings_database_helper.dart';
 import '../../models/question_model.dart';
 import '../../models/question_status_model.dart';
+import '../../models/settings_model.dart';
 import 'local_sqlite_datasource.dart';
 
 class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
@@ -100,5 +101,10 @@ class LocalSqliteDataSourceImpl implements LocalSqliteDataSource {
       nameOfOtherSetting: otherSettingsName,
       value: newValue,
     );
+  }
+
+  @override
+  Future<Database> functionToInitializeSettingsDatabase() async {
+    return await SettingsDatabaseHelper.functionToInitializeSettingsDatabase();
   }
 }

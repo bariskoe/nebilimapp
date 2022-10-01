@@ -1,8 +1,7 @@
 import 'package:dartz/dartz.dart';
-import '../../utils/utils.dart';
-import '../failures/failures.dart';
-import '../../models/settings_model.dart';
 
+import '../../models/settings_model.dart';
+import '../failures/failures.dart';
 import '../repositories/settings_repository.dart';
 
 class SettingsUsecases {

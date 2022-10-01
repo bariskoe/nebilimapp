@@ -7,6 +7,7 @@ import 'bloc/animation_bloc/bloc/animation_bloc.dart';
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import 'bloc/question_bloc/bloc/question_bloc.dart';
 import 'bloc/settings_bloc/bloc/settings_bloc.dart';
+import 'bloc/text_to_speech_bloc/bloc/text_to_speech_bloc.dart';
 import 'dependency_injection.dart' as di;
 import 'dependency_injection.dart';
 import 'pages/data_preparation_page.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<QuestionBloc>()),
         BlocProvider(create: (context) => getIt<SettingsBloc>()),
         BlocProvider(create: (context) => getIt<AnimationBloc>()),
+        BlocProvider(
+          create: (context) => getIt<TextToSpeechBloc>(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

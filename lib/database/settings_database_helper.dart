@@ -2,9 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
-import '../domain/entities/thinking_time_entity.dart';
-import '../models/thinking_time_model.dart';
-import '../utils/utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,6 +10,7 @@ import '../domain/entities/category_settings_entity.dart';
 import '../domain/entities/difficulty_settings_entity.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../domain/entities/question_status_settings_entity.dart';
+import '../domain/entities/thinking_time_entity.dart';
 import '../models/category_settings_model.dart';
 import '../models/difficulty_settings_model.dart';
 import '../models/question_insertion_model.dart';
@@ -240,12 +238,12 @@ class SettingsDatabaseHelper {
     }
   }
 
-  static functionToInitializeSettingsDatabase() async {
+  static Future<Database> functionToInitializeSettingsDatabase() async {
     /// The database is being created as soon as an instance of it is being
-    /// created with instance.database. This function should be called in
-    /// the [DataPreparationPage]
+    /// created with instance.database.
     Database db = await instance.database;
     Logger().d('SettingsDatabase $db created');
+    return db;
   }
 
   static Future<List> getListOfAskableCategories() async {

@@ -48,4 +48,6 @@ class QuestionModel with EquatableMixin {
       ];
 
   bool get hasImage => (questionImageName != null) && (questionImageName != '');
+  bool get hasAdditionalInfo => questionAdditionalInfo.isNotEmpty;
+  int get getOneBasedDifficulty => questionDifficulty + 1;
 }

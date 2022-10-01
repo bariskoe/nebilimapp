@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Themes {
+  //! Construct a dark Theme
+  //! If possible, create a function which takes a primarycolor and returns a theme with
+  //! the respective other colors
   static TextTheme appTextTheme() {
     const String fontFamiliy = 'Cherry Swash';
 
@@ -9,7 +12,7 @@ class Themes {
             fontSize: 24, fontWeight: FontWeight.bold, fontFamily: fontFamiliy),
         headline2: TextStyle(
             fontSize: 22.0,
-            fontStyle: FontStyle.italic,
+            fontStyle: FontStyle.normal,
             fontFamily: fontFamiliy),
         headline3: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
         bodyText1: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),

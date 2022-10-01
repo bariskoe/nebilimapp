@@ -1,28 +1,50 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../../../models/question_insertion_model.dart';
 
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/question_usecases.dart';
 import '../../../models/question_model.dart';
 import '../../../models/question_status_model.dart';
+import '../../animation_bloc/bloc/animation_bloc.dart';
+import '../../settings_bloc/bloc/settings_bloc.dart';
+import '../../text_to_speech_bloc/bloc/text_to_speech_bloc.dart';
 
 part 'question_event.dart';
 part 'question_state.dart';
 
 class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   QuestionUsecases questionUsecases;
+  AnimationBloc animationBloc;
+  TextToSpeechBloc textToSpeechBloc;
+  final SettingsBloc _settingsBloc;
+  late StreamSubscription subscriptionToSettingsBloc;
+  //! Strange: If I declare this as SettingsState and say if state is
+  //! SettingsStateLoaded {currentSettingsState = state}, I can not
+  //! do currentSettingsState.settingsModel
+  SettingsStateLoaded? currentSettingsStateLoaded;
 
   int? currentQuestionId;
   QuestionStateLoaded? currentQuestionStateLoaded;
 
   QuestionBloc({
     required this.questionUsecases,
-  }) : super(QuestionStateInitial()) {
+    required this.animationBloc,
+    required this.textToSpeechBloc,
+    required SettingsBloc settingsBloc,
+  })  : _settingsBloc = settingsBloc,
+        super(QuestionStateInitial()) {
     // on<>((event, emit)async {
     // });
 
+    subscriptionToSettingsBloc =
+        _settingsBloc.stream.listen((SettingsState state) {
+      if (state is SettingsStateLoaded) {
+        currentSettingsStateLoaded = state;
+      }
+    });
     on<QuestionEventTurnBackToInitialState>((event, emit) {
       emit(QuestionStateInitial());
     });
@@ -63,6 +85,12 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
             questionId: r.questionId);
         questionUsecases.insertQuestionIdToRecentlyAskedTable(
             questionId: r.questionId);
+        textToSpeechBloc.add(TextToSpeechEventSpeak(
+          text: r.questionText,
+          isQuestion: true,
+          isAdditionalInfo: false,
+          isAnswer: false,
+        ));
       });
     });
 
@@ -119,12 +147,41 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
 
     on<QuestionEventShowAnswer>((event, emit) async {
       if (currentQuestionStateLoaded != null) {
-        print('emitting currentQuestionStateLoaded mit showanswer true');
-        // emit(QuestionStateLoaded(
-        //     questionModel: currentQuestionStateLoaded!.questionModel,
-        //     showAnswer: true));
         emit(currentQuestionStateLoaded!.copyWith(showAnswer: true));
       }
+    });
+
+    on<QuestionEventSpeakHasFinished>((event, emit) async {
+      if (currentSettingsStateLoaded != null &&
+          currentSettingsStateLoaded!.settingsModel.thinkingTimeModel.active) {
+        //! Is the totalanimationDuration needed in this event? The ThinkingTimeAnimation gets its duration
+        //! from the settings anyway
+
+        animationBloc.add(const AnimationEventStartThinkingTimeAnimation(
+            totalAnimationDuration: 0));
+      }
+      if (event.wasAnswer) {
+        currentQuestionStateLoaded?.questionModel.hasAdditionalInfo ?? false
+            ? textToSpeechBloc.add(TextToSpeechEventSpeak(
+                text: currentQuestionStateLoaded!
+                    .questionModel.questionAdditionalInfo,
+                isAdditionalInfo: true,
+                isAnswer: false,
+                isQuestion: false,
+              ))
+            : null;
+      }
+    });
+
+    on<QuestionEventThinkingTimeAnimationHasFinished>((event, emit) async {
+      add(QuestionEventShowAnswer());
+      textToSpeechBloc.add(TextToSpeechEventSpeak(
+        text:
+            currentQuestionStateLoaded?.questionModel.questionAnswerText ?? '',
+        isAdditionalInfo: false,
+        isAnswer: true,
+        isQuestion: false,
+      ));
     });
   }
 }

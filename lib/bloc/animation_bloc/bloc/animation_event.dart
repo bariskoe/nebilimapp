@@ -21,3 +21,5 @@ class AnimationEventStartThinkingTimeAnimation extends AnimationEvent {
 }
 
 class AnimationEventResetAnimation extends AnimationEvent {}
+
+class AnimationEventThinkingTimeAnimationHasFinished extends AnimationEvent {}

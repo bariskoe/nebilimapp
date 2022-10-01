@@ -1,3 +1,5 @@
+import 'package:sqflite/sqflite.dart';
+
 import '../../models/settings_model.dart';
 
 import '../../models/question_model.dart';
@@ -64,4 +66,7 @@ abstract class LocalSqliteDataSource {
     required String otherSettingsName,
     required int newValue,
   });
+
+  /// Initializes the [SettingsDatabase]
+  Future<Database> functionToInitializeSettingsDatabase();
 }

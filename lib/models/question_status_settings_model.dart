@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../domain/entities/question_status_entity.dart';
 
 class QuestionStatusSettingsModel with EquatableMixin {

@@ -1,4 +1,6 @@
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get_it/get_it.dart';
+import 'bloc/text_to_speech_bloc/bloc/text_to_speech_bloc.dart';
 import 'bloc/animation_bloc/bloc/animation_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +34,9 @@ Future<void> setupDependencyInjectionWithGetIt() async {
       ));
   getIt.registerLazySingleton(() => QuestionBloc(
         questionUsecases: getIt(),
+        animationBloc: getIt(),
+        textToSpeechBloc: getIt(),
+        settingsBloc: getIt(),
       ));
 
   getIt.registerLazySingleton(() => SettingsBloc(
@@ -40,6 +45,9 @@ Future<void> setupDependencyInjectionWithGetIt() async {
 
   getIt.registerLazySingleton(() => AnimationBloc(
         settingsBloc: getIt(),
+      ));
+  getIt.registerLazySingleton(() => TextToSpeechBloc(
+        flutterTts: getIt(),
       ));
 //! Usecases
 
@@ -90,4 +98,8 @@ Future<void> setupDependencyInjectionWithGetIt() async {
           ));
 //! 3rd party libraries
   getIt.registerSingleton(await SharedPreferences.getInstance());
+
+  // Text to speech
+  FlutterTts flutterTts = FlutterTts();
+  getIt.registerSingleton(flutterTts);
 }

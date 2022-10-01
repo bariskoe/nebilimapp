@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../domain/failures/failures.dart';
 import '../../domain/repositories/data_preparation_repository.dart';
@@ -16,6 +17,17 @@ class DataPreparationRepositoryImpl implements DataPreparationRepository {
       final updated =
           await localSqliteDataSource.updateQuestionDatabaseIfNeccessary();
       return Right(updated);
+    } catch (e) {
+      return Left(DatabaseFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Database>> initializeSettingsDatabase() async {
+    try {
+      final settingsDatabase =
+          await localSqliteDataSource.functionToInitializeSettingsDatabase();
+      return Right(settingsDatabase);
     } catch (e) {
       return Left(DatabaseFailure());
     }
