@@ -146,6 +146,27 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     });
 
     on<QuestionEventShowAnswer>((event, emit) async {
+      if (event.afterPressingShowAnswer ?? false) {
+        animationBloc.add(AnimationEventResetAnimation());
+        textToSpeechBloc.add(TextToSpeechEventStopSpeaking());
+        textToSpeechBloc.add(TextToSpeechEventSpeak(
+            text:
+                currentQuestionStateLoaded?.questionModel.questionAnswerText ??
+                    '',
+            isAnswer: true,
+            isAdditionalInfo: false,
+            isQuestion: false));
+      }
+
+      if (event.afterEndOfThinkingTime ?? false) {
+        textToSpeechBloc.add(TextToSpeechEventSpeak(
+          text: currentQuestionStateLoaded?.questionModel.questionAnswerText ??
+              '',
+          isAdditionalInfo: false,
+          isAnswer: true,
+          isQuestion: false,
+        ));
+      }
       if (currentQuestionStateLoaded != null) {
         emit(currentQuestionStateLoaded!.copyWith(showAnswer: true));
       }
@@ -153,7 +174,8 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
 
     on<QuestionEventSpeakHasFinished>((event, emit) async {
       if (currentSettingsStateLoaded != null &&
-          currentSettingsStateLoaded!.settingsModel.thinkingTimeModel.active) {
+          currentSettingsStateLoaded!.settingsModel.thinkingTimeModel.active &&
+          event.wasQuestion) {
         //! Is the totalanimationDuration needed in this event? The ThinkingTimeAnimation gets its duration
         //! from the settings anyway
 
@@ -174,14 +196,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     });
 
     on<QuestionEventThinkingTimeAnimationHasFinished>((event, emit) async {
-      add(QuestionEventShowAnswer());
-      textToSpeechBloc.add(TextToSpeechEventSpeak(
-        text:
-            currentQuestionStateLoaded?.questionModel.questionAnswerText ?? '',
-        isAdditionalInfo: false,
-        isAnswer: true,
-        isQuestion: false,
-      ));
+      add(const QuestionEventShowAnswer(afterEndOfThinkingTime: true));
     });
   }
 }

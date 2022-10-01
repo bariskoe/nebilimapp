@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'question_bloc.dart';
 
 abstract class QuestionEvent extends Equatable {
@@ -60,8 +61,15 @@ class QuestionEventToggleDontShowAgain extends QuestionEvent {
 class QuestionEventClearRecentlyAskedTable extends QuestionEvent {}
 
 class QuestionEventShowAnswer extends QuestionEvent {
+  final bool? afterEndOfThinkingTime;
+  final bool? afterPressingShowAnswer;
+  const QuestionEventShowAnswer({
+    this.afterEndOfThinkingTime = false,
+    this.afterPressingShowAnswer = false,
+  });
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [afterEndOfThinkingTime!, afterPressingShowAnswer!];
 }
 
 class QuestionEventSpeakHasFinished extends QuestionEvent {

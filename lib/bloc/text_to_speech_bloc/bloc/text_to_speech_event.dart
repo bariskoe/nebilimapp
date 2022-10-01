@@ -28,3 +28,5 @@ class TextToSpeechEventSpeak extends TextToSpeechEvent {
         isAnswer ?? false,
       ];
 }
+
+class TextToSpeechEventStopSpeaking extends TextToSpeechEvent {}

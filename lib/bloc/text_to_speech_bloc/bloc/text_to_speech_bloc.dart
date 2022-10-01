@@ -31,5 +31,8 @@ class TextToSpeechBloc extends Bloc<TextToSpeechEvent, TextToSpeechState> {
 
       await flutterTts.speak(event.text);
     });
+    on<TextToSpeechEventStopSpeaking>((event, emit) async {
+      await flutterTts.stop();
+    });
   }
 }

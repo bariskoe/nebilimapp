@@ -150,7 +150,8 @@ class QuestionLoadedWidget extends StatelessWidget {
                       backgrondColor: Colors.grey.shade300,
                     ),
                     onTap: () {
-                      getIt<QuestionBloc>().add(QuestionEventShowAnswer());
+                      getIt<QuestionBloc>().add(const QuestionEventShowAnswer(
+                          afterPressingShowAnswer: true));
                     },
                   ))
       ],
