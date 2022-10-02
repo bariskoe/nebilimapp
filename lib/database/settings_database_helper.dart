@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/utils/utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -55,6 +56,9 @@ class SettingsDatabaseHelper {
   /// favorited       |       1               1         |           0
   /// seconds_to_think|                      15        |           1
   /// chain_questions |                      0         |           2
+  ///                                 .
+  ///                                 .
+  ///                                 .
 
   static const String otherSettingsTableName = 'other_settings_table';
 
@@ -84,13 +88,22 @@ class SettingsDatabaseHelper {
   static String otherSettingsSecondsToThinkActive =
       'other_settings_seconds_to_think_active';
 
-  /// Seconds that will pass between the questions in order to give the user time
-  /// to think. Standard value: 10.
+  /// Seconds in which an animation will run after the question is visible
+  /// After this duration, the answer will be visible
   static const String otherSettingsSecondsToThink = 'seconds_to_think';
 
+  //! To be used
   /// Should the questions automatically be chained? If yes, one question will
-  /// follow the other with the above thinking time in between. Standard: 0.
+  /// follow the other with resting time in between. Standard: 0.
   static const String otherSettingsChainQuestions = 'chain_questions';
+
+  //!To be used
+  /// The time that should pass between the questions if otherSettingsChainQuestions
+  /// is true
+  static const String otherSettingsRestingTime = 'resting_time';
+
+  /// Wether text to speech is on or off
+  static const String otherSettingsTextToSpeechOn = 'text_to_speech_on';
 
   Future onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
@@ -229,6 +242,16 @@ class SettingsDatabaseHelper {
         otherSettingsTableFieldNameOfSetting: otherSettingsChainQuestions,
         otherSettingsTableFieldValueAsInt: 0,
         otherSettingsTableFieldGroup: 2,
+      });
+      await db.insert(otherSettingsTableName, {
+        otherSettingsTableFieldNameOfSetting: otherSettingsRestingTime,
+        otherSettingsTableFieldValueAsInt: 2,
+        otherSettingsTableFieldGroup: 3,
+      });
+      await db.insert(otherSettingsTableName, {
+        otherSettingsTableFieldNameOfSetting: otherSettingsTextToSpeechOn,
+        otherSettingsTableFieldValueAsInt: 0,
+        otherSettingsTableFieldGroup: 4,
       });
 
       list = await db.rawQuery(
@@ -470,12 +493,30 @@ class SettingsDatabaseHelper {
     final thinkingTimeModel = ThinkingTimeEntity(
             active: secondsToThinkIsActive, secondsToThink: secondsToThink)
         .toModel();
+
+    //! Text to speech
+    final textToSpeechOnAsInt = await getValueOfOtherSetting(
+        nameOfOtherSetting: otherSettingsTextToSpeechOn);
+    final textToSpeechOn = intToBool(textToSpeechOnAsInt);
+
+    //! Resting time
+    final restingTimeInSeconds = await getValueOfOtherSetting(
+        nameOfOtherSetting: otherSettingsRestingTime);
+
+    //! Chain questions
+    final chainQuestionsAsInt = await getValueOfOtherSetting(
+        nameOfOtherSetting: otherSettingsChainQuestions);
+    final chainQuestionsOn = intToBool(chainQuestionsAsInt);
+
     //--------------------------------------------------------------------------
     return SettingsModel(
       categorySettingsModelList: categorySettingsModelList,
       difficultySettingsModelList: difficultySettingsModelList,
       questionStatusSettingsModelList: questionStatusSettingsModelList,
       thinkingTimeModel: thinkingTimeModel,
+      textToSpeechOn: textToSpeechOn,
+      chainQuestionsOn: chainQuestionsOn,
+      restingTime: restingTimeInSeconds,
     );
   }
 }

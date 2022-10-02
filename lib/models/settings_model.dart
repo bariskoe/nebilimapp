@@ -9,12 +9,18 @@ class SettingsModel extends Equatable {
   final List<DifficultySettingsModel> difficultySettingsModelList;
   final List<QuestionStatusSettingsModel> questionStatusSettingsModelList;
   final ThinkingTimeModel thinkingTimeModel;
+  final bool textToSpeechOn;
+  final bool chainQuestionsOn;
+  final int restingTime;
 
   const SettingsModel({
     required this.categorySettingsModelList,
     required this.difficultySettingsModelList,
     required this.questionStatusSettingsModelList,
     required this.thinkingTimeModel,
+    required this.textToSpeechOn,
+    required this.restingTime,
+    required this.chainQuestionsOn,
   });
 
   @override
@@ -23,5 +29,8 @@ class SettingsModel extends Equatable {
         difficultySettingsModelList,
         questionStatusSettingsModelList,
         thinkingTimeModel,
+        textToSpeechOn,
+        restingTime,
+        chainQuestionsOn,
       ];
 }
