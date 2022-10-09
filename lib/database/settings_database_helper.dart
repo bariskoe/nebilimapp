@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+
 import 'package:nebilimapp/utils/utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -515,8 +516,8 @@ class SettingsDatabaseHelper {
       questionStatusSettingsModelList: questionStatusSettingsModelList,
       thinkingTimeModel: thinkingTimeModel,
       textToSpeechOn: textToSpeechOn,
-      chainQuestionsOn: chainQuestionsOn,
       restingTime: restingTimeInSeconds,
+      chainQuestionsOn: chainQuestionsOn,
     );
   }
 }
