@@ -1,11 +1,12 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:nebilimapp/bloc/settings_bloc/bloc/settings_bloc.dart';
-import 'package:nebilimapp/database/settings_database_helper.dart';
-import 'package:nebilimapp/utils/utils.dart';
+import '../bloc/settings_bloc/bloc/settings_bloc.dart';
+import '../database/settings_database_helper.dart';
+import '../utils/utils.dart';
 
 import '../bloc/animation_bloc/bloc/animation_bloc.dart';
 import '../bloc/question_bloc/bloc/question_bloc.dart';
@@ -325,7 +326,7 @@ class QuestionContainer extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(UiConstantsPadding.regular),
                   child: Center(
-                    child: Text(
+                    child: AutoSizeText(
                       questionModel.questionText,
                       style: Theme.of(context).textTheme.bodyText1,
                     ),

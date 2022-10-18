@@ -1,12 +1,12 @@
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get_it/get_it.dart';
-import 'bloc/text_to_speech_bloc/bloc/text_to_speech_bloc.dart';
-import 'bloc/animation_bloc/bloc/animation_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'bloc/animation_bloc/bloc/animation_bloc.dart';
 import 'bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import 'bloc/question_bloc/bloc/question_bloc.dart';
 import 'bloc/settings_bloc/bloc/settings_bloc.dart';
+import 'bloc/text_to_speech_bloc/bloc/text_to_speech_bloc.dart';
 import 'domain/repositories/data_preparation_repository.dart';
 import 'domain/repositories/question_repository.dart';
 import 'domain/repositories/settings_repository.dart';

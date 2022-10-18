@@ -1,11 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../../question_bloc/bloc/question_bloc.dart';
+
 import '../../../dependency_injection.dart';
-import '../../settings_bloc/bloc/settings_bloc.dart';
 import '../../../domain/failures/failures.dart';
 import '../../../models/settings_model.dart';
+import '../../question_bloc/bloc/question_bloc.dart';
+import '../../settings_bloc/bloc/settings_bloc.dart';
 
 part 'animation_event.dart';
 part 'animation_state.dart';

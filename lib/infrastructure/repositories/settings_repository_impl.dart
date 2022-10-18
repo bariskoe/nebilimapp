@@ -1,9 +1,10 @@
-import 'package:logger/logger.dart';
-import '../../domain/failures/failures.dart';
 import 'package:dartz/dartz.dart';
+import 'package:logger/logger.dart';
+
+import '../../domain/failures/failures.dart';
 import '../../domain/repositories/settings_repository.dart';
-import '../datasources/local_sqlite_datasource.dart';
 import '../../models/settings_model.dart';
+import '../datasources/local_sqlite_datasource.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
   final LocalSqliteDataSource localSqliteDataSource;

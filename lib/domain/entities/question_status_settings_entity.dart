@@ -1,7 +1,6 @@
 import '../../database/settings_database_helper.dart';
-import 'question_status_entity.dart';
-
 import '../../models/question_status_settings_model.dart';
+import 'question_status_entity.dart';
 
 class QuestionStatusSettingsEntity {
   String questionStatusName;
