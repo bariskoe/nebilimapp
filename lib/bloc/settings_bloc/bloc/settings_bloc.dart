@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:logger/logger.dart';
 
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/settings_usecases.dart';
@@ -25,6 +26,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
       failureOrSettingsModel.fold((l) => emit(SettingsStateError()), (r) {
         currentSettings = r;
+        Logger().d(
+            'Emitting SettingsStateLoaded with the following settingsModel: $r');
         emit(SettingsStateLoaded(settingsModel: r));
       });
     });

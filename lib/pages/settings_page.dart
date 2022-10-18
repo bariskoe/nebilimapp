@@ -69,10 +69,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildMarkedAs(state),
                     const SizedBox(height: UiConstantsSize.large),
                     Padding(
-                      padding: const EdgeInsets.all(UiConstantsPadding.large),
+                      padding: const EdgeInsets.only(
+                          top: UiConstantsPadding.large,
+                          bottom: UiConstantsPadding.mini),
                       child: Text(
                         'Thinking Time',
                         style: Theme.of(context).textTheme.headline2,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: UiConstantsPadding.large),
+                      child: Text(
+                        '(Applies only when speak is on)',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
                     _buildThinkingTime(state),
@@ -320,7 +330,7 @@ class SettingsSymbol extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(UiConstantsRadius.regular),
         border: Border.all(
-            width: selected ? 4 : 1,
+            width: 2,
             color: selected
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.tertiary),

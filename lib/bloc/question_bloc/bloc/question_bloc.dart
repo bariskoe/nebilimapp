@@ -42,11 +42,15 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     subscriptionToSettingsBloc =
         _settingsBloc.stream.listen((SettingsState state) {
       if (state is SettingsStateLoaded) {
-        currentSettingsStateLoaded = state;
+        add(QuestionEventUpdateSettingsState(settingsStateLoaded: state));
       }
     });
     on<QuestionEventTurnBackToInitialState>((event, emit) {
       emit(QuestionStateInitial());
+    });
+
+    on<QuestionEventUpdateSettingsState>((event, emit) async {
+      currentSettingsStateLoaded = event.settingsStateLoaded;
     });
 
     on<QuestionEventGetRandomQuestion>((event, emit) async {
@@ -85,12 +89,16 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
             questionId: r.questionId);
         questionUsecases.insertQuestionIdToRecentlyAskedTable(
             questionId: r.questionId);
-        textToSpeechBloc.add(TextToSpeechEventSpeak(
-          text: r.questionText,
-          isQuestion: true,
-          isAdditionalInfo: false,
-          isAnswer: false,
-        ));
+
+        if (currentSettingsStateLoaded?.settingsModel.textToSpeechOn ?? false) {
+          textToSpeechBloc.add(TextToSpeechEventSpeak(
+            text: r.questionText,
+            ttsOn: currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
+            isQuestion: true,
+            isAdditionalInfo: false,
+            isAnswer: false,
+          ));
+        }
       });
     });
 
@@ -153,6 +161,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
             text:
                 currentQuestionStateLoaded?.questionModel.questionAnswerText ??
                     '',
+            ttsOn: currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
             isAnswer: true,
             isAdditionalInfo: false,
             isQuestion: false));
@@ -162,6 +171,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         textToSpeechBloc.add(TextToSpeechEventSpeak(
           text: currentQuestionStateLoaded?.questionModel.questionAnswerText ??
               '',
+          ttsOn: currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
           isAdditionalInfo: false,
           isAnswer: true,
           isQuestion: false,
@@ -187,6 +197,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
             ? textToSpeechBloc.add(TextToSpeechEventSpeak(
                 text: currentQuestionStateLoaded!
                     .questionModel.questionAdditionalInfo,
+                ttsOn: currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
                 isAdditionalInfo: true,
                 isAnswer: false,
                 isQuestion: false,

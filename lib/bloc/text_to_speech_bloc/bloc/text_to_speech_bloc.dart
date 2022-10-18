@@ -21,15 +21,23 @@ class TextToSpeechBloc extends Bloc<TextToSpeechEvent, TextToSpeechState> {
     flutterTts.setVoice({'name': 'en-us-x-tpf-local', 'locale': 'en-US'});
 
     on<TextToSpeechEventSpeak>((event, emit) async {
-      flutterTts.setCompletionHandler(() {
+      if (event.ttsOn ?? true) {
+        flutterTts.setCompletionHandler(() {
+          getIt<QuestionBloc>().add(QuestionEventSpeakHasFinished(
+            wasAdditionalInfo: event.isAdditionalInfo ?? false,
+            wasAnswer: event.isAnswer ?? false,
+            wasQuestion: event.isQuestion ?? false,
+          ));
+        });
+
+        await flutterTts.speak(event.text);
+      } else {
         getIt<QuestionBloc>().add(QuestionEventSpeakHasFinished(
           wasAdditionalInfo: event.isAdditionalInfo ?? false,
           wasAnswer: event.isAnswer ?? false,
           wasQuestion: event.isQuestion ?? false,
         ));
-      });
-
-      await flutterTts.speak(event.text);
+      }
     });
     on<TextToSpeechEventStopSpeaking>((event, emit) async {
       await flutterTts.stop();

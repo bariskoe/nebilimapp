@@ -93,17 +93,15 @@ class SettingsDatabaseHelper {
   /// After this duration, the answer will be visible
   static const String otherSettingsSecondsToThink = 'seconds_to_think';
 
-  //! To be used
   /// Should the questions automatically be chained? If yes, one question will
   /// follow the other with resting time in between. Standard: 0.
   static const String otherSettingsChainQuestions = 'chain_questions';
 
-  //!To be used
   /// The time that should pass between the questions if otherSettingsChainQuestions
   /// is true
   static const String otherSettingsRestingTime = 'resting_time';
 
-  /// Wether text to speech is on or off
+  /// Wether text to speech is on or off. Standard: 0.
   static const String otherSettingsTextToSpeechOn = 'text_to_speech_on';
 
   Future onConfigure(Database db) async {

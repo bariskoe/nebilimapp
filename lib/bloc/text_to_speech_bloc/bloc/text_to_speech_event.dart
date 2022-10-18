@@ -9,12 +9,14 @@ abstract class TextToSpeechEvent extends Equatable {
 
 class TextToSpeechEventSpeak extends TextToSpeechEvent {
   final String text;
+  final bool? ttsOn;
   final bool? isQuestion;
   final bool? isAdditionalInfo;
   final bool? isAnswer;
 
   const TextToSpeechEventSpeak({
     required this.text,
+    this.ttsOn,
     this.isQuestion,
     this.isAdditionalInfo,
     this.isAnswer,
@@ -23,6 +25,7 @@ class TextToSpeechEventSpeak extends TextToSpeechEvent {
   @override
   List<Object> get props => [
         text,
+        ttsOn ?? false,
         isQuestion ?? false,
         isAdditionalInfo ?? false,
         isAnswer ?? false,

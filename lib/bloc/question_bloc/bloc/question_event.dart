@@ -92,3 +92,16 @@ class QuestionEventSpeakHasFinished extends QuestionEvent {
 }
 
 class QuestionEventThinkingTimeAnimationHasFinished extends QuestionEvent {}
+
+class QuestionEventUpdateSettingsState extends QuestionEvent {
+  final SettingsStateLoaded settingsStateLoaded;
+
+  const QuestionEventUpdateSettingsState({
+    required this.settingsStateLoaded,
+  });
+
+  @override
+  List<Object> get props => [
+        settingsStateLoaded,
+      ];
+}

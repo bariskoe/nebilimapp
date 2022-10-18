@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:nebilimapp/bloc/settings_bloc/bloc/settings_bloc.dart';
+import 'package:nebilimapp/database/settings_database_helper.dart';
+import 'package:nebilimapp/utils/utils.dart';
 
 import '../bloc/animation_bloc/bloc/animation_bloc.dart';
 import '../bloc/question_bloc/bloc/question_bloc.dart';
@@ -23,7 +26,7 @@ class SingleQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion());
+    // getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion());
 
     String currentLocale = Intl.getCurrentLocale();
     Logger().d('currentlocale is $currentLocale');
@@ -153,9 +156,56 @@ class QuestionLoadedWidget extends StatelessWidget {
                       getIt<QuestionBloc>().add(const QuestionEventShowAnswer(
                           afterPressingShowAnswer: true));
                     },
-                  ))
+                  )),
+        const Spacer(),
+        SettingsBar(),
+        const Spacer()
       ],
     );
+  }
+}
+
+class SettingsBar extends StatelessWidget {
+  const SettingsBar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return BlocBuilder<SettingsBloc, SettingsState>(builder: ((context, state) {
+      if (state is SettingsStateLoaded) {
+        final ttsOn = state.settingsModel.textToSpeechOn;
+        final primaryColor = Theme.of(context).colorScheme.primary;
+        final inactiveColor = Theme.of(context).colorScheme.tertiary;
+
+        return Container(
+          height: size.height * 0.05,
+          child: FittedBox(
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: (() => getIt<SettingsBloc>().add(
+                        SettingsEventUpdateOtherSetting(
+                          otherSettingsName: SettingsDatabaseHelper
+                              .otherSettingsTextToSpeechOn,
+                          newValue:
+                              boolToInt(!state.settingsModel.textToSpeechOn),
+                        ),
+                      )),
+                  child: Icon(
+                    Icons.hearing,
+                    color: ttsOn
+                        ? Theme.of(context).colorScheme.primary
+                        : inactiveColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      } else {
+        return Container();
+      }
+    }));
   }
 }
 

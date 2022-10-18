@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
 import '../bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import '../bloc/settings_bloc/bloc/settings_bloc.dart';
@@ -14,15 +15,16 @@ class DataPreparationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     getIt<DataPreparationBloc>()
         .add(const DataPreparationEventInitializeSettingsDatabase());
+    getIt<SettingsBloc>().add(const SettingsEventGetAllSettings());
     Future.delayed(Duration(seconds: 2), () async {
       getIt<DataPreparationBloc>()
           .add(const DataPreparationEventUpdateQuestionDatabaseIfNeccessary());
     });
-    getIt<SettingsBloc>().add(const SettingsEventGetAllSettings());
 
     return BlocListener<DataPreparationBloc, DataPreparationState>(
       listener: (context, state) {
         if (state is DataPreparationStateQuestionDatabaseUpdateFinished) {
+          Logger().d('pushing to SingleQuizPage');
           Navigator.pushNamed(context, Routing.singleQuizPage);
         }
       },
