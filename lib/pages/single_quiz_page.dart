@@ -87,16 +87,23 @@ class QuestionInitialWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        IconButton(
-            onPressed: () {
-              getIt<QuestionBloc>()
-                  .add(QuestionEventGetFilterConfromQuestion());
-            },
-            icon: const Icon(Icons.play_arrow))
-      ],
-    );
+    return Center(
+        child: GestureDetector(
+      onTap: () =>
+          getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion()),
+      child: Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: Theme.of(context).colorScheme.primary, width: 4),
+            borderRadius: BorderRadius.circular(UiConstantsRadius.large)),
+        child: Text(
+          'START PLAYING',
+          style: Theme.of(context).textTheme.headline4,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ));
   }
 }
 

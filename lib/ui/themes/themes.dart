@@ -8,16 +8,20 @@ class Themes {
     const String fontFamiliy = 'Cherry Swash';
 
     return const TextTheme(
-        headline1: TextStyle(
-            fontSize: 24, fontWeight: FontWeight.bold, fontFamily: fontFamiliy),
-        headline2: TextStyle(
-            fontSize: 22.0,
-            fontStyle: FontStyle.normal,
-            fontFamily: fontFamiliy),
-        headline3: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
-        bodyText1: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
-        bodyText2: TextStyle(fontSize: 24.0, fontFamily: fontFamiliy),
-        subtitle1: TextStyle(fontSize: 14.0, fontFamily: fontFamiliy));
+      headline1: TextStyle(
+          fontSize: 24, fontWeight: FontWeight.bold, fontFamily: fontFamiliy),
+      headline2: TextStyle(
+          fontSize: 22.0, fontStyle: FontStyle.normal, fontFamily: fontFamiliy),
+      headline3: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
+      headline4: TextStyle(
+          fontSize: 26.0,
+          fontFamily: fontFamiliy,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 5),
+      bodyText1: TextStyle(fontSize: 20.0, fontFamily: fontFamiliy),
+      bodyText2: TextStyle(fontSize: 24.0, fontFamily: fontFamiliy),
+      subtitle1: TextStyle(fontSize: 14.0, fontFamily: fontFamiliy),
+    );
   }
 
   static ThemeData greentheme() {
