@@ -36,6 +36,9 @@ class QuestionRepositoryImpl implements QuestionRepository {
       if (e is AllfilterConformQuestionsRecentlyAskedException) {
         return Left(AllfilterConformQuestionsRecentlyAskedFailure());
       }
+      if (e is NoFilterConformQuestionsExistException) {
+        return Left(NoFilterConformQuestionsExistFailure());
+      }
       Logger().e(
           'Error in QuestionRepositoryImpl getFilterConformQuestion: ${e.toString()}');
       return Left(DatabaseFailure());

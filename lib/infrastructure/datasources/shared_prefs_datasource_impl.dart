@@ -1,6 +1,7 @@
-import 'shared_prefs_datasource.dart';
-import '../exceptions/exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../exceptions/exceptions.dart';
+import 'shared_prefs_datasource.dart';
 
 class SharedPrefsDatasourceImpl implements SharedPrefsDatasource {
   SharedPreferences sharedPreferences;

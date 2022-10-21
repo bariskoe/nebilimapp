@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
-
-import '../utils/utils.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -18,6 +16,7 @@ import '../models/difficulty_settings_model.dart';
 import '../models/question_insertion_model.dart';
 import '../models/question_status_settings_model.dart';
 import '../models/settings_model.dart';
+import '../utils/utils.dart';
 
 class SettingsDatabaseHelper {
   SettingsDatabaseHelper._privateConstructor();
@@ -233,6 +232,8 @@ class SettingsDatabaseHelper {
         otherSettingsTableName,
         {
           otherSettingsTableFieldNameOfSetting: otherSettingsSecondsToThink,
+          // Default time in seconds between end of question reading by tts and
+          // start of answer reading by tts
           otherSettingsTableFieldValueAsInt: 10,
           otherSettingsTableFieldGroup: 1,
         },
@@ -244,6 +245,7 @@ class SettingsDatabaseHelper {
       });
       await db.insert(otherSettingsTableName, {
         otherSettingsTableFieldNameOfSetting: otherSettingsRestingTime,
+        // Default time in seconds between chained questions
         otherSettingsTableFieldValueAsInt: 2,
         otherSettingsTableFieldGroup: 3,
       });

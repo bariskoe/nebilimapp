@@ -4,15 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import '../bloc/settings_bloc/bloc/settings_bloc.dart';
-import '../database/settings_database_helper.dart';
-import '../utils/utils.dart';
 
 import '../bloc/animation_bloc/bloc/animation_bloc.dart';
 import '../bloc/question_bloc/bloc/question_bloc.dart';
+import '../bloc/settings_bloc/bloc/settings_bloc.dart';
 import '../constants/assets.dart';
 import '../custom_widgets/standard_page_widget.dart';
 import '../custom_widgets/thinking_time_indicator.dart';
+import '../database/settings_database_helper.dart';
 import '../dependency_injection.dart';
 import '../domain/entities/question_status_entity.dart';
 import '../models/question_insertion_model.dart';
@@ -21,6 +20,7 @@ import '../routing.dart';
 import '../ui/standard_widgets/dialog_scaffold.dart';
 import '../ui/standard_widgets/standard_ui_widgets.dart';
 import '../ui/ui_constants/ui_constants.dart';
+import '../utils/utils.dart';
 
 class SingleQuizPage extends StatelessWidget {
   const SingleQuizPage({Key? key}) : super(key: key);
@@ -48,6 +48,15 @@ class SingleQuizPage extends StatelessWidget {
                 getIt<QuestionBloc>()
                     .add(QuestionEventGetFilterConfromQuestion());
               });
+        } else if (state is QuestionStateNoFilterConformQuestionsExist) {
+          Navigator.pushNamed(context, Routing.settingsPage);
+
+          await dialogScaffold(context,
+              cancelButtonChild: const Text('Cancel'),
+              onCancelPressed: () {},
+              content: const Text(
+                  'No filter conform questions. Try changing Marked as.. settings.'),
+              onOkpressed: () {});
         }
       },
       builder: (context, state) {
@@ -71,9 +80,11 @@ class SingleQuizPage extends StatelessWidget {
                       ? const QuestionInitialWidget()
                       : state is QuestionStateAllfilterConformQuestionsRecentlyAsked
                           ? const QuestionInitialWidget()
-                          : state is QuestionStateNotYetCoveredFailure
-                              ? const CaseNotYetCoveredWidget()
-                              : const Text('State not yet covered'),
+                          : state is QuestionStateNoFilterConformQuestionsExist
+                              ? const QuestionInitialWidget()
+                              : state is QuestionStateNotYetCoveredFailure
+                                  ? const CaseNotYetCoveredWidget()
+                                  : const Text('State not yet covered'),
             ));
       },
     );
@@ -89,13 +100,15 @@ class QuestionInitialWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: GestureDetector(
-      onTap: () =>
-          getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion()),
+      onTap: () {
+        getIt<QuestionBloc>().add(QuestionEventClearRecentlyAskedTable());
+        getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion());
+      },
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: Theme.of(context).colorScheme.primary, width: 4),
+                color: Theme.of(context).colorScheme.primary, width: 10),
             borderRadius: BorderRadius.circular(UiConstantsRadius.large)),
         child: Text(
           'START PLAYING',

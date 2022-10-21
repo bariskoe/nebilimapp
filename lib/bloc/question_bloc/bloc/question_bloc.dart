@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import '../../../infrastructure/exceptions/exceptions.dart';
 
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/question_usecases.dart';
@@ -78,6 +79,8 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           emit(QuestionStateAllfilterConformQuestionsRecentlyAsked());
         } else if (l is NotYetCoveredCaseExceptionFailure) {
           emit(QuestionStateNotYetCoveredFailure());
+        } else if (l is NoFilterConformQuestionsExistFailure) {
+          emit(QuestionStateNoFilterConformQuestionsExist());
         } else {
           emit(QuestionStateError());
         }
@@ -142,6 +145,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       }, (r) {
         emit(QuestionStateLoaded(questionModel: r));
         currentQuestionId = r.questionId;
+        currentQuestionStateLoaded = QuestionStateLoaded(questionModel: r);
       });
     });
 
