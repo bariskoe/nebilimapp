@@ -1,6 +1,7 @@
-import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '/database/database_helper.dart';
+
 import '../../database/settings_database_helper.dart';
 import '../../models/question_model.dart';
 import '../../models/question_status_model.dart';
