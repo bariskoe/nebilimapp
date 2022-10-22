@@ -66,10 +66,6 @@ class DatabaseHelper {
   /// i.e saved, blocked,
   static const String questionStatusTableFieldStatus = 'status';
 
-  /// In Millisecondssinceepoch
-  static const String questionStatusTableFieldLastTimeAsked =
-      'last_time_asked ';
-
   /// Fields of the lastTimeAsked Table --------------------------------------------------
   static const String lastTimeAskedTableName = 'last_time_asekd_table';
 
@@ -125,12 +121,12 @@ class DatabaseHelper {
 
       );
       ''');
-    //TODO questionStatusTableFieldLastTimeAsked diese Spalte hat hier eigentlich  nichts verloren
+
     await db.execute('''
       CREATE TABLE $questionStatusTableName(
           $questionStatusTableFieldId  INTEGER PRIMARY KEY AUTOINCREMENT,
           $questionStatusTableFieldStatus INTEGER,
-          $questionStatusTableFieldLastTimeAsked INTEGER, 
+        
           $questionStatusTableFieldQuestionID INTEGER,
           FOREIGN KEY ($questionStatusTableFieldQuestionID) REFERENCES $questionTableName($questionTableFieldId)
       );
@@ -515,10 +511,9 @@ class DatabaseHelper {
             questionId: questionStatusModel.questionId);
       } else {
         final updated = await db.rawUpdate(
-            'UPDATE $questionStatusTableName SET $questionStatusTableFieldStatus = ?, $questionStatusTableFieldLastTimeAsked = ? WHERE $questionStatusTableFieldQuestionID= ?',
+            'UPDATE $questionStatusTableName SET $questionStatusTableFieldStatus = ? WHERE $questionStatusTableFieldQuestionID= ?',
             [
               entity.questionStatusAsInt,
-              entity.lastTimeAskedAsInt,
               entity.questionId,
             ]);
         return updated;
@@ -539,7 +534,6 @@ class DatabaseHelper {
       QuestionStatusModel newQuestionStatusModel = QuestionStatusModel(
         questionId: questionId,
         questionStatus: QuestionStatus.favorited,
-        lastTimeAsked: DateTime.now(),
       );
       final inserted = await insertStatusToQuestionStatusTable(
           questionStatusModel: newQuestionStatusModel);
@@ -558,7 +552,6 @@ class DatabaseHelper {
       QuestionStatusModel newQuestionStatusModel = QuestionStatusModel(
         questionId: questionId,
         questionStatus: newQuestionStatus ?? QuestionStatus.unmarked,
-        lastTimeAsked: DateTime.now(),
       );
       final updated = await updateQuestionStatus(
           questionStatusModel: newQuestionStatusModel);
@@ -577,7 +570,6 @@ class DatabaseHelper {
       newQuestionStatusModel = QuestionStatusModel(
         questionId: questionId,
         questionStatus: QuestionStatus.dontAskAgain,
-        lastTimeAsked: DateTime.now(),
       );
       final inserted = await insertStatusToQuestionStatusTable(
           questionStatusModel: newQuestionStatusModel);
@@ -594,7 +586,6 @@ class DatabaseHelper {
       newQuestionStatusModel = QuestionStatusModel(
         questionId: questionId,
         questionStatus: newQuestionStatus,
-        lastTimeAsked: DateTime.now(),
       );
       final updated = await updateQuestionStatus(
           questionStatusModel: newQuestionStatusModel);
