@@ -14,6 +14,7 @@ import '../custom_widgets/thinking_time_indicator.dart';
 import '../database/settings_database_helper.dart';
 import '../dependency_injection.dart';
 import '../domain/entities/question_status_entity.dart';
+import '../locale/locale.dart';
 import '../models/question_insertion_model.dart';
 import '../models/question_model.dart';
 import '../routing.dart';
@@ -36,12 +37,12 @@ class SingleQuizPage extends StatelessWidget {
         if (state is QuestionStateAllfilterConformQuestionsRecentlyAsked) {
           getIt<AnimationBloc>().add(AnimationEventResetAnimation());
           await dialogScaffold(context,
-              cancelButtonChild: const Text('Cancel'),
+              cancelButtonChild: Text(S.of(context).cancel),
               onCancelPressed: () {
                 getIt<QuestionBloc>()
                     .add(QuestionEventTurnBackToInitialState());
               },
-              content: const Text('No questions left. Start again?'),
+              content: Text(S.of(context).noQuestionsLeftDialogContent),
               onOkpressed: () {
                 getIt<QuestionBloc>()
                     .add(QuestionEventClearRecentlyAskedTable());
@@ -52,10 +53,10 @@ class SingleQuizPage extends StatelessWidget {
           Navigator.pushNamed(context, Routing.settingsPage);
 
           await dialogScaffold(context,
-              cancelButtonChild: const Text('Cancel'),
+              cancelButtonChild: Text(S.of(context).cancel),
               onCancelPressed: () {},
-              content: const Text(
-                  'No filter conform questions. Try changing Marked as.. settings.'),
+              content:
+                  Text(S.of(context).noFilterConformQuestionsDialogContent),
               onOkpressed: () {});
         }
       },
@@ -111,7 +112,7 @@ class QuestionInitialWidget extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary, width: 10),
             borderRadius: BorderRadius.circular(UiConstantsRadius.large)),
         child: Text(
-          'START PLAYING',
+          S.of(context).questionInitialWidgetStartPlaying,
           style: Theme.of(context).textTheme.headline4,
           textAlign: TextAlign.center,
         ),
@@ -170,7 +171,7 @@ class QuestionLoadedWidget extends StatelessWidget {
                 ? AnswerBox(text: state.questionModel.questionAnswerText)
                 : GestureDetector(
                     child: AnswerBox(
-                      text: 'Tap for answer',
+                      text: S.of(context).questionLoadedWidgetTapForAnswer,
                       backgrondColor: Colors.grey.shade300,
                     ),
                     onTap: () {
@@ -467,7 +468,7 @@ class AnswerContainer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             QuestionHeadlineWidget(
-                child: Text('Antwort',
+                child: Text(S.of(context).questionLoadedWidgetAnswerBoxTitle,
                     style: Theme.of(context).textTheme.headline2!.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary))),
             const Spacer(),
@@ -501,7 +502,7 @@ class AnswerContainer extends StatelessWidget {
                         }),
                   );
                 }
-                return const Text('Error');
+                return Text(S.of(context).error);
               },
             ),
             Container()

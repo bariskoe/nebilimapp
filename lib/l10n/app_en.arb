@@ -18,6 +18,29 @@
     "questionDifficulty4":"hard",
     "questionDifficulty5": "superbrain",
 
+    "dataPreparationPagePreparingData":"Preparing data. Please wait...",
+
+    "settingsPageAppbarTitle":"Settings",
+    "settingsPageCategories":"Categories",
+    "settingsPageDifficulties":"Difficulties",
+    "settingsPageMarkedAs":"Marked as...",
+    "settingsPageThinkingTime":"Thinking Time",
+    "settingsPageThinkingTimeExplanation":"(Applies only if speak is on)",
+    "settingsPageThinkingTimeUnlimited":"Unlimited",
+    "settingsPageThinkingTimeLimitTo":"Limit to...",
+    "settingsPageThinkingTimeSeconds":"seconds",
+
+    "noQuestionsLeftDialogContent":"No questions left. Start again?",
+    "noFilterConformQuestionsDialogContent": "No filter conform questions. Try changing Marked as.. settings.",
+
+    "questionInitialWidgetStartPlaying":"START PLAYING",
+
+    "questionLoadedWidgetTapForAnswer":"Tap for answer",
+    "questionLoadedWidgetAnswerBoxTitle":"Answer",
+    
+    "cancel":"Cancel",
+    "ok":"Ok",
+    "error":"Error",
 
     "end":"end"
 }

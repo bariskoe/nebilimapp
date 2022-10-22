@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../database/settings_database_helper.dart';
+import '../locale/locale.dart';
 import '../utils/utils.dart';
 
 import '../bloc/settings_bloc/bloc/settings_bloc.dart';
@@ -33,7 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         return StandardPageWidget(
-          appBarTitle: 'Settings',
+          appBarTitle: S.of(context).settingsPageAppbarTitle,
           child: SingleChildScrollView(
               child: Column(
             children: [
@@ -44,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Padding(
                       padding: const EdgeInsets.all(UiConstantsPadding.large),
                       child: Text(
-                        'Categories',
+                        S.of(context).settingsPageCategories,
                         style: Theme.of(context).textTheme.headline2,
                       ),
                     ),
@@ -53,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Padding(
                       padding: const EdgeInsets.all(UiConstantsPadding.large),
                       child: Text(
-                        'Difficulties',
+                        S.of(context).settingsPageDifficulties,
                         style: Theme.of(context).textTheme.headline2,
                       ),
                     ),
@@ -62,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Padding(
                       padding: const EdgeInsets.all(UiConstantsPadding.large),
                       child: Text(
-                        'Marked as...',
+                        S.of(context).settingsPageMarkedAs,
                         style: Theme.of(context).textTheme.headline2,
                       ),
                     ),
@@ -73,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           top: UiConstantsPadding.large,
                           bottom: UiConstantsPadding.mini),
                       child: Text(
-                        'Thinking Time',
+                        S.of(context).settingsPageThinkingTime,
                         style: Theme.of(context).textTheme.headline2,
                       ),
                     ),
@@ -81,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       padding: const EdgeInsets.only(
                           bottom: UiConstantsPadding.large),
                       child: Text(
-                        '(Applies only when speak is on)',
+                        S.of(context).settingsPageThinkingTimeExplanation,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -222,7 +223,7 @@ class _SettingsPageState extends State<SettingsPage> {
             newValue: boolToInt(false)))),
         child: SettingsSymbol(
             //TODO: make a name getter for the international name
-            name: 'Unlimited',
+            name: S.of(context).settingsPageThinkingTimeUnlimited,
             icon: Icons.timer,
             selected: !state.settingsModel.thinkingTimeModel.active),
       ));
@@ -234,7 +235,7 @@ class _SettingsPageState extends State<SettingsPage> {
             newValue: boolToInt(true)))),
         child: SettingsSymbol(
             //TODO: make a name getter for the international name
-            name: 'Limit to...',
+            name: S.of(context).settingsPageThinkingTimeLimitTo,
             icon: Icons.timer,
             selected: state.settingsModel.thinkingTimeModel.active),
       ));
@@ -290,7 +291,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: UiConstantsPadding.regular),
                   child: Text(
-                    '${sliderValue.toInt()} seconds',
+                    '${sliderValue.toInt()} ${S.of(context).settingsPageThinkingTimeSeconds}',
                     textAlign: TextAlign.end,
                     style: TextStyle(
                         color: state.settingsModel.thinkingTimeModel.active

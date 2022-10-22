@@ -6,6 +6,7 @@ import '../bloc/data_preparation_bloc/data_preparation_bloc.dart';
 import '../bloc/settings_bloc/bloc/settings_bloc.dart';
 import '../custom_widgets/standard_page_widget.dart';
 import '../dependency_injection.dart';
+import '../locale/locale.dart';
 import '../routing.dart';
 
 class DataPreparationPage extends StatelessWidget {
@@ -32,9 +33,9 @@ class DataPreparationPage extends StatelessWidget {
         child: Center(
           //TODO: Make a widget for this
           child: Column(
-            children: const [
-              Text('Preparing data. Please wait...'),
-              CircularProgressIndicator(),
+            children: [
+              Text(S.of(context).dataPreparationPagePreparingData),
+              const CircularProgressIndicator(),
             ],
           ),
         ),

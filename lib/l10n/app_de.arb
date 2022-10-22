@@ -18,6 +18,29 @@
     "questionDifficulty4":"schwer",
     "questionDifficulty5": "superbrain",
 
+    "dataPreparationPagePreparingData":"Daten werden geladen. Bitte warten...",
+
+    "settingsPageAppbarTitle":"Einstellungen",
+    "settingsPageCategories":"Kategorien",
+    "settingsPageDifficulties":"Schwierigkeiten",
+    "settingsPageMarkedAs":"Markiert als...",
+    "settingsPageThinkingTime":"Nachdenkzeit",
+    "settingsPageThinkingTimeExplanation":"(Nur wenn Vorlesen an ist)",
+    "settingsPageThinkingTimeUnlimited":"Unbegrenzt",
+    "settingsPageThinkingTimeLimitTo":"Begrenzen auf...",
+    "settingsPageThinkingTimeSeconds":"Sekunden",
+
+    "noQuestionsLeftDialogContent":"Alle Fragen, die deinem Filter entsprechen, wurden gestellt. Nochmal beginnen?",
+    "noFilterConformQuestionsDialogContent": "Keine Frage passt zu deinem Filter. Versuche, \"Markiert als...\" zu ändern.",
+
+    "questionInitialWidgetStartPlaying":"Jetzt spielen",
+
+    "questionLoadedWidgetTapForAnswer":"Antwort aufdecken",
+    "questionLoadedWidgetAnswerBoxTitle":"Antwort",
+
+    "cancel":"Abbrechen",
+    "ok":"Ok",
+
     "end":"end"
 }
 
