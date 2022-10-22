@@ -46,8 +46,6 @@ class SingleQuizPage extends StatelessWidget {
               onOkpressed: () {
                 getIt<QuestionBloc>()
                     .add(QuestionEventClearRecentlyAskedTable());
-                getIt<QuestionBloc>()
-                    .add(QuestionEventGetFilterConfromQuestion());
               });
         } else if (state is QuestionStateNoFilterConformQuestionsExist) {
           Navigator.pushNamed(context, Routing.settingsPage);
@@ -103,7 +101,6 @@ class QuestionInitialWidget extends StatelessWidget {
         child: GestureDetector(
       onTap: () {
         getIt<QuestionBloc>().add(QuestionEventClearRecentlyAskedTable());
-        getIt<QuestionBloc>().add(QuestionEventGetFilterConfromQuestion());
       },
       child: Container(
         padding: const EdgeInsets.all(20),
