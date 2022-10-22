@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../database/database_helper.dart';
+import '../../locale/locale.dart';
 import '../../models/question_status_model.dart';
 
 class QuestionStatusEntity {
@@ -24,8 +25,6 @@ class QuestionStatusEntity {
             questionStatusModel.lastTimeAsked?.millisecondsSinceEpoch);
   }
 
-  ///TODO: unmarked has to be removed. If a question is unmarked, it simply has to be removed
-  /// TODO: from the table
   static QuestionStatusEntity? fromMap(Map<String, dynamic>? map) {
     if (map == null) {
       return null;
@@ -89,15 +88,15 @@ extension QuestionStatusExtension on QuestionStatus {
     }
   }
 
-  String getName() {
+  String getName(BuildContext context) {
     switch (this) {
       case QuestionStatus.unmarked:
-        return 'unmarked';
+        return S.of(context).questionStatusUnmarked;
       case QuestionStatus.favorited:
-        return 'favorited';
+        return S.of(context).questionStatusFavorite;
 
       case QuestionStatus.dontAskAgain:
-        return 'dont\'t ask again';
+        return S.of(context).questionStatusDontAskAgain;
     }
   }
 

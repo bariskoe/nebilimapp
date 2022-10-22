@@ -180,7 +180,7 @@ class QuestionLoadedWidget extends StatelessWidget {
                     },
                   )),
         const Spacer(),
-        SettingsBar(),
+        const SettingsBar(),
         const Spacer()
       ],
     );
@@ -199,7 +199,7 @@ class SettingsBar extends StatelessWidget {
         final primaryColor = Theme.of(context).colorScheme.primary;
         final inactiveColor = Theme.of(context).colorScheme.tertiary;
 
-        return Container(
+        return SizedBox(
           height: size.height * 0.05,
           child: FittedBox(
             child: Row(
@@ -215,9 +215,7 @@ class SettingsBar extends StatelessWidget {
                       )),
                   child: Icon(
                     Icons.hearing,
-                    color: ttsOn
-                        ? Theme.of(context).colorScheme.primary
-                        : inactiveColor,
+                    color: ttsOn ? primaryColor : inactiveColor,
                   ),
                 )
               ],

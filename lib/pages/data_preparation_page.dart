@@ -17,7 +17,7 @@ class DataPreparationPage extends StatelessWidget {
     getIt<DataPreparationBloc>()
         .add(const DataPreparationEventInitializeSettingsDatabase());
     getIt<SettingsBloc>().add(const SettingsEventGetAllSettings());
-    Future.delayed(Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 2), () async {
       getIt<DataPreparationBloc>()
           .add(const DataPreparationEventUpdateQuestionDatabaseIfNeccessary());
     });

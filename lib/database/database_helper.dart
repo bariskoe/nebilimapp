@@ -5,22 +5,21 @@ import 'package:csv/csv.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:logger/logger.dart';
-import '../bloc/question_bloc/bloc/question_bloc.dart';
-import '../infrastructure/exceptions/exceptions.dart';
-import 'settings_database_helper.dart';
-import '../domain/entities/question_status_entity.dart';
-import '../models/question_status_model.dart';
-import '../domain/entities/question_entity.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../dependency_injection.dart';
+import '../domain/entities/question_entity.dart';
+import '../domain/entities/question_status_entity.dart';
 import '../domain/failures/failures.dart';
 import '../domain/usecases/sharedprefs_usecases.dart';
 import '../infrastructure/datasources/shared_prefs_datasource_impl.dart';
+import '../infrastructure/exceptions/exceptions.dart';
 import '../models/question_insertion_model.dart';
 import '../models/question_model.dart';
+import '../models/question_status_model.dart';
+import 'settings_database_helper.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
@@ -295,10 +294,6 @@ class DatabaseHelper {
     final askableStatuses =
         await SettingsDatabaseHelper.getAllAskableStatusesAsInt();
 
-    int askUnmarkedAsInt = await SettingsDatabaseHelper.getValueOfOtherSetting(
-        nameOfOtherSetting:
-            SettingsDatabaseHelper.otherSettingsAskUnmarkedStatus);
-    bool askUnmarked = askUnmarkedAsInt == 0 ? false : true;
     final numberOfMarkedStatusesAsList =
         await db.rawQuery('SELECT COUNT(*) FROM $questionStatusTableName');
     int statusTableCount =

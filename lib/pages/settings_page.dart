@@ -39,56 +39,54 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
             children: [
               /// Category selection container
-              Container(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(UiConstantsPadding.large),
-                      child: Text(
-                        S.of(context).settingsPageCategories,
-                        style: Theme.of(context).textTheme.headline2,
-                      ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(UiConstantsPadding.large),
+                    child: Text(
+                      S.of(context).settingsPageCategories,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                    _buildCategories(state),
-                    const SizedBox(height: UiConstantsSize.large),
-                    Padding(
-                      padding: const EdgeInsets.all(UiConstantsPadding.large),
-                      child: Text(
-                        S.of(context).settingsPageDifficulties,
-                        style: Theme.of(context).textTheme.headline2,
-                      ),
+                  ),
+                  _buildCategories(state),
+                  const SizedBox(height: UiConstantsSize.large),
+                  Padding(
+                    padding: const EdgeInsets.all(UiConstantsPadding.large),
+                    child: Text(
+                      S.of(context).settingsPageDifficulties,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                    _buildDifficulties(state),
-                    const SizedBox(height: UiConstantsSize.large),
-                    Padding(
-                      padding: const EdgeInsets.all(UiConstantsPadding.large),
-                      child: Text(
-                        S.of(context).settingsPageMarkedAs,
-                        style: Theme.of(context).textTheme.headline2,
-                      ),
+                  ),
+                  _buildDifficulties(state),
+                  const SizedBox(height: UiConstantsSize.large),
+                  Padding(
+                    padding: const EdgeInsets.all(UiConstantsPadding.large),
+                    child: Text(
+                      S.of(context).settingsPageMarkedAs,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                    _buildMarkedAs(state),
-                    const SizedBox(height: UiConstantsSize.large),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: UiConstantsPadding.large,
-                          bottom: UiConstantsPadding.mini),
-                      child: Text(
-                        S.of(context).settingsPageThinkingTime,
-                        style: Theme.of(context).textTheme.headline2,
-                      ),
+                  ),
+                  _buildMarkedAs(state),
+                  const SizedBox(height: UiConstantsSize.large),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: UiConstantsPadding.large,
+                        bottom: UiConstantsPadding.mini),
+                    child: Text(
+                      S.of(context).settingsPageThinkingTime,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          bottom: UiConstantsPadding.large),
-                      child: Text(
-                        S.of(context).settingsPageThinkingTimeExplanation,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: UiConstantsPadding.large),
+                    child: Text(
+                      S.of(context).settingsPageThinkingTimeExplanation,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    _buildThinkingTime(state),
-                  ],
-                ),
+                  ),
+                  _buildThinkingTime(state),
+                ],
               ),
             ],
           )),
@@ -109,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsEventToggleAskCategory(
                   categoryAsInt: model.questionCategory.serialze()))),
           child: SettingsSymbol(
-              name: model.questionCategory.name,
+              name: model.questionCategory.getName(context),
               icon: questionCategory.getCategoryIcon(),
               selected: model.ask),
         ));
@@ -143,12 +141,12 @@ class _SettingsPageState extends State<SettingsPage> {
         DifficultyEnum difficultyEnum = model.difficultyEnum;
         list.add(GestureDetector(
           onTap: (() => getIt<SettingsBloc>().add(
-              SettingsEventToggleAskDifficulty(
-                  difficultyAsInt: difficultyEnum.getDifficultyAsInt))),
+                SettingsEventToggleAskDifficulty(
+                    difficultyAsInt: difficultyEnum.getDifficultyAsInt),
+              )),
           child: SettingsSymbol(
-              //TODO: make a name getter for the international name
               name:
-                  '${difficultyEnum.getDifficultyAsInt + 1} : ${difficultyEnum.name}',
+                  '${difficultyEnum.getDifficultyAsInt + 1} : ${difficultyEnum.getName(context)}',
               icon: Icons.fitness_center,
               selected: model.ask),
         ));
@@ -185,8 +183,7 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsEventToggleAskMarkedAs(
                   statusName: questionStatusEnum.name))),
           child: SettingsSymbol(
-              //TODO: make a name getter for the international name
-              name: questionStatusEnum.getName(),
+              name: questionStatusEnum.getName(context),
               icon: questionStatusEnum.getIcon(),
               selected: model.ask),
         ));
@@ -211,7 +208,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-//TODO: Build the Thinking Time Settings
   _buildThinkingTime(SettingsState state) {
     _thinkingTimeSymbolBuilder(SettingsStateLoaded state) {
       List<Widget> list = [];
@@ -222,7 +218,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsDatabaseHelper.otherSettingsSecondsToThinkActive,
             newValue: boolToInt(false)))),
         child: SettingsSymbol(
-            //TODO: make a name getter for the international name
             name: S.of(context).settingsPageThinkingTimeUnlimited,
             icon: Icons.timer,
             selected: !state.settingsModel.thinkingTimeModel.active),
@@ -234,7 +229,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsDatabaseHelper.otherSettingsSecondsToThinkActive,
             newValue: boolToInt(true)))),
         child: SettingsSymbol(
-            //TODO: make a name getter for the international name
             name: S.of(context).settingsPageThinkingTimeLimitTo,
             icon: Icons.timer,
             selected: state.settingsModel.thinkingTimeModel.active),

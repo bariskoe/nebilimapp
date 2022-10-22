@@ -18,6 +18,10 @@
     "questionDifficulty4":"hard",
     "questionDifficulty5": "superbrain",
 
+    "questionStatusUnmarked":"Unmarked",
+    "questionStatusDontAskAgain":"Don't ask again",
+    "questionStatusFavorite":"Favorite",
+
     "dataPreparationPagePreparingData":"Preparing data. Please wait...",
 
     "settingsPageAppbarTitle":"Settings",

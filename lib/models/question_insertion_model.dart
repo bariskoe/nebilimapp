@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
+import '../locale/locale.dart';
 
 class QuestionInsertionModel extends Equatable {
   final int questionId;
@@ -132,8 +133,30 @@ extension QuestionCategoryExtension on QuestionCategory {
     return categories[serializedCategory];
   }
 
-  String getName() {
-    return name;
+  String getName(BuildContext context) {
+    switch (this) {
+      case QuestionCategory.history:
+        return S.of(context).questionCategoryHistory;
+      case QuestionCategory.geography:
+        return S.of(context).questionCategoryGeography;
+
+      case QuestionCategory.science:
+        return S.of(context).questionCategoryScience;
+      case QuestionCategory.sports:
+        return S.of(context).questionCategorySports;
+      case QuestionCategory.medicine:
+        return S.of(context).questionCategoryMedicine;
+      case QuestionCategory.literature:
+        return S.of(context).questionCategoryLiterature;
+      case QuestionCategory.celebrities:
+        return S.of(context).questionCategoryCelebrities;
+      case QuestionCategory.food:
+        return S.of(context).questionCategoryFood;
+      case QuestionCategory.music:
+        return S.of(context).questionCategoryMusic;
+      case QuestionCategory.arts:
+        return S.of(context).questionCategoryArts;
+    }
   }
 
   IconData getCategoryIcon() {

@@ -18,6 +18,9 @@
     "questionDifficulty4":"schwer",
     "questionDifficulty5": "superbrain",
 
+    "questionStatusUnmarked":"Unmarkiert",
+    "questionStatusDontAskAgain":"Aussortiert",
+    "questionStatusFavorite":"Favorisiert",
     "dataPreparationPagePreparingData":"Daten werden geladen. Bitte warten...",
 
     "settingsPageAppbarTitle":"Einstellungen",
@@ -40,7 +43,8 @@
 
     "cancel":"Abbrechen",
     "ok":"Ok",
-
+    "error":"Error",
+    
     "end":"end"
 }
 
