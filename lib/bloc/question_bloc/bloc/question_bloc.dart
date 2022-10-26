@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../domain/failures/failures.dart';
 import '../../../domain/usecases/question_usecases.dart';
 import '../../../models/question_model.dart';
@@ -103,13 +104,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       });
     });
 
-    // on<QuestionEventUpdateStatus>((event, emit) async {
-    //   Either<Failure, int> updated =
-    //       await questionUsecases.updateQuestionStatus(
-    //     questionStatusModel: event.questionStatusModel,
-    //   );
-    // });
-
     on<QuestionEventToggleFavoriteStatus>((event, emit) async {
       if (currentQuestionId != null) {
         Either<Failure, int> failureOrToggled = await questionUsecases
@@ -141,7 +135,14 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       failureOrQuestionModel.fold((l) {
         emit(QuestionStateError());
       }, (r) {
-        emit(QuestionStateLoaded(questionModel: r));
+        if (currentQuestionStateLoaded?.questionModel.questionId ==
+            r.questionId) {
+          emit(QuestionStateLoaded(questionModel: r).copyWith(
+              showAnswer: currentQuestionStateLoaded?.showAnswer ?? false));
+        } else {
+          emit(QuestionStateLoaded(questionModel: r));
+        }
+
         currentQuestionId = r.questionId;
         currentQuestionStateLoaded = QuestionStateLoaded(questionModel: r);
       });
@@ -159,17 +160,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       if (event.afterPressingShowAnswer ?? false) {
         animationBloc.add(AnimationEventResetAnimation());
         textToSpeechBloc.add(TextToSpeechEventStopSpeaking());
-        textToSpeechBloc.add(TextToSpeechEventSpeak(
-            text:
-                currentQuestionStateLoaded?.questionModel.questionAnswerText ??
-                    '',
-            ttsOn: currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
-            isAnswer: true,
-            isAdditionalInfo: false,
-            isQuestion: false));
       }
 
-      if (event.afterEndOfThinkingTime ?? false) {
+      if (event.afterEndOfThinkingTime ?? false) {}
+      if (currentSettingsStateLoaded?.settingsModel.textToSpeechOn ?? false) {
         textToSpeechBloc.add(TextToSpeechEventSpeak(
           text: currentQuestionStateLoaded?.questionModel.questionAnswerText ??
               '',
@@ -180,6 +174,8 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         ));
       }
       if (currentQuestionStateLoaded != null) {
+        currentQuestionStateLoaded =
+            currentQuestionStateLoaded!.copyWith(showAnswer: true);
         emit(currentQuestionStateLoaded!.copyWith(showAnswer: true));
       }
     });
@@ -195,16 +191,42 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
             totalAnimationDuration: 0));
       }
       if (event.wasAnswer) {
-        currentQuestionStateLoaded?.questionModel.hasAdditionalInfo ?? false
-            ? textToSpeechBloc.add(TextToSpeechEventSpeak(
-                text: currentQuestionStateLoaded!
-                    .questionModel.questionAdditionalInfo,
-                ttsOn: currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
-                isAdditionalInfo: true,
-                isAnswer: false,
-                isQuestion: false,
-              ))
-            : null;
+        if (currentSettingsStateLoaded != null &&
+            currentQuestionStateLoaded!.questionModel.hasAdditionalInfo ==
+                false &&
+            currentSettingsStateLoaded!.settingsModel.chainQuestionsOn) {
+          Future.delayed(
+              Duration(
+                  seconds: currentSettingsStateLoaded!
+                      .settingsModel.restingTime), () async {
+            animationBloc.add(AnimationEventResetAnimation());
+
+            add(QuestionEventGetFilterConfromQuestion());
+          });
+        } else {
+          currentQuestionStateLoaded?.questionModel.hasAdditionalInfo ?? false
+              ? textToSpeechBloc.add(TextToSpeechEventSpeak(
+                  text: currentQuestionStateLoaded!
+                      .questionModel.questionAdditionalInfo,
+                  ttsOn:
+                      currentSettingsStateLoaded?.settingsModel.textToSpeechOn,
+                  isAdditionalInfo: true,
+                  isAnswer: false,
+                  isQuestion: false,
+                ))
+              : null;
+        }
+      } else if (event.wasAdditionalInfo) {
+        if (currentSettingsStateLoaded != null &&
+            currentSettingsStateLoaded!.settingsModel.chainQuestionsOn) {
+          Future.delayed(
+              Duration(
+                  seconds: currentSettingsStateLoaded!
+                      .settingsModel.restingTime), () async {
+            animationBloc.add(AnimationEventResetAnimation());
+            add(QuestionEventGetFilterConfromQuestion());
+          });
+        }
       }
     });
 

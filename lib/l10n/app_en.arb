@@ -33,6 +33,11 @@
     "settingsPageThinkingTimeUnlimited":"Unlimited",
     "settingsPageThinkingTimeLimitTo":"Limit to...",
     "settingsPageThinkingTimeSeconds":"seconds",
+    "settingsPageChainQuestionsTitle":"Chain questions...",
+    "settingsPageChainQuestionsExplanation":"(Applies only if speak is on)",
+    "settingsPageChainQuestionsOff":"On press",
+    "settingsPageChainQuestionsOn":"Autom. red next question after...",
+    "settingsPageChainQuestionsSeconds":"seconds",
 
     "noQuestionsLeftDialogContent":"No questions left. Start again?",
     "noFilterConformQuestionsDialogContent": "No filter conform questions. Try changing Marked as.. settings.",

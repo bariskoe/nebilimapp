@@ -245,7 +245,7 @@ class AnswerBox extends StatelessWidget {
         margin: const EdgeInsets.all(UiConstantsPadding.regular),
         padding: const EdgeInsets.all(UiConstantsPadding.large),
         height: 60,
-        child: Text(text));
+        child: AutoSizeText(text));
   }
 }
 

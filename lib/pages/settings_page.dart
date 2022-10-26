@@ -86,6 +86,25 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   _buildThinkingTime(state),
+                  const SizedBox(height: UiConstantsSize.large),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: UiConstantsPadding.large,
+                        bottom: UiConstantsPadding.mini),
+                    child: Text(
+                      S.of(context).settingsPageChainQuestionsTitle,
+                      style: Theme.of(context).textTheme.headline2,
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: UiConstantsPadding.large),
+                    child: Text(
+                      S.of(context).settingsPageChainQuestionsExplanation,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                  _buildChainQuestionsWithRestingTime(state)
                 ],
               ),
             ],
@@ -219,7 +238,7 @@ class _SettingsPageState extends State<SettingsPage> {
             newValue: boolToInt(false)))),
         child: SettingsSymbol(
             name: S.of(context).settingsPageThinkingTimeUnlimited,
-            icon: Icons.timer,
+            icon: Icons.hourglass_disabled,
             selected: !state.settingsModel.thinkingTimeModel.active),
       ));
 
@@ -289,6 +308,103 @@ class _SettingsPageState extends State<SettingsPage> {
                     textAlign: TextAlign.end,
                     style: TextStyle(
                         color: state.settingsModel.thinkingTimeModel.active
+                            ? null
+                            : Theme.of(context).colorScheme.tertiary),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 60,
+              ),
+            ],
+          ),
+        );
+      });
+    } else {
+      return Text('not Loaded state: $state');
+    }
+  }
+
+  _buildChainQuestionsWithRestingTime(SettingsState state) {
+    _chainQuestionsSymbolBuilder(SettingsStateLoaded state) {
+      List<Widget> list = [];
+
+      list.add(GestureDetector(
+        onTap: (() => getIt<SettingsBloc>().add(SettingsEventUpdateOtherSetting(
+            otherSettingsName:
+                SettingsDatabaseHelper.otherSettingsChainQuestions,
+            newValue: boolToInt(false)))),
+        child: SettingsSymbol(
+            name: S.of(context).settingsPageChainQuestionsOff,
+            icon: Icons.touch_app,
+            selected: !state.settingsModel.chainQuestionsOn),
+      ));
+
+      list.add(GestureDetector(
+        onTap: (() => getIt<SettingsBloc>().add(SettingsEventUpdateOtherSetting(
+            otherSettingsName:
+                SettingsDatabaseHelper.otherSettingsChainQuestions,
+            newValue: boolToInt(true)))),
+        child: SettingsSymbol(
+            name: S.of(context).settingsPageChainQuestionsOn,
+            icon: Icons.sync,
+            selected: state.settingsModel.chainQuestionsOn),
+      ));
+      return list;
+    }
+
+    if (state is SettingsStateLoaded) {
+      double sliderValue = state.settingsModel.restingTime.toDouble();
+      Color? activeColor = state.settingsModel.chainQuestionsOn
+          ? null
+          : Theme.of(context).colorScheme.tertiary;
+      Color? inactiveColor = state.settingsModel.chainQuestionsOn == false
+          ? null
+          : Theme.of(context).colorScheme.tertiary;
+      return StatefulBuilder(builder: (BuildContext context, setState) {
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiConstantsPadding.regular,
+          ),
+          child: Column(
+            children: [
+              Wrap(
+                spacing: UiConstantsPadding.regular,
+                runSpacing: UiConstantsPadding.regular,
+                alignment: WrapAlignment.spaceEvenly,
+                children: _chainQuestionsSymbolBuilder(state),
+              ),
+              const SizedBox(
+                height: UiConstantsPadding.large,
+              ),
+              IgnorePointer(
+                ignoring: !state.settingsModel.chainQuestionsOn,
+                child: Slider(
+                    activeColor: activeColor,
+                    inactiveColor: inactiveColor,
+                    min: 1,
+                    max: 10,
+                    divisions: 9,
+                    value: sliderValue,
+                    onChangeEnd: (value) => getIt<SettingsBloc>().add(
+                        SettingsEventUpdateOtherSetting(
+                            otherSettingsName:
+                                SettingsDatabaseHelper.otherSettingsRestingTime,
+                            newValue: value.toInt())),
+                    onChanged: ((value) {
+                      setState(() => sliderValue = value);
+                    })),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: UiConstantsPadding.regular),
+                  child: Text(
+                    '${sliderValue.toInt()} ${S.of(context).settingsPageChainQuestionsSeconds}',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                        color: state.settingsModel.chainQuestionsOn
                             ? null
                             : Theme.of(context).colorScheme.tertiary),
                   ),

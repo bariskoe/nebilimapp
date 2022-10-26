@@ -32,6 +32,11 @@
     "settingsPageThinkingTimeUnlimited":"Unbegrenzt",
     "settingsPageThinkingTimeLimitTo":"Begrenzen auf...",
     "settingsPageThinkingTimeSeconds":"Sekunden",
+    "settingsPageChainQuestionsTitle":"Nächste Frage...",
+    "settingsPageChainQuestionsExplanation":"(Nur wenn Vorlesen an ist)",
+    "settingsPageChainQuestionsOff":"Selbst bestimmen",
+    "settingsPageChainQuestionsOn":"Automatisch nach",
+    "settingsPageChainQuestionsSeconds":"Sekunden",
 
     "noQuestionsLeftDialogContent":"Alle Fragen, die deinem Filter entsprechen, wurden gestellt. Nochmal beginnen?",
     "noFilterConformQuestionsDialogContent": "Keine Frage passt zu deinem Filter. Versuche, \"Markiert als...\" zu ändern.",
