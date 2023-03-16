@@ -110,7 +110,7 @@ class QuestionInitialWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(UiConstantsRadius.large)),
         child: Text(
           S.of(context).questionInitialWidgetStartPlaying,
-          style: Theme.of(context).textTheme.headline4,
+          style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
       ),
@@ -328,7 +328,7 @@ class QuestionContainer extends StatelessWidget {
                         Text('${questionModel.getOneBasedDifficulty}',
                             style: Theme.of(context)
                                 .textTheme
-                                .headline3!
+                                .displaySmall!
                                 .copyWith(
                                     color: Theme.of(context)
                                         .colorScheme
@@ -344,7 +344,7 @@ class QuestionContainer extends StatelessWidget {
                   child: Center(
                     child: AutoSizeText(
                       questionModel.questionText,
-                      style: Theme.of(context).textTheme.bodyText1,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                 ),
@@ -464,7 +464,7 @@ class AnswerContainer extends StatelessWidget {
           children: [
             QuestionHeadlineWidget(
                 child: Text(S.of(context).questionLoadedWidgetAnswerBoxTitle,
-                    style: Theme.of(context).textTheme.headline2!.copyWith(
+                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary))),
             const Spacer(),
             child ?? Container(),

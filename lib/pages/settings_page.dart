@@ -45,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.all(UiConstantsPadding.large),
                     child: Text(
                       S.of(context).settingsPageCategories,
-                      style: Theme.of(context).textTheme.headline2,
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
                   ),
                   _buildCategories(state),
@@ -54,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.all(UiConstantsPadding.large),
                     child: Text(
                       S.of(context).settingsPageDifficulties,
-                      style: Theme.of(context).textTheme.headline2,
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
                   ),
                   _buildDifficulties(state),
@@ -63,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.all(UiConstantsPadding.large),
                     child: Text(
                       S.of(context).settingsPageMarkedAs,
-                      style: Theme.of(context).textTheme.headline2,
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
                   ),
                   _buildMarkedAs(state),
@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         bottom: UiConstantsPadding.mini),
                     child: Text(
                       S.of(context).settingsPageThinkingTime,
-                      style: Theme.of(context).textTheme.headline2,
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
                   ),
                   Padding(
@@ -93,7 +93,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         bottom: UiConstantsPadding.mini),
                     child: Text(
                       S.of(context).settingsPageChainQuestionsTitle,
-                      style: Theme.of(context).textTheme.headline2,
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
                   ),
                   Padding(
@@ -115,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _buildCategories(SettingsState state) {
-    _categorySymbolBuilder(SettingsStateLoaded state) {
+    categorySymbolBuilder(SettingsStateLoaded state) {
       List<Widget> list = [];
 
       for (CategorySettingsModel model
@@ -143,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
           spacing: UiConstantsPadding.regular,
           runSpacing: UiConstantsPadding.regular,
           alignment: WrapAlignment.spaceEvenly,
-          children: _categorySymbolBuilder(state),
+          children: categorySymbolBuilder(state),
         ),
       );
     } else {
@@ -152,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _buildDifficulties(SettingsState state) {
-    _difficultySymbolBuilder(SettingsStateLoaded state) {
+    difficultySymbolBuilder(SettingsStateLoaded state) {
       List<Widget> list = [];
 
       for (DifficultySettingsModel model
@@ -182,7 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
           spacing: UiConstantsPadding.regular,
           runSpacing: UiConstantsPadding.regular,
           alignment: WrapAlignment.spaceEvenly,
-          children: _difficultySymbolBuilder(state),
+          children: difficultySymbolBuilder(state),
         ),
       );
     } else {
@@ -191,7 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _buildMarkedAs(SettingsState state) {
-    _markedAsSymbolBuilder(SettingsStateLoaded state) {
+    markedAsSymbolBuilder(SettingsStateLoaded state) {
       List<Widget> list = [];
 
       for (QuestionStatusSettingsModel model
@@ -219,7 +219,7 @@ class _SettingsPageState extends State<SettingsPage> {
           spacing: UiConstantsPadding.regular,
           runSpacing: UiConstantsPadding.regular,
           alignment: WrapAlignment.spaceEvenly,
-          children: _markedAsSymbolBuilder(state),
+          children: markedAsSymbolBuilder(state),
         ),
       );
     } else {
@@ -228,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _buildThinkingTime(SettingsState state) {
-    _thinkingTimeSymbolBuilder(SettingsStateLoaded state) {
+    thinkingTimeSymbolBuilder(SettingsStateLoaded state) {
       List<Widget> list = [];
 
       list.add(GestureDetector(
@@ -275,7 +275,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 spacing: UiConstantsPadding.regular,
                 runSpacing: UiConstantsPadding.regular,
                 alignment: WrapAlignment.spaceEvenly,
-                children: _thinkingTimeSymbolBuilder(state),
+                children: thinkingTimeSymbolBuilder(state),
               ),
               const SizedBox(
                 height: UiConstantsPadding.large,
@@ -326,7 +326,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _buildChainQuestionsWithRestingTime(SettingsState state) {
-    _chainQuestionsSymbolBuilder(SettingsStateLoaded state) {
+    chainQuestionsSymbolBuilder(SettingsStateLoaded state) {
       List<Widget> list = [];
 
       list.add(GestureDetector(
@@ -372,7 +372,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 spacing: UiConstantsPadding.regular,
                 runSpacing: UiConstantsPadding.regular,
                 alignment: WrapAlignment.spaceEvenly,
-                children: _chainQuestionsSymbolBuilder(state),
+                children: chainQuestionsSymbolBuilder(state),
               ),
               const SizedBox(
                 height: UiConstantsPadding.large,
