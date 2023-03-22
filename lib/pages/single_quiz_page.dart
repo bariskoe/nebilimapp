@@ -165,10 +165,15 @@ class QuestionLoadedWidget extends StatelessWidget {
         ),
         AnswerContainer(
             child: state.showAnswer
-                ? AnswerBox(text: state.questionModel.questionAnswerText)
+                ? AnswerBox(
+                    answerText: state.questionModel.questionAnswerText,
+                    additionalInfoText:
+                        state.questionModel.questionAdditionalInfo,
+                  )
                 : GestureDetector(
                     child: AnswerBox(
-                      text: S.of(context).questionLoadedWidgetTapForAnswer,
+                      answerText:
+                          S.of(context).questionLoadedWidgetTapForAnswer,
                       backgrondColor: Colors.grey.shade300,
                     ),
                     onTap: () {
@@ -227,10 +232,12 @@ class SettingsBar extends StatelessWidget {
 }
 
 class AnswerBox extends StatelessWidget {
-  final String text;
+  final String answerText;
+  final String? additionalInfoText;
   final Color? backgrondColor;
   const AnswerBox({
-    required this.text,
+    required this.answerText,
+    this.additionalInfoText,
     this.backgrondColor,
     Key? key,
   }) : super(key: key);
@@ -243,9 +250,24 @@ class AnswerBox extends StatelessWidget {
           color: backgrondColor,
         ),
         margin: const EdgeInsets.all(UiConstantsPadding.regular),
-        padding: const EdgeInsets.all(UiConstantsPadding.large),
-        height: 60,
-        child: AutoSizeText(text));
+        padding: const EdgeInsets.all(UiConstantsPadding.regular),
+        height: 80,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AutoSizeText(answerText),
+              if (additionalInfoText != null) ...[
+                AutoSizeText(
+                  additionalInfoText!,
+                  maxFontSize: UiConstantsFontSize.regular,
+                  minFontSize: UiConstantsFontSize.mini,
+                )
+              ]
+            ],
+          ),
+        ));
   }
 }
 
